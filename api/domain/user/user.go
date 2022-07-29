@@ -17,6 +17,14 @@ type User struct {
 	PasswordHash string `gorm:"not null"`
 }
 
+func (u User) CheckPassword(password string) bool {
+	if u.PasswordHash == "" {
+		return false
+	}
+	err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
+	return err == nil
+}
+
 func NewUser(name string, email string, password string) (*User, error) {
 	salt, _ := strconv.Atoi(os.Getenv("sub_salt_hash"))
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), salt)
