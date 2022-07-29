@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"subscribers/domain/user"
 	"subscribers/web"
+	"subscribers/web/auth"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -50,6 +51,12 @@ func (h *UserHandler) Post(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"id": user.ID})
 }
 
-func NewUserHandler(db *gorm.DB) *UserHandler {
-	return &UserHandler{Db: db}
+func (h *UserHandler) GetInfo(c *gin.Context) {
+	token := c.GetHeader("Authorization")
+	claim, ok := auth.GetClaimFromToken(token)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, web.NewInternalError())
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"Name": claim.Name, "Email": claim.Email})
 }

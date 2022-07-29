@@ -9,6 +9,7 @@ import (
 
 type DI struct {
 	DB                 *gorm.DB
+	TokenHandler       *handlers.TokenHandler
 	UserHandler        *handlers.UserHandler
 	HealthCheckHandler *handlers.HealthCheckHandler
 }
@@ -17,8 +18,9 @@ func NewDI() *DI {
 	di := &DI{}
 	db := database.CreateConnection()
 	di.DB = db
-	di.UserHandler = handlers.NewUserHandler(db)
-	di.HealthCheckHandler = handlers.NewHealthCheckHandler(db)
+	di.TokenHandler = &handlers.TokenHandler{Db: db}
+	di.UserHandler = &handlers.UserHandler{Db: db}
+	di.HealthCheckHandler = &handlers.HealthCheckHandler{Db: db}
 	return di
 }
 
