@@ -12,7 +12,7 @@ export function Layout({ children }: LayoutProps) {
         <>
             <Flex flexDirection="column" h="100vh" justify="space-between" m="0 auto" >
                 <Header />
-                <Flex py="4" px="4" flex="1" height="100%">
+                <Flex py="4" px="4" >
                     <Content>
                         {children}
                     </Content>

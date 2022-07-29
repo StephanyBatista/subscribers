@@ -60,6 +60,7 @@ export function Create() {
         <Layout>
             <Flex
                 bg="gray.800"
+                maxH={700}
                 w="30%"
                 p="8"
                 mx="auto"
@@ -70,7 +71,7 @@ export function Create() {
                     as="form"
                     flexDirection="column"
                     justify="space-between"
-                    h="100%">
+                >
                     <Stack spacing={20}>
                         <Flex justify="space-between" align="center">
                             <Heading fontSize="xl">Criar uma campanha</Heading>
