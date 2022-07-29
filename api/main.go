@@ -2,8 +2,7 @@ package main
 
 import (
 	"log"
-	"subscribers/infra/database"
-	"subscribers/web/handlers"
+	"subscribers/helpers"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -11,14 +10,11 @@ import (
 
 func main() {
 	loadEnvs()
-
-	db := database.CreateConnection()
-
+	di := helpers.NewDI()
 	r := gin.Default()
-	healthcheck := handlers.NewHealthCheckHandler(db)
-	r.GET("/healthcheck", healthcheck.Get)
-	user := handlers.NewUserHandler(db)
-	r.POST("/users", user.Post)
+
+	r.GET("/healthcheck", di.HealthCheckHandler.Get)
+	r.POST("/users", di.UserHandler.Post)
 
 	r.Run(":6004")
 }
