@@ -61,9 +61,10 @@ export function Create() {
             <Flex
                 bg="gray.800"
                 maxH={700}
-                w={["100%", "30%"]}
                 p="8"
-                mx="auto"
+                w="100vw"
+                maxW={600}
+                m="0 auto"
                 flexDirection="column"
                 borderRadius={8}>
                 <Flex
