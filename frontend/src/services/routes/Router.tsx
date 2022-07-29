@@ -12,7 +12,7 @@ export function AppRoute() {
         <Routes>
             <Route path="/" element={<SingIn />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Private><Dashboard /></Private>} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/singin" element={<SingIn />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
