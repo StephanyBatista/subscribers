@@ -5,6 +5,25 @@
       "name": "José Ernandes Batista",
       "email": "batistaje@bol.com.br"
     }
-    
+  ],
+  "campaigns": [
+    {
+      "id": 1,
+      "name": "Envio de email",
+      "description": "Envio de email description",
+      "ative": true
+    },
+    {
+      "name": "Felipe é lindo",
+      "description": "com certeza",
+      "active": false,
+      "id": 2
+    },
+    {
+      "name": "felipe ",
+      "description": "teste",
+      "active": false,
+      "id": 3
+    }
   ]
 }
