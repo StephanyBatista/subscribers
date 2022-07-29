@@ -2,6 +2,7 @@ package database
 
 import (
 	"os"
+	"subscribers/domain/user"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -16,6 +17,7 @@ func CreateConnection() *gorm.DB {
 		DSN:                  connectionString,
 		PreferSimpleProtocol: true,
 	}), &gorm.Config{})
+	db.AutoMigrate(&user.User{})
 
 	if err != nil {
 		panic("failed to connect database")
