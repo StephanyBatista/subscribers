@@ -4,23 +4,37 @@ import (
 	"os"
 	"subscribers/domain/user"
 
+	"github.com/glebarez/sqlite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func CreateConnection() *gorm.DB {
+	db := getDb()
+	db.AutoMigrate(&user.User{})
+
+	return db
+}
+
+func getDb() *gorm.DB {
 	connectionString := os.Getenv("sub_database")
 	if connectionString == "" {
 		panic("enviroment sub_database is not filled")
 	}
-	db, err := gorm.Open(postgres.New(postgres.Config{
-		DSN:                  connectionString,
-		PreferSimpleProtocol: true,
-	}), &gorm.Config{})
-	db.AutoMigrate(&user.User{})
+	var db *gorm.DB
+	var err error
+	if connectionString == "sqlite" {
+		db, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	} else {
+		db, err = gorm.Open(postgres.New(postgres.Config{
+			DSN:                  connectionString,
+			PreferSimpleProtocol: true,
+		}), &gorm.Config{})
+	}
 
 	if err != nil {
 		panic("failed to connect database")
 	}
+
 	return db
 }
