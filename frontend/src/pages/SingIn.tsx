@@ -69,6 +69,7 @@ export function SingIn() {
                                 />
                             </Stack>
                             <Flex  >
+
                                 <Stack spacing={4} w="100%" justify="center" align="center">
                                     <Button w="22rem" bg="blue.900" transition="filter 0.2s" _hover={{ filter: "brightness(0.9)" }} type="submit">Entrar</Button>
                                     <HStack >
