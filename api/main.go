@@ -15,8 +15,10 @@ func main() {
 	db := database.CreateConnection()
 
 	r := gin.Default()
-	healthcheck := handlers.NewHealthCheck(db)
+	healthcheck := handlers.NewHealthCheckHandler(db)
 	r.GET("/healthcheck", healthcheck.Get)
+	user := handlers.NewUserHandler(db)
+	r.POST("/users", user.Post)
 
 	r.Run(":6004")
 }
