@@ -114,7 +114,7 @@ export function Create() {
                             </FormControl>
                         </Stack>
                     </Stack>
-                    <Box>
+                    <Box mt="10">
                         <Button
                             type="submit"
                             transition="filter 0.2s"
