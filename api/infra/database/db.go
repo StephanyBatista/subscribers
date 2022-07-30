@@ -2,7 +2,7 @@ package database
 
 import (
 	"os"
-	"subscribers/domain/user"
+	"subscribers/domain/users"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/driver/postgres"
@@ -11,7 +11,7 @@ import (
 
 func CreateConnection() *gorm.DB {
 	db := getDb()
-	db.AutoMigrate(&user.User{})
+	db.AutoMigrate(&users.User{})
 
 	return db
 }

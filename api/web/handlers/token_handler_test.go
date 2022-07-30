@@ -3,7 +3,7 @@ package handlers_test
 import (
 	"io/ioutil"
 	"net/http"
-	"subscribers/domain/user"
+	"subscribers/domain/users"
 	"subscribers/helpers"
 	"subscribers/web/handlers"
 	"testing"
@@ -41,7 +41,7 @@ func TestTokenPostGenerateJwt(t *testing.T) {
 		Email:    "test1@teste.com.br",
 		Password: "35 million",
 	}
-	user, _ := user.NewUser("test", body.Email, body.Password)
+	user, _ := users.NewUser(users.UserCreationRequest{Name: "Teste", Email: body.Email, Password: body.Password})
 	di.DB.Create(user)
 
 	w := helpers.CreateHTTPTest("POST", "/token", di.TokenHandler.Post, body)

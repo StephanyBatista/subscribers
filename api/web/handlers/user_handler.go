@@ -3,7 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
-	"subscribers/domain/user"
+	"subscribers/domain/users"
 	"subscribers/web"
 	"subscribers/web/auth"
 
@@ -15,36 +15,28 @@ type UserHandler struct {
 	Db *gorm.DB
 }
 
-type UserCreationRequest struct {
-	Name     string `json:"name" validate:"required"`
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required"`
-}
-
 func (h *UserHandler) Post(c *gin.Context) {
-	var body UserCreationRequest
+	var body users.UserCreationRequest
 	c.BindJSON(&body)
-	if !web.Validate(body, c) {
+
+	user, errs := users.NewUser(body)
+	if errs != nil {
+		log.Println(errs)
+		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
 		return
 	}
 
-	var userSaved user.User
-	h.Db.Where(user.User{Email: body.Email}).First(&userSaved)
+	var userSaved users.User
+	h.Db.Where(users.User{Email: body.Email}).First(&userSaved)
 	if !userSaved.IDIsNull() {
 		log.Println(body.Email + " already exist")
 		c.JSON(http.StatusBadRequest, web.NewErrorReponse("Email already saved"))
 		return
 	}
 
-	user, err := user.NewUser(body.Name, body.Email, body.Password)
-	if err != nil {
-		log.Println(err)
-		c.JSON(http.StatusInternalServerError, web.NewInternalError())
-		return
-	}
 	result := h.Db.Create(&user)
 	if result.Error != nil {
-		log.Println(err)
+		log.Println(result.Error)
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
 		return
 	}

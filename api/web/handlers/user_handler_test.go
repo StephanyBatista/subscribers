@@ -3,9 +3,8 @@ package handlers_test
 import (
 	"io/ioutil"
 	"net/http"
-	"subscribers/domain/user"
+	"subscribers/domain/users"
 	"subscribers/helpers"
-	"subscribers/web/handlers"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -24,7 +23,7 @@ func TestValidateFieldsRequiredPost(t *testing.T) {
 }
 
 func TestValidateInvalidEmailPost(t *testing.T) {
-	newUser := handlers.UserCreationRequest{
+	newUser := users.UserCreationRequest{
 		Name:     "Demo",
 		Email:    "invalid",
 		Password: "35 million",
@@ -38,9 +37,9 @@ func TestValidateInvalidEmailPost(t *testing.T) {
 }
 
 func TestValidateEmailAlreadySavedPost(t *testing.T) {
-	userSaved, _ := user.NewUser("Teste", "teste@teste.com.br", "password123")
+	userSaved, _ := users.NewUser(users.UserCreationRequest{Name: "Teste", Email: "teste@teste.com.br", Password: "password123"})
 	di.DB.Create(&userSaved)
-	newUser := handlers.UserCreationRequest{
+	newUser := users.UserCreationRequest{
 		Name:     "Demo",
 		Email:    userSaved.Email,
 		Password: "35 million",
@@ -53,7 +52,7 @@ func TestValidateEmailAlreadySavedPost(t *testing.T) {
 }
 
 func TestSaveNewUserPost(t *testing.T) {
-	newUser := handlers.UserCreationRequest{
+	newUser := users.UserCreationRequest{
 		Name:     "Demo",
 		Email:    "teste1@teste.com",
 		Password: "35 million",

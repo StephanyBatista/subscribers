@@ -16,6 +16,7 @@ func FakeEnvs() {
 }
 
 func CreateHTTPTest(method string, route string, handlerFunc gin.HandlerFunc, obj interface{}) *httptest.ResponseRecorder {
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	if method == "POST" {
 		r.POST(route, handlerFunc)

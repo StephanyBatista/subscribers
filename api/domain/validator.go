@@ -1,18 +1,17 @@
-package web
+package domain
 
 import (
-	"net/http"
+	"errors"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
 
-func Validate(body interface{}, c *gin.Context) bool {
+func Validate(body interface{}) []error {
 
 	validate := validator.New()
 	if err := validate.Struct(body); err != nil {
 		validationErrors := err.(validator.ValidationErrors)
-		errors := make([]string, len(validationErrors))
+		errs := make([]error, len(validationErrors))
 		for index, fieldError := range validationErrors {
 			message := "'" + fieldError.Field() + "'"
 			if fieldError.Tag() == "required" {
@@ -21,10 +20,10 @@ func Validate(body interface{}, c *gin.Context) bool {
 				message += " is invalid"
 			}
 
-			errors[index] = message
+			errs[index] = errors.New(message)
 		}
-		c.JSON(http.StatusBadRequest, NewErrorsReponse(errors))
-		return false
+
+		return errs
 	}
-	return true
+	return nil
 }

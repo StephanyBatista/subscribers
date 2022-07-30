@@ -1,4 +1,4 @@
-package user
+package users
 
 import (
 	"errors"
@@ -24,16 +24,22 @@ func (u User) CheckPassword(password string) bool {
 	return err == nil
 }
 
-func NewUser(name string, email string, password string) (*User, error) {
+func NewUser(request UserCreationRequest) (*User, []error) {
+	errs := domain.Validate(request)
+	if errs != nil {
+		return nil, errs
+	}
+
 	salt, _ := strconv.Atoi(os.Getenv("sub_salt_hash"))
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), salt)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), salt)
 	if err != nil {
-		return nil, errors.New("error to generate the password hash")
+		var errs = []error{errors.New("error to generate password")}
+		return nil, errs
 	}
 	passwordGeneraged := string(bytes)
 	return &User{
-		Name:         name,
-		Email:        email,
+		Name:         request.Name,
+		Email:        request.Email,
 		PasswordHash: passwordGeneraged,
 		Entity:       domain.NewEntity(),
 	}, nil
