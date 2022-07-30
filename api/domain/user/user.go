@@ -4,17 +4,16 @@ import (
 	"errors"
 	"os"
 	"strconv"
-	"time"
+	"subscribers/domain"
 
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
+	*domain.Entity
 	Name         string `gorm:"size:100; not null"`
 	Email        string `gorm:"index;unique;size:100; not null"`
-	PasswordHash string `gorm:"not null"`
+	PasswordHash string `gorm:"not null;size:125"`
 }
 
 func (u User) CheckPassword(password string) bool {
@@ -36,6 +35,6 @@ func NewUser(name string, email string, password string) (*User, error) {
 		Name:         name,
 		Email:        email,
 		PasswordHash: passwordGeneraged,
-		Model:        gorm.Model{CreatedAt: time.Now().UTC(), UpdatedAt: time.Now().UTC()},
+		Entity:       domain.NewEntity(),
 	}, nil
 }

@@ -29,8 +29,8 @@ func (h *UserHandler) Post(c *gin.Context) {
 	}
 
 	var userSaved user.User
-	h.Db.Where(user.User{Email: body.Email}).FirstOrInit(&userSaved)
-	if userSaved.ID > 0 {
+	h.Db.Where(user.User{Email: body.Email}).First(&userSaved)
+	if !userSaved.IDIsNull() {
 		log.Println(body.Email + " already exist")
 		c.JSON(http.StatusBadRequest, web.NewErrorReponse("Email already saved"))
 		return

@@ -29,7 +29,7 @@ func (h *TokenHandler) Post(c *gin.Context) {
 
 	var userSaved user.User
 	h.Db.Where(user.User{Email: body.Email}).FirstOrInit(&userSaved)
-	if userSaved.ID == 0 || !userSaved.CheckPassword(body.Password) {
+	if userSaved.IDIsNull() || !userSaved.CheckPassword(body.Password) {
 		log.Println(body.Email + " not found")
 		c.JSON(http.StatusBadRequest, web.NewErrorReponse("User not found"))
 		return
