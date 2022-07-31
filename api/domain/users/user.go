@@ -24,7 +24,7 @@ func (u User) CheckPassword(password string) bool {
 	return err == nil
 }
 
-func NewUser(request UserCreationRequest) (*User, []error) {
+func NewUser(request CreationRequest) (*User, []error) {
 	errs := domain.Validate(request)
 	if errs != nil {
 		return nil, errs

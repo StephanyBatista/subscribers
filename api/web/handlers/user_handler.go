@@ -16,7 +16,7 @@ type UserHandler struct {
 }
 
 func (h *UserHandler) Post(c *gin.Context) {
-	var body users.UserCreationRequest
+	var body users.CreationRequest
 	c.BindJSON(&body)
 
 	user, errs := users.NewUser(body)
@@ -50,5 +50,5 @@ func (h *UserHandler) GetInfo(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"Name": claim.Name, "Email": claim.Email})
+	c.JSON(http.StatusOK, gin.H{"Name": claim.UserName, "Email": claim.Email})
 }

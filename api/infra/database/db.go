@@ -2,6 +2,7 @@ package database
 
 import (
 	"os"
+	"subscribers/domain/campaigns"
 	"subscribers/domain/users"
 
 	"github.com/glebarez/sqlite"
@@ -12,6 +13,7 @@ import (
 func CreateConnection() *gorm.DB {
 	db := getDb()
 	db.AutoMigrate(&users.User{})
+	db.AutoMigrate(&campaigns.Campaign{})
 
 	return db
 }

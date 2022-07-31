@@ -38,7 +38,7 @@ func (h *TokenHandler) Post(c *gin.Context) {
 		return
 	}
 
-	token, expiresAt, err := auth.GenerateJWT(userSaved.Email, userSaved.Name)
+	token, expiresAt, err := auth.GenerateJWT(userSaved.ID, userSaved.Email, userSaved.Name)
 	if err != nil {
 		log.Println("Error to generate JWT")
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
