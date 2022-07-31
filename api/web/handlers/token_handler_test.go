@@ -3,8 +3,8 @@ package handlers_test
 import (
 	"io/ioutil"
 	"net/http"
-	"subscribers/domain/user"
-	"subscribers/helpers"
+	"subscribers/domain/users"
+	"subscribers/helpers/fake"
 	"subscribers/web/handlers"
 	"testing"
 
@@ -12,8 +12,8 @@ import (
 )
 
 func TestTokenPostValidateFieldsRequired(t *testing.T) {
-	di := helpers.NewFakeDI()
-	w := helpers.CreateHTTPTest("POST", "/token", di.TokenHandler.Post, nil)
+	fake.Build()
+	w := fake.CreateHTTPTest("POST", "/token", nil, "")
 
 	responseData, _ := ioutil.ReadAll(w.Body)
 	responseString := string(responseData)
@@ -22,12 +22,13 @@ func TestTokenPostValidateFieldsRequired(t *testing.T) {
 }
 
 func TestTokenPostUserNotFound(t *testing.T) {
+	fake.Build()
 	body := handlers.LoginRequest{
 		Email:    "test1@teste.com.br",
 		Password: "35 million",
 	}
 
-	w := helpers.CreateHTTPTest("POST", "/token", di.TokenHandler.Post, body)
+	w := fake.CreateHTTPTest("POST", "/token", body, "")
 
 	responseData, _ := ioutil.ReadAll(w.Body)
 	responseString := string(responseData)
@@ -36,15 +37,15 @@ func TestTokenPostUserNotFound(t *testing.T) {
 }
 
 func TestTokenPostGenerateJwt(t *testing.T) {
-	di := helpers.NewFakeDI()
+	fake.Build()
 	body := handlers.LoginRequest{
 		Email:    "test1@teste.com.br",
 		Password: "35 million",
 	}
-	user, _ := user.NewUser("test", body.Email, body.Password)
-	di.DB.Create(user)
+	user, _ := users.NewUser(users.CreationRequest{Name: "Teste", Email: body.Email, Password: body.Password})
+	fake.DB.Create(user)
 
-	w := helpers.CreateHTTPTest("POST", "/token", di.TokenHandler.Post, body)
+	w := fake.CreateHTTPTest("POST", "/token", body, "")
 
 	responseData, _ := ioutil.ReadAll(w.Body)
 	responseString := string(responseData)

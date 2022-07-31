@@ -1,20 +1,19 @@
-package user
+package users
 
 import (
 	"errors"
 	"os"
 	"strconv"
-	"time"
+	"subscribers/domain"
 
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
+	*domain.Entity
 	Name         string `gorm:"size:100; not null"`
 	Email        string `gorm:"index;unique;size:100; not null"`
-	PasswordHash string `gorm:"not null"`
+	PasswordHash string `gorm:"not null;size:125"`
 }
 
 func (u User) CheckPassword(password string) bool {
@@ -25,17 +24,23 @@ func (u User) CheckPassword(password string) bool {
 	return err == nil
 }
 
-func NewUser(name string, email string, password string) (*User, error) {
+func NewUser(request CreationRequest) (*User, []error) {
+	errs := domain.Validate(request)
+	if errs != nil {
+		return nil, errs
+	}
+
 	salt, _ := strconv.Atoi(os.Getenv("sub_salt_hash"))
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), salt)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), salt)
 	if err != nil {
-		return nil, errors.New("error to generate the password hash")
+		var errs = []error{errors.New("error to generate password")}
+		return nil, errs
 	}
 	passwordGeneraged := string(bytes)
 	return &User{
-		Name:         name,
-		Email:        email,
+		Name:         request.Name,
+		Email:        request.Email,
 		PasswordHash: passwordGeneraged,
-		Model:        gorm.Model{CreatedAt: time.Now().UTC(), UpdatedAt: time.Now().UTC()},
+		Entity:       domain.NewEntity(),
 	}, nil
 }

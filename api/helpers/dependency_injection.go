@@ -12,6 +12,7 @@ type DI struct {
 	TokenHandler       *handlers.TokenHandler
 	UserHandler        *handlers.UserHandler
 	HealthCheckHandler *handlers.HealthCheckHandler
+	CampaignHandler    *handlers.CampaignHandler
 }
 
 func NewDI() *DI {
@@ -21,10 +22,6 @@ func NewDI() *DI {
 	di.TokenHandler = &handlers.TokenHandler{Db: db}
 	di.UserHandler = &handlers.UserHandler{Db: db}
 	di.HealthCheckHandler = &handlers.HealthCheckHandler{Db: db}
+	di.CampaignHandler = &handlers.CampaignHandler{Db: db}
 	return di
-}
-
-func NewFakeDI() *DI {
-	FakeEnvs()
-	return NewDI()
 }

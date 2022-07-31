@@ -3,7 +3,8 @@ package handlers
 import (
 	"log"
 	"net/http"
-	"subscribers/domain/user"
+	"subscribers/domain"
+	"subscribers/domain/users"
 	"subscribers/web"
 	"subscribers/web/auth"
 
@@ -23,19 +24,21 @@ type LoginRequest struct {
 func (h *TokenHandler) Post(c *gin.Context) {
 	var body LoginRequest
 	c.BindJSON(&body)
-	if !web.Validate(body, c) {
+	errs := domain.Validate(body)
+	if errs != nil {
+		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
 		return
 	}
 
-	var userSaved user.User
-	h.Db.Where(user.User{Email: body.Email}).FirstOrInit(&userSaved)
-	if userSaved.ID == 0 || !userSaved.CheckPassword(body.Password) {
+	var userSaved users.User
+	h.Db.Where(users.User{Email: body.Email}).FirstOrInit(&userSaved)
+	if userSaved.IDIsNull() || !userSaved.CheckPassword(body.Password) {
 		log.Println(body.Email + " not found")
 		c.JSON(http.StatusBadRequest, web.NewErrorReponse("User not found"))
 		return
 	}
 
-	token, expiresAt, err := auth.GenerateJWT(userSaved.Email, userSaved.Name)
+	token, expiresAt, err := auth.GenerateJWT(userSaved.ID, userSaved.Email, userSaved.Name)
 	if err != nil {
 		log.Println("Error to generate JWT")
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
