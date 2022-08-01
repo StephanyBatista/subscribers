@@ -34,7 +34,7 @@ func TestUserPostValidateInvalidEmail(t *testing.T) {
 	assert.Contains(t, response, "'Email' is invalid")
 }
 
-func TestUserPostValidateWhenEmailIsBeingUse(t *testing.T) {
+func TestUserPostValidateWhenEmailIsBeingUsed(t *testing.T) {
 	fake.Build()
 	userSaved, _ :=
 		users.NewUser(users.CreationRequest{Name: "Teste", Email: "teste@teste.com.br", Password: "password123"})
