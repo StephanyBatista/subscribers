@@ -13,7 +13,7 @@ import (
 
 func TestTokenPostValidateFieldsRequired(t *testing.T) {
 	fake.Build()
-	w := fake.CreateHTTPTest("POST", "/token", nil, "")
+	w := fake.MakeTestHTTP("POST", "/token", nil, "")
 
 	responseData, _ := ioutil.ReadAll(w.Body)
 	responseString := string(responseData)
@@ -28,7 +28,7 @@ func TestTokenPostUserNotFound(t *testing.T) {
 		Password: "35 million",
 	}
 
-	w := fake.CreateHTTPTest("POST", "/token", body, "")
+	w := fake.MakeTestHTTP("POST", "/token", body, "")
 
 	responseData, _ := ioutil.ReadAll(w.Body)
 	responseString := string(responseData)
@@ -45,7 +45,7 @@ func TestTokenPostGenerateJwt(t *testing.T) {
 	user, _ := users.NewUser(users.CreationRequest{Name: "Teste", Email: body.Email, Password: body.Password})
 	fake.DB.Create(user)
 
-	w := fake.CreateHTTPTest("POST", "/token", body, "")
+	w := fake.MakeTestHTTP("POST", "/token", body, "")
 
 	responseData, _ := ioutil.ReadAll(w.Body)
 	responseString := string(responseData)

@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"subscribers/web"
 	"subscribers/web/auth"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,7 @@ func Auth() gin.HandlerFunc {
 		}
 		err := auth.ValidateToken(tokenString)
 		if err != nil {
-			context.JSON(401, gin.H{"error": err.Error()})
+			context.JSON(401, web.NewErrorReponse(err.Error()))
 			context.Abort()
 			return
 		}

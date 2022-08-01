@@ -353,3 +353,4 @@ tmp/
 .env
 *.exe
 db.json
+gorm.db

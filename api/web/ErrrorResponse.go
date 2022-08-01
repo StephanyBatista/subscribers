@@ -1,7 +1,7 @@
 package web
 
 type ErrorResponse struct {
-	Errors []string
+	Errors []string `json:"errors"`
 }
 
 func NewErrorReponse(message string) ErrorResponse {

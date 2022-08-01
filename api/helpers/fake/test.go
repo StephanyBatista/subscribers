@@ -14,7 +14,7 @@ import (
 )
 
 func FakeEnvs() {
-	os.Setenv("sub_database", "sqlite")
+	os.Setenv("sub_database", "sqlite:memory")
 	os.Setenv("sub_salt_hash", "6")
 }
 
@@ -28,7 +28,7 @@ func Build() {
 	DB = DI.DB
 }
 
-func CreateHTTPTest(method string, route string, obj interface{}, token string) *httptest.ResponseRecorder {
+func MakeTestHTTP(method string, route string, obj interface{}, token string) *httptest.ResponseRecorder {
 
 	if DI == nil || DB == nil {
 		panic("Before call method you must call fake.Build")

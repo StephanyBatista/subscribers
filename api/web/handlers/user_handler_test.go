@@ -12,7 +12,7 @@ import (
 
 func TestValidateFieldsRequiredPost(t *testing.T) {
 	fake.Build()
-	w := fake.CreateHTTPTest("POST", "/users", nil, "")
+	w := fake.MakeTestHTTP("POST", "/users", nil, "")
 
 	responseData, _ := ioutil.ReadAll(w.Body)
 	responseString := string(responseData)
@@ -28,7 +28,7 @@ func TestValidateInvalidEmailPost(t *testing.T) {
 		Password: "35 million",
 	}
 
-	w := fake.CreateHTTPTest("POST", "/users", newUser, "")
+	w := fake.MakeTestHTTP("POST", "/users", newUser, "")
 
 	responseData, _ := ioutil.ReadAll(w.Body)
 	responseString := string(responseData)
@@ -44,7 +44,7 @@ func TestValidateEmailAlreadySavedPost(t *testing.T) {
 		Email:    userSaved.Email,
 		Password: "35 million",
 	}
-	w := fake.CreateHTTPTest("POST", "/users", newUser, "")
+	w := fake.MakeTestHTTP("POST", "/users", newUser, "")
 
 	responseData, _ := ioutil.ReadAll(w.Body)
 	responseString := string(responseData)
@@ -59,7 +59,7 @@ func TestSaveNewUserPost(t *testing.T) {
 		Password: "35 million",
 	}
 
-	w := fake.CreateHTTPTest("POST", "/users", newUser, "")
+	w := fake.MakeTestHTTP("POST", "/users", newUser, "")
 
 	assert.Equal(t, http.StatusCreated, w.Result().StatusCode)
 }

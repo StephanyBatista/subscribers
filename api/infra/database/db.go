@@ -20,13 +20,13 @@ func CreateConnection() *gorm.DB {
 
 func getDb() *gorm.DB {
 	connectionString := os.Getenv("sub_database")
-	if connectionString == "" {
-		panic("enviroment sub_database is not filled")
-	}
+
 	var db *gorm.DB
 	var err error
-	if connectionString == "sqlite" {
+	if connectionString == "sqlite:memory" {
 		db, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	} else if connectionString == "sqlite" || connectionString == "" {
+		db, err = gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
 	} else {
 		db, err = gorm.Open(postgres.New(postgres.Config{
 			DSN:                  connectionString,

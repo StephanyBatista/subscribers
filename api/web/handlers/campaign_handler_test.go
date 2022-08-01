@@ -15,7 +15,7 @@ import (
 
 func TestCampaignPostValidateToken(t *testing.T) {
 	fake.Build()
-	w := fake.CreateHTTPTest("POST", "/campaigns", nil, "")
+	w := fake.MakeTestHTTP("POST", "/campaigns", nil, "")
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
@@ -24,7 +24,7 @@ func TestCampaignPostValidateFields(t *testing.T) {
 	fake.Build()
 	token, _, _ := auth.GenerateJWT("xpto", "teste@teste.com.br", "test")
 
-	w := fake.CreateHTTPTest("POST", "/campaigns", nil, token)
+	w := fake.MakeTestHTTP("POST", "/campaigns", nil, token)
 
 	responseData, _ := ioutil.ReadAll(w.Body)
 	responseString := string(responseData)
@@ -37,7 +37,7 @@ func TestCampaignPostSaveNewCampaign(t *testing.T) {
 	token, _, _ := auth.GenerateJWT("xpto", "teste@teste.com.br", "test")
 	body := campaigns.CreationRequest{Name: "teste 1", Active: true}
 
-	w := fake.CreateHTTPTest("POST", "/campaigns", body, token)
+	w := fake.MakeTestHTTP("POST", "/campaigns", body, token)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 }
@@ -50,7 +50,7 @@ func TestCampaignGetCampaignById(t *testing.T) {
 	entity, _ := campaigns.NewCampaign(request, userValue)
 	fake.DB.Create(&entity)
 
-	w := fake.CreateHTTPTest("GET", "/campaigns/"+entity.ID, entity, token)
+	w := fake.MakeTestHTTP("GET", "/campaigns/"+entity.ID, entity, token)
 
 	responseData, _ := ioutil.ReadAll(w.Body)
 	responseString := string(responseData)
@@ -74,7 +74,7 @@ func TestCampaignGetAllCampaignOfUser(t *testing.T) {
 	fake.DB.Create(&entity3)
 	amountOfCampaignsExpected := 2
 
-	w := fake.CreateHTTPTest("GET", "/campaigns", nil, token)
+	w := fake.MakeTestHTTP("GET", "/campaigns", nil, token)
 
 	responseData, _ := ioutil.ReadAll(w.Body)
 	campaignsResult := []campaigns.Campaign{}
