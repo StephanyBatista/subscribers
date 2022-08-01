@@ -1,65 +1,65 @@
 package handlers_test
 
 import (
-	"io/ioutil"
 	"net/http"
-	"subscribers/domain/user"
+	"subscribers/domain/users"
 	"subscribers/helpers"
-	"subscribers/web/handlers"
+	"subscribers/helpers/fake"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var di *helpers.DI = helpers.NewFakeDI()
+func TestUserPostValidateFieldsRequired(t *testing.T) {
+	fake.Build()
 
-func TestValidateFieldsRequiredPost(t *testing.T) {
-	w := helpers.CreateHTTPTest("POST", "/users", di.UserHandler.Post, nil)
+	w := fake.MakeTestHTTP("POST", "/users", nil, "")
 
-	responseData, _ := ioutil.ReadAll(w.Body)
-	responseString := string(responseData)
-	assert.Contains(t, responseString, "'Name' is required")
-	assert.Contains(t, responseString, "'Email' is required")
-	assert.Contains(t, responseString, "'Password' is required")
+	response := helpers.BufferToString(w.Body)
+	assert.Contains(t, response, "'Name' is required")
+	assert.Contains(t, response, "'Email' is required")
+	assert.Contains(t, response, "'Password' is required")
 }
 
-func TestValidateInvalidEmailPost(t *testing.T) {
-	newUser := handlers.UserCreationRequest{
+func TestUserPostValidateInvalidEmail(t *testing.T) {
+	newUser := users.CreationRequest{
 		Name:     "Demo",
 		Email:    "invalid",
 		Password: "35 million",
 	}
 
-	w := helpers.CreateHTTPTest("POST", "/users", di.UserHandler.Post, newUser)
+	w := fake.MakeTestHTTP("POST", "/users", newUser, "")
 
-	responseData, _ := ioutil.ReadAll(w.Body)
-	responseString := string(responseData)
-	assert.Contains(t, responseString, "'Email' is invalid")
+	response := helpers.BufferToString(w.Body)
+	assert.Contains(t, response, "'Email' is invalid")
 }
 
-func TestValidateEmailAlreadySavedPost(t *testing.T) {
-	userSaved, _ := user.NewUser("Teste", "teste@teste.com.br", "password123")
-	di.DB.Create(&userSaved)
-	newUser := handlers.UserCreationRequest{
+func TestUserPostValidateWhenEmailIsBeingUsed(t *testing.T) {
+	fake.Build()
+	userSaved, _ :=
+		users.NewUser(users.CreationRequest{Name: "Teste", Email: "teste@teste.com.br", Password: "password123"})
+	fake.DB.Create(&userSaved)
+	newUser := users.CreationRequest{
 		Name:     "Demo",
 		Email:    userSaved.Email,
 		Password: "35 million",
 	}
-	w := helpers.CreateHTTPTest("POST", "/users", di.UserHandler.Post, newUser)
 
-	responseData, _ := ioutil.ReadAll(w.Body)
-	responseString := string(responseData)
-	assert.Contains(t, responseString, "Email already saved")
+	w := fake.MakeTestHTTP("POST", "/users", newUser, "")
+
+	response := helpers.BufferToString(w.Body)
+	assert.Contains(t, response, "Email already saved")
 }
 
-func TestSaveNewUserPost(t *testing.T) {
-	newUser := handlers.UserCreationRequest{
+func TestUserPostSaveNewUser(t *testing.T) {
+	fake.Build()
+	newUser := users.CreationRequest{
 		Name:     "Demo",
 		Email:    "teste1@teste.com",
 		Password: "35 million",
 	}
 
-	w := helpers.CreateHTTPTest("POST", "/users", di.UserHandler.Post, newUser)
+	w := fake.MakeTestHTTP("POST", "/users", newUser, "")
 
 	assert.Equal(t, http.StatusCreated, w.Result().StatusCode)
 }

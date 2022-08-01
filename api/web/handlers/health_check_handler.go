@@ -20,7 +20,3 @@ func (h *HealthCheckHandler) Get(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"database": database})
 }
-
-func NewHealthCheckHandler(db *gorm.DB) *HealthCheckHandler {
-	return &HealthCheckHandler{Db: db}
-}

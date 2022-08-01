@@ -353,3 +353,6 @@ tmp/
 .env
 *.exe
 db.json
+gorm.db
+go.mod
+go.sum

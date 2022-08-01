@@ -1,7 +1,7 @@
 package web
 
 type ErrorResponse struct {
-	Errors []string
+	Errors []string `json:"errors"`
 }
 
 func NewErrorReponse(message string) ErrorResponse {
@@ -13,9 +13,15 @@ func NewErrorReponse(message string) ErrorResponse {
 	}
 }
 
-func NewErrorsReponse(messages []string) ErrorResponse {
+func NewErrorsReponse(errs []error) ErrorResponse {
+
+	errors := make([]string, len(errs))
+	for index, err := range errs {
+		errors[index] = err.Error()
+	}
+
 	return ErrorResponse{
-		Errors: messages,
+		Errors: errors,
 	}
 }
 

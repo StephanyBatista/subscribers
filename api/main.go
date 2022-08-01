@@ -3,19 +3,15 @@ package main
 import (
 	"log"
 	"subscribers/helpers"
+	"subscribers/web/routers"
 
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
 	loadEnvs()
 	di := helpers.NewDI()
-	r := gin.Default()
-
-	r.GET("/healthcheck", di.HealthCheckHandler.Get)
-	r.POST("/users", di.UserHandler.Post)
-
+	r := routers.CreateRouter(di)
 	r.Run(":6004")
 }
 
