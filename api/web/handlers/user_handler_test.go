@@ -1,27 +1,27 @@
 package handlers_test
 
 import (
-	"io/ioutil"
 	"net/http"
 	"subscribers/domain/users"
+	"subscribers/helpers"
 	"subscribers/helpers/fake"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidateFieldsRequiredPost(t *testing.T) {
+func TestUserPostValidateFieldsRequired(t *testing.T) {
 	fake.Build()
+
 	w := fake.MakeTestHTTP("POST", "/users", nil, "")
 
-	responseData, _ := ioutil.ReadAll(w.Body)
-	responseString := string(responseData)
-	assert.Contains(t, responseString, "'Name' is required")
-	assert.Contains(t, responseString, "'Email' is required")
-	assert.Contains(t, responseString, "'Password' is required")
+	response := helpers.BufferToString(w.Body)
+	assert.Contains(t, response, "'Name' is required")
+	assert.Contains(t, response, "'Email' is required")
+	assert.Contains(t, response, "'Password' is required")
 }
 
-func TestValidateInvalidEmailPost(t *testing.T) {
+func TestUserPostValidateInvalidEmail(t *testing.T) {
 	newUser := users.CreationRequest{
 		Name:     "Demo",
 		Email:    "invalid",
@@ -30,28 +30,28 @@ func TestValidateInvalidEmailPost(t *testing.T) {
 
 	w := fake.MakeTestHTTP("POST", "/users", newUser, "")
 
-	responseData, _ := ioutil.ReadAll(w.Body)
-	responseString := string(responseData)
-	assert.Contains(t, responseString, "'Email' is invalid")
+	response := helpers.BufferToString(w.Body)
+	assert.Contains(t, response, "'Email' is invalid")
 }
 
-func TestValidateEmailAlreadySavedPost(t *testing.T) {
+func TestUserPostValidateWhenEmailIsBeingUse(t *testing.T) {
 	fake.Build()
-	userSaved, _ := users.NewUser(users.CreationRequest{Name: "Teste", Email: "teste@teste.com.br", Password: "password123"})
+	userSaved, _ :=
+		users.NewUser(users.CreationRequest{Name: "Teste", Email: "teste@teste.com.br", Password: "password123"})
 	fake.DB.Create(&userSaved)
 	newUser := users.CreationRequest{
 		Name:     "Demo",
 		Email:    userSaved.Email,
 		Password: "35 million",
 	}
+
 	w := fake.MakeTestHTTP("POST", "/users", newUser, "")
 
-	responseData, _ := ioutil.ReadAll(w.Body)
-	responseString := string(responseData)
-	assert.Contains(t, responseString, "Email already saved")
+	response := helpers.BufferToString(w.Body)
+	assert.Contains(t, response, "Email already saved")
 }
 
-func TestSaveNewUserPost(t *testing.T) {
+func TestUserPostSaveNewUser(t *testing.T) {
 	fake.Build()
 	newUser := users.CreationRequest{
 		Name:     "Demo",

@@ -45,14 +45,14 @@ func (h *CampaignHandler) GetById(c *gin.Context) {
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
 
 	var entity campaigns.Campaign
-	result := h.Db.Where(campaigns.Campaign{Entity: &domain.Entity{ID: id}}).First(&entity)
+	result := h.Db.Where(campaigns.Campaign{Entity: &domain.Entity{ID: id}}).FirstOrInit(&entity)
 	if result.Error != nil {
 		log.Println(result.Error)
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
 		return
 	} else if entity.IDIsNull() || claim.UserId != entity.CreatedBy.Id {
 		log.Println("Campaign not found")
-		c.JSON(http.StatusBadRequest, web.NewErrorReponse("Not found"))
+		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
 		return
 	}
 	c.JSON(http.StatusOK, entity)
@@ -69,7 +69,7 @@ func (h *CampaignHandler) GetAll(c *gin.Context) {
 		return
 	} else if len(entities) == 0 {
 		log.Println("Campaign not found")
-		c.JSON(http.StatusBadRequest, web.NewErrorReponse("Not found"))
+		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
 		return
 	}
 	c.JSON(http.StatusOK, entities)

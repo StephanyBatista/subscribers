@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"subscribers/helpers"
+	"subscribers/web/auth"
 	"subscribers/web/routers"
 
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,16 @@ func Build() {
 	FakeEnvs()
 	DI = helpers.NewDI()
 	DB = DI.DB
+}
+
+func GenerateAnyToken() string {
+	token, _, _ := auth.GenerateJWT("xpto", "teste@teste.com.br", "test")
+	return token
+}
+
+func GenerateTokenWithUserId(userId string) string {
+	token, _, _ := auth.GenerateJWT(userId, "teste@teste.com.br", "test")
+	return token
 }
 
 func MakeTestHTTP(method string, route string, obj interface{}, token string) *httptest.ResponseRecorder {

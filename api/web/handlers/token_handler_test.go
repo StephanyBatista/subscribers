@@ -1,9 +1,9 @@
 package handlers_test
 
 import (
-	"io/ioutil"
 	"net/http"
 	"subscribers/domain/users"
+	"subscribers/helpers"
 	"subscribers/helpers/fake"
 	"subscribers/web/handlers"
 	"testing"
@@ -13,12 +13,12 @@ import (
 
 func TestTokenPostValidateFieldsRequired(t *testing.T) {
 	fake.Build()
+
 	w := fake.MakeTestHTTP("POST", "/token", nil, "")
 
-	responseData, _ := ioutil.ReadAll(w.Body)
-	responseString := string(responseData)
-	assert.Contains(t, responseString, "'Email' is required")
-	assert.Contains(t, responseString, "'Password' is required")
+	response := helpers.BufferToString(w.Body)
+	assert.Contains(t, response, "'Email' is required")
+	assert.Contains(t, response, "'Password' is required")
 }
 
 func TestTokenPostUserNotFound(t *testing.T) {
@@ -30,9 +30,8 @@ func TestTokenPostUserNotFound(t *testing.T) {
 
 	w := fake.MakeTestHTTP("POST", "/token", body, "")
 
-	responseData, _ := ioutil.ReadAll(w.Body)
-	responseString := string(responseData)
-	assert.Contains(t, responseString, "User not found")
+	response := helpers.BufferToString(w.Body)
+	assert.Contains(t, response, "User not found")
 	assert.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
 }
 
@@ -47,9 +46,8 @@ func TestTokenPostGenerateJwt(t *testing.T) {
 
 	w := fake.MakeTestHTTP("POST", "/token", body, "")
 
-	responseData, _ := ioutil.ReadAll(w.Body)
-	responseString := string(responseData)
-	assert.Contains(t, responseString, "token")
-	assert.Contains(t, responseString, "expiresAt")
+	response := helpers.BufferToString(w.Body)
+	assert.Contains(t, response, "token")
+	assert.Contains(t, response, "expiresAt")
 	assert.Equal(t, http.StatusOK, w.Result().StatusCode)
 }
