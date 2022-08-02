@@ -13,8 +13,8 @@ func CreateRouter(di *helpers.DI) *gin.Engine {
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:  []string{"*"},
 		AllowMethods:  []string{"*"},
-		AllowHeaders:  []string{"Origin"},
-		ExposeHeaders: []string{"Content-Length"},
+		AllowHeaders:  []string{"*"},
+		//ExposeHeaders: []string{"Content-Length"},
 	}))
 	r.GET("/healthcheck", di.HealthCheckHandler.Get)
 	r.POST("/token", di.TokenHandler.Post)
@@ -26,5 +26,6 @@ func CreateRouter(di *helpers.DI) *gin.Engine {
 		secured.GET("/campaigns/:id", di.CampaignHandler.GetById)
 		secured.GET("/campaigns", di.CampaignHandler.GetAll)
 	}
+	
 	return r
 }

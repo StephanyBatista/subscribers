@@ -1,8 +1,10 @@
-import { Link, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Flex, Box, Avatar, Text } from "@chakra-ui/react";
+import { Link, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Flex, Box, Avatar, Text, Button } from "@chakra-ui/react";
 import { Link as ReactLink } from 'react-router-dom';
 
 import { FiPlus } from "react-icons/fi";
+import { useAuth } from "../../../hooks/useAuth";
 export function Navbar() {
+    const { user, onSigOut } = useAuth();
     return (
         <Flex
             mr="4"
@@ -46,10 +48,18 @@ export function Navbar() {
 
 
             <Flex align="center">
-                <Avatar
-                    size="md"
-                    name="Felipe Almeida Batista"
-                />
+                <Popover
+                    placement="bottom-end">
+                    <PopoverTrigger>
+                        <Avatar
+                            size="md"
+                            name={user?.name}
+                        />
+                    </PopoverTrigger>
+                    <PopoverContent color="gray.800" w="200px">
+                        <Button type="button" onClick={onSigOut} variant="unstyled">Sair</Button>
+                    </PopoverContent>
+                </Popover>
             </Flex>
         </Flex>
     )
