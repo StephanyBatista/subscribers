@@ -30,6 +30,8 @@ export function Register() {
     const { register, handleSubmit, reset, formState } = useForm({
         resolver: yupResolver(validation)
     });
+
+
     const { errors, isSubmitting } = formState;
     const toast = useToast();
     const navigate = useNavigate();
@@ -44,6 +46,7 @@ export function Register() {
             email: values.email,
             password: values.password
         });
+        console.log(response)
         if (response.status === 201) {
             toast({
                 description: "Cadastro realizado com sucesso!",
