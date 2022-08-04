@@ -16,9 +16,9 @@ func (e *Entity) IDIsNull() bool {
 	return e == nil || e.ID == ""
 }
 
-func NewEntity() *Entity {
+func NewEntity() Entity {
 
-	return &Entity{
+	return Entity{
 		ID:        xid.New().String(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
