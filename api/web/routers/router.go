@@ -13,6 +13,7 @@ func CreateRouter(di *helpers.DI) *gin.Engine {
 	r.GET("/healthcheck", di.HealthCheckHandler.Get)
 	r.POST("/token", di.TokenHandler.Post)
 	r.POST("/users", di.UserHandler.Post)
+	r.POST("/clients", di.ClientHandler.Post)
 	secured := r.Group("").Use(middlewares.Auth())
 	{
 		secured.GET("/users/info", di.UserHandler.GetInfo)

@@ -13,6 +13,7 @@ type DI struct {
 	UserHandler        *handlers.UserHandler
 	HealthCheckHandler *handlers.HealthCheckHandler
 	CampaignHandler    *handlers.CampaignHandler
+	ClientHandler      *handlers.ClientHandler
 }
 
 func NewDI() *DI {
@@ -23,5 +24,6 @@ func NewDI() *DI {
 	di.UserHandler = &handlers.UserHandler{Db: db}
 	di.HealthCheckHandler = &handlers.HealthCheckHandler{Db: db}
 	di.CampaignHandler = &handlers.CampaignHandler{Db: db}
+	di.ClientHandler = &handlers.ClientHandler{Db: db}
 	return di
 }
