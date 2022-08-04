@@ -4,19 +4,32 @@ import { Link as ReactLink } from "react-router-dom";
 import { Layout } from "../../components/templates/Layout";
 import { api } from "../../services/apiClient";
 
+interface UserCreated {
+    Id: string;
+    Name: string;
+}
+
 interface CampaignsData {
-    id: number;
-    name: string;
-    createdOn: string;
+    Active: boolean;
+    CreatedAt: string;
+    CreatedBy: UserCreated;
+    Description: string;
+    ID: string;
+    Name: string;
 }
 
 export function Campaigns() {
     const [campaigns, setCampaigns] = useState<CampaignsData[]>([]);
 
     const getAllCampaigns = useCallback(async () => {
-        const response = await api.get('/campaigns/');
+        const response = await api.get('/campaigns').then((response) => {
+            console.log(response)
+            setCampaigns(response.data);
+        }).catch((error) => {
+            console.log('rttot ', error)
+        });
 
-        console.log(response.data.flat());
+
     }, []);
 
     useEffect(() => {
@@ -65,10 +78,15 @@ export function Campaigns() {
                             </Thead>
                             <Tbody>
                                 {campaigns.map(campaign => (
-                                    <Tr key={campaign.id}>
-                                        <Td>1</Td>
-                                        <Td>Lindo</Td>
-                                        <Td>Ativo</Td>
+                                    <Tr key={campaign.ID}>
+                                        <Td>{campaign.ID}</Td>
+                                        <Td>{campaign.Name}</Td>
+                                        {campaign.Active ? (
+                                            <Td>Ativo</Td>
+                                        ) : (
+                                            <Td>Desativado</Td>
+                                        )}
+
                                     </Tr>
                                 ))}
                             </Tbody>
