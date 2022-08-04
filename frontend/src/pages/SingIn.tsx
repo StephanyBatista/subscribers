@@ -1,10 +1,11 @@
-import { Box, Button, Flex, Grid, GridItem, Heading, Stack, Text, Link, HStack } from "@chakra-ui/react";
-import { Link as ReactLink } from 'react-router-dom';
+import { Box, Button, Flex, Grid, GridItem, Heading, Stack, Text, Link, HStack, useToast } from "@chakra-ui/react";
+import { Link as ReactLink, useNavigate } from 'react-router-dom';
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Input } from "../components/utils/Input";
 import { useAuth } from "../hooks/useAuth";
+import { useEffect } from "react";
 
 const validation = Yup.object().shape({
     email: Yup.string().email().required('E-mail é obrigatório'),
@@ -20,10 +21,31 @@ export function SingIn() {
     const { register, handleSubmit, reset, formState } = useForm({
         resolver: yupResolver(validation)
     });
+    const navigate = useNavigate();
     const { errors, isSubmitting } = formState;
+    const { isAuthenticated } = useAuth();
+    const toast = useToast();
+
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/dashboard')
+        }
+    }, [isAuthenticated])
+
 
     const onHandleSubmit: SubmitHandler<FormProps | FieldValues> = async (values) => {
-        await onLogin({ email: values.email, password: values.password });
+        const response = await onLogin({ email: values.email, password: values.password }).catch((errors) => {
+            if (errors.response?.status === 403) {
+                toast({
+                    description: 'Usuário ou senha estão inválidos',
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: true
+                })
+            }
+        });
+        console.log(response);
     }
 
     return (

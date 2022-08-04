@@ -15,7 +15,7 @@ export function AppRoute() {
             <Route path="/" element={<SingIn />} />
             <Route path="register" element={<Register />} />
             <Route path="singin" element={<SingIn />} />
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="dashboard" element={<Private><Dashboard /></Private>} />
             <Route path="campaigns" >
                 <Route path="create" element={<Create />} />
                 <Route index element={<Campaigns />} />

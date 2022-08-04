@@ -5,6 +5,9 @@ import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Input } from "../components/utils/Input";
 import { api } from "../services/apiClient";
+import axios from "axios";
+import { useAuth } from "../hooks/useAuth";
+import { useEffect } from "react";
 
 interface FormProps {
     email: string;
@@ -30,21 +33,54 @@ export function Register() {
     const { register, handleSubmit, reset, formState } = useForm({
         resolver: yupResolver(validation)
     });
+
+
     const { errors, isSubmitting } = formState;
     const toast = useToast();
     const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/dashboard');
+            toast({
+                description: 'Você já esta autenticado',
+                status: 'info',
+                duration: 5000,
+                isClosable: true
+            })
+        }
+
+    }, [isAuthenticated])
 
     const onHandleSubmit: SubmitHandler<FormProps | FieldValues> = async (values) => {
+
         const formData = new FormData();
         formData.append('name', values.name);
         formData.append('email', values.email);
         formData.append('password', values.password);
-        const response = await api.post('/users/', {
-            name: values.name,
-            email: values.email,
-            password: values.password
-        });
-        if (response.status === 201) {
+
+        const response = await api.post('/users',
+            {
+                name: values.name,
+                email: values.email,
+                password: values.password
+            }
+
+        ).catch((errors) => {
+            console.log(errors)
+            if (errors?.response?.status === 400 && errors?.response?.data.errors.length >= 1) {
+                toast({
+                    description: errors?.response?.data.errors[0],
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: true
+                });
+            }
+        })
+
+
+        if (response?.status === 201) {
             toast({
                 description: "Cadastro realizado com sucesso!",
                 status: 'success',
@@ -52,9 +88,6 @@ export function Register() {
                 isClosable: true
             });
             navigate('/');
-        } else {
-            throw new Error("Erro ao salvar informações");
-
         }
     }
     return (

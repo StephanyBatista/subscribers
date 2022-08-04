@@ -30,16 +30,12 @@ export function Create() {
     const navigate = useNavigate();
 
     const onHandleSubmit: SubmitHandler<FormProps | FieldValues> = async (values) => {
-        const formData = new FormData();
-        formData.append('name', values.name);
-        formData.append('description', values.description);
-        formData.append('active', values.active);
 
         console.log(values)
-        const response = await api.post('/campaigns/', {
+        const response = await api.post('/campaigns', {
             name: values.name,
             description: values.description,
-            active: values.active
+            active: true
         });
         if (response.status === 201) {
             toast({
@@ -61,9 +57,10 @@ export function Create() {
             <Flex
                 bg="gray.800"
                 maxH={700}
-                w={["100%", "30%"]}
                 p="8"
-                mx="auto"
+                w="100vw"
+                maxW={600}
+                m="0 auto"
                 flexDirection="column"
                 borderRadius={8}>
                 <Flex
@@ -95,24 +92,7 @@ export function Create() {
                                 label="Descrição"
                                 error={errors.description}
                             />
-                            <FormControl>
-                                <FormLabel>Ativar campanha</FormLabel>
-                                <Switch
-                                    {...register('active')}
-                                />
-                                {errors.active && (
-                                    <Alert
-                                        bg="transparent"
-                                        status="error"
-                                    >
-                                        <AlertIcon />
-                                        <AlertDescription>
-                                            {/* @ts-ignore */}
-                                            {errors.active.message}
-                                        </AlertDescription>
-                                    </Alert>
-                                )}
-                            </FormControl>
+
                         </Stack>
                     </Stack>
                     <Box mt="10">

@@ -50,5 +50,5 @@ func (h *UserHandler) GetInfo(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"Name": claim.UserName, "Email": claim.Email})
+	c.JSON(http.StatusOK, gin.H{"name": claim.UserName, "email": claim.Email})
 }

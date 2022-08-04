@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
         <BrowserRouter>
             <AuthProvider>
-                <ChakraProvider theme={theme}>
+                <ChakraProvider theme={theme} resetCSS>
                     <AppRoute />
                 </ChakraProvider>
             </AuthProvider>
