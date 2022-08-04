@@ -52,7 +52,7 @@ func TestClientPostSaveNewClient(t *testing.T) {
 
 	w := fake.MakeTestHTTP("POST", "/clients", body, "")
 
-	fake.DB.Where(campaigns.Campaign{Entity: &domain.Entity{ID: campaign.ID}}).Preload("Clients").First(&campaign)
+	fake.DB.Where(campaigns.Campaign{Entity: domain.Entity{ID: campaign.ID}}).Preload("Clients").First(&campaign)
 	assert.True(t, campaign.HasClient(body.Email))
 	assert.Equal(t, http.StatusCreated, w.Code)
 }
@@ -72,7 +72,7 @@ func TestClientPostNotSaveTheSameClientOnCampaign(t *testing.T) {
 	fake.MakeTestHTTP("POST", "/clients", body, "")
 	fake.MakeTestHTTP("POST", "/clients", body, "")
 
-	fake.DB.Where(campaigns.Campaign{Entity: &domain.Entity{ID: campaign.ID}}).Preload("Clients").First(&campaign)
+	fake.DB.Where(campaigns.Campaign{Entity: domain.Entity{ID: campaign.ID}}).Preload("Clients").First(&campaign)
 	assert.True(t, len(campaign.Clients) == 1)
 
 }

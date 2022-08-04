@@ -6,7 +6,7 @@ import (
 )
 
 type Campaign struct {
-	*domain.Entity
+	domain.Entity
 	Name        string            `gorm:"size:100; not null"`
 	Description string            `gorm:"size:250"`
 	Active      bool              `gorm:"not null"`

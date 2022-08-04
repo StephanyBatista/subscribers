@@ -3,11 +3,11 @@ package clients
 import "subscribers/domain"
 
 type Client struct {
-	*domain.Entity
-	Name      string            `gorm:"not null;size:100;"`
-	Email     string            `gorm:"not null;size:100;"`
-	Active    bool              `gorm:"not null"`
-	CreatedBy *domain.UserValue `gorm:"embedded;embeddedPrefix:createdby_"`
+	domain.Entity
+	Name      string           `gorm:"not null;size:100;"`
+	Email     string           `gorm:"not null;size:100;"`
+	Active    bool             `gorm:"not null"`
+	CreatedBy domain.UserValue `gorm:"embedded;embeddedPrefix:createdby_"`
 }
 
 func NewClient(request CreationRequest, user *domain.UserValue) (*Client, []error) {
@@ -16,15 +16,14 @@ func NewClient(request CreationRequest, user *domain.UserValue) (*Client, []erro
 		return nil, errs
 	}
 	client := &Client{
-		Name:      request.Name,
-		Email:     request.Email,
-		Active:    true,
-		Entity:    domain.NewEntity(),
-		CreatedBy: nil,
+		Name:   request.Name,
+		Email:  request.Email,
+		Active: true,
+		Entity: domain.NewEntity(),
 	}
 
 	if user != nil {
-		client.CreatedBy = user
+		client.CreatedBy = *user
 	}
 
 	return client, nil

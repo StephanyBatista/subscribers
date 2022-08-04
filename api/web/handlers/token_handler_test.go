@@ -32,7 +32,7 @@ func TestTokenPostUserNotFound(t *testing.T) {
 
 	response := helpers.BufferToString(w.Body)
 	assert.Contains(t, response, "User not found")
-	assert.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
+	assert.Equal(t, http.StatusForbidden, w.Result().StatusCode)
 }
 
 func TestTokenPostGenerateJwt(t *testing.T) {

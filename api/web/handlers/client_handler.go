@@ -37,7 +37,7 @@ func (h *ClientHandler) Post(c *gin.Context) {
 	}
 
 	var campaign campaigns.Campaign
-	result := h.Db.Where(campaigns.Campaign{Entity: &domain.Entity{ID: body.CampaignId}}).Preload("Clients").FirstOrInit(&campaign)
+	result := h.Db.Where(campaigns.Campaign{Entity: domain.Entity{ID: body.CampaignId}}).Preload("Clients").FirstOrInit(&campaign)
 	if result.RowsAffected == 0 {
 		c.JSON(http.StatusNotFound, web.NewErrorReponse("Campaign not found"))
 		return

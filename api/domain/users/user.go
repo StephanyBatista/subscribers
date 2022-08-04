@@ -10,7 +10,7 @@ import (
 )
 
 type User struct {
-	*domain.Entity
+	domain.Entity
 	Name         string `gorm:"size:100; not null"`
 	Email        string `gorm:"index;unique;size:100; not null"`
 	PasswordHash string `gorm:"not null;size:125"`
