@@ -4,10 +4,10 @@ import "subscribers/domain"
 
 type Client struct {
 	domain.Entity
-	Name      string           `gorm:"not null;size:100;"`
-	Email     string           `gorm:"not null;size:100;"`
-	Active    bool             `gorm:"not null"`
-	CreatedBy domain.UserValue `gorm:"embedded;embeddedPrefix:createdby_"`
+	Name      string           `json:"name" gorm:"not null;size:100;"`
+	Email     string           `json:"email" gorm:"not null;size:100;"`
+	Active    bool             `json:"active" gorm:"not null"`
+	CreatedBy domain.UserValue `json:"createdBy" gorm:"embedded;embeddedPrefix:createdby_"`
 }
 
 func NewClient(request CreationRequest, user *domain.UserValue) (*Client, []error) {

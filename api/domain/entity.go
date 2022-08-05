@@ -7,9 +7,9 @@ import (
 )
 
 type Entity struct {
-	ID        string    `gorm:"primaryKey;size:25;"`
-	CreatedAt time.Time `gorm:"not null"`
-	UpdatedAt time.Time `gorm:"not null"`
+	ID        string    `json:"id" gorm:"primaryKey;size:25;"`
+	CreatedAt time.Time `json:"createdAt" gorm:"not null"`
+	UpdatedAt time.Time `json:"updatedAt" gorm:"not null"`
 }
 
 func (e *Entity) IDIsNull() bool {

@@ -45,7 +45,7 @@ func (h *CampaignHandler) GetById(c *gin.Context) {
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
 
 	var entity campaigns.Campaign
-	result := h.Db.Where(campaigns.Campaign{Entity: domain.Entity{ID: id}}).FirstOrInit(&entity)
+	result := h.Db.Where(campaigns.Campaign{Entity: domain.Entity{ID: id}}).Preload("Clients").FirstOrInit(&entity)
 	if result.Error != nil {
 		log.Println(result.Error)
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())

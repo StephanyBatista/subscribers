@@ -7,11 +7,11 @@ import (
 
 type Campaign struct {
 	domain.Entity
-	Name        string            `gorm:"size:100; not null"`
-	Description string            `gorm:"size:250"`
-	Active      bool              `gorm:"not null"`
-	CreatedBy   domain.UserValue  `gorm:"embedded;embeddedPrefix:createdby_"`
-	Clients     []*clients.Client `gorm:"many2many:campaign_clients;"`
+	Name        string            `json:"name" gorm:"size:100; not null"`
+	Description string            `json:"description" gorm:"size:250"`
+	Active      bool              `json:"active" gorm:"not null"`
+	CreatedBy   domain.UserValue  `json:"createdBy" gorm:"embedded;embeddedPrefix:createdby_"`
+	Clients     []*clients.Client `json:"clients" gorm:"many2many:campaign_clients;"`
 }
 
 func (c *Campaign) HasClient(email string) bool {
