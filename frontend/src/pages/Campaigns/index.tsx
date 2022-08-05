@@ -193,7 +193,7 @@ export function Campaigns() {
                                                     bg="blue.900"
                                                     _hover={{ filter: "brightness(0.9)" }}
                                                 >
-                                                    <Icon as={BiPencil} />
+                                                    <Icon as={BiPencil} fontSize="18" />
                                                 </Button>
                                             </Link>
                                         </Td>
