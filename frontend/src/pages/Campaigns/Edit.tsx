@@ -1,4 +1,4 @@
-import { Box, Link, Button, Flex, Heading, HStack, List, ListItem, Stack, Tab, Table, TabList, TabPanel, TabPanels, Tabs, Th, Thead, Tr, useDisclosure, useToast, Icon } from "@chakra-ui/react";
+import { Box, Link, Button, Flex, Heading, HStack, List, ListItem, Stack, Tab, Table, TabList, TabPanel, TabPanels, Tabs, Th, Thead, Tr, useDisclosure, useToast, Icon, Tbody, Td } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, Link as ReactLink } from "react-router-dom";
 import { Layout } from "../../components/templates/Layout";
@@ -8,7 +8,7 @@ import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { ClientModal } from "../../components/campaigns/ClientModal";
-import { BiArrowBack } from "react-icons/bi";
+import { BiArrowBack, BiPencil } from "react-icons/bi";
 
 
 interface FormProps {
@@ -22,13 +22,23 @@ interface CreatedBy {
     Name: string;
 }
 
+interface ClientData {
+    active: boolean;
+    createdAt: string;
+    createdBy: CreatedBy;
+    email: string;
+    id: string;
+    name: string;
+}
+
 interface CampaignData {
-    Active: boolean;
-    CreatedAt: string;
-    CreatedBy: CreatedBy;
-    Description: string;
-    ID: string;
-    Name: string;
+    active: boolean;
+    createdAt: string;
+    createdBy: CreatedBy;
+    description: string;
+    id: string;
+    name: string;
+    clients: ClientData[];
 
 }
 
@@ -42,9 +52,9 @@ const validation = Yup.object().shape({
 
 export function Edit() {
     const [campaign, SetCampaign] = useState({} as CampaignData);
+    const [client, setClient] = useState({} as ClientData);
     const [updateState, setUpdateState] = useState(false);
     const { campaignId } = useParams();
-
     const { register, handleSubmit, reset, formState } = useForm({
         resolver: yupResolver(validation)
     });
@@ -53,7 +63,10 @@ export function Edit() {
     const navigate = useNavigate();
     const { isOpen, onOpen, onClose } = useDisclosure()
 
-
+    const handleResetClient = () => {
+        setClient({} as ClientData);
+        console.log(client)
+    }
     const handleUpdateState = () => {
         setUpdateState(!updateState);
     }
@@ -132,11 +145,31 @@ export function Edit() {
                         <Thead>
                             <Tr>
                                 <Th w="8">#</Th>
-                                <Th>Nome</Th>
+                                <Th >Nome</Th>
                                 <Th>E-mail</Th>
-                                <Th></Th>
+                                <Th w="8"></Th>
                             </Tr>
                         </Thead>
+                        <Tbody>
+                            {campaign.clients?.map(client => (
+                                <Tr key={client.id}>
+                                    <Td>{client.id}</Td>
+                                    <Td>{client.name}</Td>
+                                    <Td>{client.email}</Td>
+                                    <Td>
+                                        <Button
+                                            type="button"
+                                            onClick={() => { onOpen(); setClient(client); }}
+                                            transition="filter 0.2s"
+                                            bg="blue.900"
+                                            _hover={{ filter: "brightness(0.9)" }}
+                                        >
+                                            <Icon as={BiPencil} />
+                                        </Button>
+                                    </Td>
+                                </Tr>
+                            ))}
+                        </Tbody>
                     </Table>
                 </Flex>
                 {/* <Tabs variant="unstyled">
@@ -160,8 +193,10 @@ export function Edit() {
             </Flex>
             <ClientModal
                 isOpen={isOpen}
+                isUpdating={!!client.id}
+                client={client}
                 campaignId={campaignId}
-                onClose={onClose}
+                onClose={() => { onClose(); handleResetClient() }}
                 onUpdateState={handleUpdateState}
             />
         </Layout>

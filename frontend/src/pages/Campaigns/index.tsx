@@ -9,17 +9,17 @@ import { BiPencil } from "react-icons/bi";
 
 
 interface UserCreated {
-    Id: string;
-    Name: string;
+    id: string;
+    name: string;
 }
 
 interface CampaignsData {
-    Active: boolean;
-    CreatedAt: string;
-    CreatedBy: UserCreated;
-    Description: string;
-    ID: string;
-    Name: string;
+    active: boolean;
+    createdAt: string;
+    createdBy: UserCreated;
+    description: string;
+    id: string;
+    name: string;
 }
 
 export function Campaigns() {
@@ -146,14 +146,14 @@ export function Campaigns() {
                             </Thead>
                             <Tbody>
                                 {campaigns.map(campaign => (
-                                    <Tr key={campaign.ID} >
-                                        <Td>{campaign.ID}</Td>
-                                        <Td>{campaign.Name}</Td>
-                                        {campaign.Active ? (
+                                    <Tr key={campaign.id} >
+                                        <Td>{campaign.id}</Td>
+                                        <Td>{campaign.name}</Td>
+                                        {campaign.active ? (
                                             <Td>
                                                 <Box
-                                                    px="1"
-                                                    p="1"
+                                                    px="2"
+                                                    p="2"
                                                     w="70px"
                                                     fontSize="0.825rem"
                                                     textAlign="center"
@@ -168,15 +168,15 @@ export function Campaigns() {
                                         ) : (
                                             <Td >
                                                 <Box
-                                                    px="1"
-                                                    p="1"
-                                                    w="70px"
+                                                    px="2"
+                                                    p="2"
+                                                    w="100px"
                                                     fontSize="0.825rem"
                                                     textAlign="center"
                                                     borderRadius="4"
                                                     color="gray.50"
                                                     fontWeight="bold"
-                                                    bg="red.200">
+                                                    bg="red.600">
                                                     Desativado
                                                 </Box>
                                             </Td>
@@ -185,7 +185,7 @@ export function Campaigns() {
                                             <Link
                                                 _hover={{ textDecoration: 'none' }}
                                                 as={ReactLink}
-                                                to={`/campaigns/edit/${campaign.ID}`}
+                                                to={`/campaigns/edit/${campaign.id}`}
                                             >
                                                 <Button
                                                     type="button"
