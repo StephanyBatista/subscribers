@@ -18,17 +18,17 @@ type CampaignHandler struct {
 }
 
 func (h *CampaignHandler) Post(c *gin.Context) {
-	var body campaigns.CreationRequest
+	var body CampaignRequest
 	c.BindJSON(&body)
-
-	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
-
-	entity, errs := campaigns.NewCampaign(body, domain.UserValue{Id: claim.UserId, Name: claim.UserName})
+	errs := domain.Validate(body)
 	if errs != nil {
-		log.Println(errs)
 		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
 		return
 	}
+
+	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
+
+	entity := campaigns.NewCampaign(body.Name, body.From, body.Body, claim.UserId, claim.UserName)
 
 	result := h.Db.Create(&entity)
 	if result.Error != nil {
@@ -45,7 +45,7 @@ func (h *CampaignHandler) GetById(c *gin.Context) {
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
 
 	var entity campaigns.Campaign
-	result := h.Db.Where(campaigns.Campaign{Entity: domain.Entity{ID: id}}).Preload("Clients").FirstOrInit(&entity)
+	result := h.Db.Where(campaigns.Campaign{Entity: domain.Entity{ID: id}}).FirstOrInit(&entity)
 	if result.Error != nil {
 		log.Println(result.Error)
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())

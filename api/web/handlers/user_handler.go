@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"subscribers/domain"
 	"subscribers/domain/users"
 	"subscribers/web"
 	"subscribers/web/auth"
@@ -16,13 +17,19 @@ type UserHandler struct {
 }
 
 func (h *UserHandler) Post(c *gin.Context) {
-	var body users.CreationRequest
+	var body UserRequest
 	c.BindJSON(&body)
-
-	user, errs := users.NewUser(body)
+	errs := domain.Validate(body)
 	if errs != nil {
 		log.Println(errs)
 		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
+		return
+	}
+
+	user, err := users.NewUser(body.Name, body.Email, body.Password)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, web.NewErrorReponse(err.Error()))
 		return
 	}
 

@@ -24,22 +24,16 @@ func (u User) CheckPassword(password string) bool {
 	return err == nil
 }
 
-func NewUser(request CreationRequest) (*User, []error) {
-	errs := domain.Validate(request)
-	if errs != nil {
-		return nil, errs
-	}
-
+func NewUser(name, email, password string) (*User, error) {
 	salt, _ := strconv.Atoi(os.Getenv("sub_salt_hash"))
-	bytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), salt)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), salt)
 	if err != nil {
-		var errs = []error{errors.New("error to generate password")}
-		return nil, errs
+		return nil, errors.New("error to generate password")
 	}
 	passwordGeneraged := string(bytes)
 	return &User{
-		Name:         request.Name,
-		Email:        request.Email,
+		Name:         name,
+		Email:        email,
 		PasswordHash: passwordGeneraged,
 		Entity:       domain.NewEntity(),
 	}, nil

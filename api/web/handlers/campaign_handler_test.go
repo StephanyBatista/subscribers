@@ -2,14 +2,20 @@ package handlers_test
 
 import (
 	"net/http"
-	"subscribers/domain"
 	"subscribers/domain/campaigns"
 	"subscribers/helpers"
 	"subscribers/helpers/fake"
+	"subscribers/web/handlers"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func createNewCampaign(name, from, body, userId string) campaigns.Campaign {
+	entity := campaigns.NewCampaign(name, from, body, userId, "test")
+	fake.DB.Create(&entity)
+	return *entity
+}
 
 func TestCampaignPostValidateToken(t *testing.T) {
 	fake.Build()
@@ -26,12 +32,13 @@ func TestCampaignPostValidateFields(t *testing.T) {
 
 	response := helpers.BufferToString(w.Body)
 	assert.Contains(t, response, "'Name' is required")
-	assert.Contains(t, response, "'Active' is required")
+	assert.Contains(t, response, "'From' is required")
+	assert.Contains(t, response, "'Body' is required")
 }
 
 func TestCampaignPostSaveNewCampaign(t *testing.T) {
 	fake.Build()
-	body := campaigns.CreationRequest{Name: "teste 1", Active: true}
+	body := handlers.CampaignRequest{Name: "teste 1", From: "teste@teste.com.br", Body: "Teste"}
 
 	w := fake.MakeTestHTTP("POST", "/campaigns", body, fake.GenerateAnyToken())
 
@@ -40,16 +47,15 @@ func TestCampaignPostSaveNewCampaign(t *testing.T) {
 
 func TestCampaignGetCampaignById(t *testing.T) {
 	fake.Build()
-	userValue := domain.UserValue{Id: "xpto", Name: "test"}
-	request := campaigns.CreationRequest{Name: "teste 1", Description: "AAx tere", Active: true}
-	entity, _ := campaigns.NewCampaign(request, userValue)
+	entity := createNewCampaign("teste 1", "teste@teste.com.br", "Teste", "xpto")
 	fake.DB.Create(&entity)
 
-	w := fake.MakeTestHTTP("GET", "/campaigns/"+entity.ID, entity, fake.GenerateTokenWithUserId(userValue.Id))
+	w := fake.MakeTestHTTP("GET", "/campaigns/"+entity.ID, entity, fake.GenerateTokenWithUserId("xpto"))
 
 	response := helpers.BufferToString(w.Body)
-	assert.Contains(t, response, request.Name)
-	assert.Contains(t, response, request.Description)
+	assert.Contains(t, response, entity.Name)
+	assert.Contains(t, response, entity.From)
+	assert.Contains(t, response, entity.Body)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
@@ -65,19 +71,12 @@ func TestCampaignGetByIdNotFound(t *testing.T) {
 
 func TestCampaignGetAllCampaignOfUser(t *testing.T) {
 	fake.Build()
-	userValue := domain.UserValue{Id: "xpto", Name: "test"}
-	request1 := campaigns.CreationRequest{Name: "teste 1", Description: "AAx tere", Active: true}
-	entity1, _ := campaigns.NewCampaign(request1, userValue)
-	fake.DB.Create(&entity1)
-	request2 := campaigns.CreationRequest{Name: "teste 2", Description: "AAx tere", Active: true}
-	entity2, _ := campaigns.NewCampaign(request2, userValue)
-	fake.DB.Create(&entity2)
-	requestOfOtherUser := campaigns.CreationRequest{Name: "teste 2", Description: "AAx tere", Active: true}
-	entityOfAnotherUser, _ := campaigns.NewCampaign(requestOfOtherUser, domain.UserValue{Id: "Fs156", Name: "outher user"})
-	fake.DB.Create(&entityOfAnotherUser)
+	createNewCampaign("teste 1", "teste@teste.com.br", "Teste", "user_current")
+	createNewCampaign("teste 2", "teste@teste.com.br", "Teste", "user_current")
+	createNewCampaign("teste 3", "teste@teste.com.br", "Teste", "another_user_current")
 	amountOfCampaignsExpectedOfUser := 2
 
-	w := fake.MakeTestHTTP("GET", "/campaigns", nil, fake.GenerateTokenWithUserId(userValue.Id))
+	w := fake.MakeTestHTTP("GET", "/campaigns", nil, fake.GenerateTokenWithUserId("user_current"))
 
 	campaignsOfUser := helpers.BufferToObj[[]campaigns.Campaign](w.Body)
 	assert.Equal(t, amountOfCampaignsExpectedOfUser, len(campaignsOfUser))

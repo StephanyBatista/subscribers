@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"subscribers/domain/users"
 	"subscribers/helpers"
 	"subscribers/web/auth"
 	"subscribers/web/routers"
@@ -36,6 +37,11 @@ func GenerateAnyToken() string {
 
 func GenerateTokenWithUserId(userId string) string {
 	token, _, _ := auth.GenerateJWT(userId, "teste@teste.com.br", "test")
+	return token
+}
+
+func GenerateTokenWithUser(user users.User) string {
+	token, _, _ := auth.GenerateJWT(user.ID, user.Email, user.Name)
 	return token
 }
 

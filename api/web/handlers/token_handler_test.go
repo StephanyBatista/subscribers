@@ -41,7 +41,7 @@ func TestTokenPostGenerateJwt(t *testing.T) {
 		Email:    "test1@teste.com.br",
 		Password: "35 million",
 	}
-	user, _ := users.NewUser(users.CreationRequest{Name: "Teste", Email: body.Email, Password: body.Password})
+	user, _ := users.NewUser("Teste", body.Email, body.Password)
 	fake.DB.Create(user)
 
 	w := fake.MakeTestHTTP("POST", "/token", body, "")

@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 	"subscribers/domain"
-	"subscribers/domain/campaigns"
-	"subscribers/domain/campaigns/clients"
+	"subscribers/domain/clients"
+	"subscribers/domain/users"
 	"subscribers/web"
 
 	"subscribers/web/auth"
@@ -19,48 +19,25 @@ type ClientHandler struct {
 }
 
 func (h *ClientHandler) Post(c *gin.Context) {
-	var body clients.CreationRequest
+	var body ClientRequest
 	c.BindJSON(&body)
-
-	claim, claimOk := auth.GetClaimFromToken(c.GetHeader("Authorization"))
-	var user *domain.UserValue = nil
-
-	if claimOk {
-		user = &domain.UserValue{Id: claim.UserId, Name: claim.UserName}
-	}
-
-	entity, errs := clients.NewClient(body, user)
+	errs := domain.Validate(body)
 	if errs != nil {
-		log.Println(errs)
 		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
 		return
 	}
 
-	var campaign campaigns.Campaign
-	result := h.Db.Where(campaigns.Campaign{Entity: domain.Entity{ID: body.CampaignId}}).Preload("Clients").FirstOrInit(&campaign)
+	userId := c.Param("userId")
+
+	var userFound users.User
+	result := h.Db.Where(users.User{Entity: domain.Entity{ID: userId}}).Find(&userFound)
 	if result.RowsAffected == 0 {
-		c.JSON(http.StatusNotFound, web.NewErrorReponse("Campaign not found"))
+		c.JSON(http.StatusBadRequest, web.NewErrorReponse("User not found"))
 		return
 	}
-	var clientSaved clients.Client
-	result = h.Db.Where(clients.Client{Email: body.Email}).FirstOrInit(&clientSaved)
-	if result.RowsAffected > 0 {
-		if campaign.HasClient(clientSaved.Email) {
-			c.JSON(http.StatusCreated, gin.H{"id": clientSaved.ID})
-			return
-		}
-		entity = &clientSaved
-	} else {
-		result = h.Db.Create(&entity)
-		if result.Error != nil {
-			log.Println("test", result.Error)
-			c.JSON(http.StatusInternalServerError, web.NewInternalError())
-			return
-		}
-	}
 
-	campaign.AddClient(entity)
-	result = h.Db.Save(&campaign)
+	entity := clients.NewClient(body.Name, body.Email, userId)
+	result = h.Db.Create(&entity)
 	if result.Error != nil {
 		log.Println(result.Error)
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
@@ -68,4 +45,34 @@ func (h *ClientHandler) Post(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"id": entity.ID})
+}
+
+func (h *ClientHandler) GetAll(c *gin.Context) {
+	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
+
+	var entities []clients.Client
+	result := h.Db.Where(clients.Client{UserId: claim.UserId}).Find(&entities)
+	if result.Error != nil {
+		log.Println(result.Error)
+		c.JSON(http.StatusInternalServerError, web.NewInternalError())
+		return
+	}
+
+	c.JSON(http.StatusOK, entities)
+}
+
+func (h *ClientHandler) GetById(c *gin.Context) {
+	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
+	id := c.Param("id")
+
+	var entity clients.Client
+	result :=
+		h.Db.Where(clients.Client{Entity: domain.Entity{ID: id}, UserId: claim.UserId}).Find(&entity)
+	if result.RowsAffected == 0 {
+		log.Println(result.Error)
+		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
+		return
+	}
+
+	c.JSON(http.StatusOK, entity)
 }
