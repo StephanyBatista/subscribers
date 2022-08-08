@@ -3,6 +3,7 @@ import { Link as ReactLink } from "react-router-dom";
 import { BiPencil } from "react-icons/bi";
 import { useCallback, useEffect, useState } from "react";
 import { Layout } from "../../components/templates/Layout";
+import { api } from "../../services/apiClient";
 
 
 interface ClientsData {
@@ -16,10 +17,11 @@ export function Clients() {
 
 
     const getAllClientes = useCallback(async () => {
-        fetch('http://localhost:3000/clients').then(data => data.json()).then((response) => {
+        api.get('/clients').then((response) => {
             console.log(response)
-            setClients(response)
-        })
+            setClients(response.data)
+        }).catch(err => console.log(err));
+
     }, []);
 
     useEffect(() => {
