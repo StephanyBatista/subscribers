@@ -14,12 +14,11 @@ interface UserCreated {
 }
 
 interface CampaignsData {
-    Active: boolean;
-    CreatedAt: string;
-    CreatedBy: UserCreated;
-    Description: string;
-    ID: string;
-    Name: string;
+    createdAt: string;
+    createdBy: UserCreated;
+    from: string;
+    id: string;
+    name: string;
 }
 
 export function Campaigns() {
@@ -140,52 +139,21 @@ export function Campaigns() {
                                 <Tr>
                                     <Th w="16">#</Th>
                                     <Th >Nome</Th>
-                                    <Th w="8">Status</Th>
+                                    <Th>De</Th>
                                     <Th w="20"></Th>
                                 </Tr>
                             </Thead>
                             <Tbody>
                                 {campaigns.map(campaign => (
-                                    <Tr key={campaign.ID} >
-                                        <Td>{campaign.ID}</Td>
-                                        <Td>{campaign.Name}</Td>
-                                        {campaign.Active ? (
-                                            <Td>
-                                                <Box
-                                                    px="1"
-                                                    p="1"
-                                                    w="70px"
-                                                    fontSize="0.825rem"
-                                                    textAlign="center"
-                                                    borderRadius="4"
-                                                    color="gray.50"
-                                                    fontWeight="bold"
-                                                    bg="green.700">
-                                                    Ativo
-
-                                                </Box>
-                                            </Td>
-                                        ) : (
-                                            <Td >
-                                                <Box
-                                                    px="1"
-                                                    p="1"
-                                                    w="70px"
-                                                    fontSize="0.825rem"
-                                                    textAlign="center"
-                                                    borderRadius="4"
-                                                    color="gray.50"
-                                                    fontWeight="bold"
-                                                    bg="red.200">
-                                                    Desativado
-                                                </Box>
-                                            </Td>
-                                        )}
+                                    <Tr key={campaign.id} >
+                                        <Td>{campaign.id}</Td>
+                                        <Td>{campaign.name}</Td>
+                                        <Td>{campaign.from}</Td>
                                         <Td>
                                             <Link
                                                 _hover={{ textDecoration: 'none' }}
                                                 as={ReactLink}
-                                                to={`/campaigns/edit/${campaign.ID}`}
+                                                to={`/campaigns/edit/${campaign.id}`}
                                             >
                                                 <Button
                                                     type="button"
