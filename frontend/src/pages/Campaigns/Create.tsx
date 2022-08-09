@@ -1,4 +1,4 @@
-import { Link, Box, Button, Flex, FormControl, FormLabel, Heading, IconButton, Stack, Switch, Icon, useToast, FormErrorMessage, Alert, AlertIcon, AlertDescription } from "@chakra-ui/react";
+import { Link, Box, Button, Flex, Textarea, FormLabel, Heading, IconButton, Stack, Switch, Icon, useToast, FormErrorMessage, Alert, AlertIcon, AlertDescription, FormControl } from "@chakra-ui/react";
 import { Link as ReactLink, useNavigate } from 'react-router-dom';
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import * as Yup from 'yup';
@@ -10,13 +10,16 @@ import { api } from "../../services/apiClient";
 
 interface FormProps {
     name: string;
-    description: string;
-    active: boolean;
+    from: string;
+    body: string;
+    subject: string;
 }
 
 const validation = Yup.object().shape({
     name: Yup.string().required('Nome é obrigatório'),
-    description: Yup.string().required('A descrição é obrigatório'),
+    from: Yup.string().email().required('E-mail de origem é obrigatório'),
+    body: Yup.string().required('A texto é obrigatório'),
+    subject: Yup.string().required('O assunto é obrigatório'),
     //active: Yup.boolean()
     //.required("The terms and conditions must be accepted.s")
     //  .oneOf([true], "The terms and conditions must be accepted.")
@@ -30,25 +33,26 @@ export function Create() {
     const navigate = useNavigate();
 
     const onHandleSubmit: SubmitHandler<FormProps | FieldValues> = async (values) => {
-
         console.log(values)
-        const response = await api.post('/campaigns', {
+        api.post('/campaigns', {
             name: values.name,
-            description: values.description,
-            active: true
+            from: values.from,
+            body: values.body,
+            subject: values.subject
+        }).then((response) => {
+            if (response.status === 201) {
+                toast({
+                    description: "Campanha cadastrada com sucesso!",
+                    status: 'success',
+                    duration: 5000,
+                    isClosable: true
+                });
+                navigate('/campaigns');
+            }
+        }).catch((err) => {
+            console.log(err)
         });
-        if (response.status === 201) {
-            toast({
-                description: "Campanha cadastrada com sucesso!",
-                status: 'success',
-                duration: 5000,
-                isClosable: true
-            });
-            navigate('/campaigns');
-        } else {
-            throw new Error("Erro ao salvar informações");
 
-        }
     }
 
 
@@ -87,15 +91,51 @@ export function Create() {
                                 error={errors.name}
                             />
                             <Input
-                                {...register('description')}
-                                type="text"
-                                label="Descrição"
-                                error={errors.description}
+                                {...register('from')}
+                                type="email"
+                                label="De"
+                                placeholder="exemplo@dominio.com"
+                                error={errors.from}
                             />
+                            <Input
+                                {...register('subject')}
+                                type="text"
+                                label="Assunto"
+                                error={errors.subject}
+                            />
+                            <FormControl>
+                                <FormLabel>Texto</FormLabel>
+                                <Textarea
+                                    {...register('body')}
+                                    resize="none"
+                                    bg="gray.950"
+                                    border="none"
+                                />
+                                {errors.body && (
+                                    <Alert bg="transparent" color="red.600" fontSize="0.875rem">
+                                        <AlertDescription>
+                                            {errors.body?.message}
+                                        </AlertDescription>
+                                    </Alert>
 
+                                )}
+                            </FormControl>
                         </Stack>
                     </Stack>
-                    <Box mt="10">
+                    <Flex mt="10">
+                        <Link
+                            py="2"
+                            px="4"
+                            borderRadius="6"
+                            transition="filter 0.2s"
+                            _hover={{ filter: "brightness(0.9)" }}
+                            bg="gray.600"
+                            as={ReactLink}
+                            mr={3}
+                            to="/campaigns"
+                        >
+                            Voltar
+                        </Link>
                         <Button
                             type="submit"
                             transition="filter 0.2s"
@@ -103,7 +143,7 @@ export function Create() {
                             bg="blue.900"
                         >Salvar
                         </Button>
-                    </Box>
+                    </Flex>
                 </Flex>
 
 
