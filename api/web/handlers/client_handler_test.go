@@ -30,43 +30,60 @@ func createNewClient(name string, email string, userId string) clients.Client {
 	return *entity
 }
 
-func Test_Client_Post_Validate_Parameter_UserId(t *testing.T) {
+func Test_client_post_validate_token(t *testing.T) {
 	fake.Build()
-	body := handlers.ClientRequest{
-		Name:  "Teste",
-		Email: "teste@teste.com.br",
-	}
 
-	w := fake.MakeTestHTTP("POST", "/clients/user_invalid", body, "")
+	w := fake.MakeTestHTTP("POST", "/clients", nil, "")
 
-	response := helpers.BufferToString(w.Body)
-	assert.Contains(t, response, "User not found")
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
 
-func Test_Client_Post_Validate_Fields(t *testing.T) {
+func Test_client_post_validate_fields(t *testing.T) {
 	fake.Build()
 
-	w := fake.MakeTestHTTP("POST", "/clients/"+createNewUser().ID, nil, "")
+	w := fake.MakeTestHTTP("POST", "/clients", nil, fake.GenerateAnyToken())
 
 	response := helpers.BufferToString(w.Body)
 	assert.Contains(t, response, "'Name' is required")
 	assert.Contains(t, response, "'Email' is required")
 }
 
-func Test_Client_Post_Save_New_Client_Using_Param_UserId(t *testing.T) {
+func Test_client_post_save_new_client(t *testing.T) {
 	fake.Build()
 	body := handlers.ClientRequest{
 		Name:  "Teste",
 		Email: "teste@teste.com.br",
 	}
 
-	w := fake.MakeTestHTTP("POST", "/clients/"+createNewUser().ID, body, "")
+	w := fake.MakeTestHTTP("POST", "/clients", body, fake.GenerateAnyToken())
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 }
 
-func Test_Client_Get_All_Clients(t *testing.T) {
+func Test_client_post_show_error_when_not_create(t *testing.T) {
+	fake.Build()
+	mock := &fake.RepositoryMock[clients.Client]{}
+	mock.ReturnsCreate = false
+	fake.DI.ClientHandler.ClientRepository = mock
+	body := handlers.ClientRequest{
+		Name:  "Teste",
+		Email: "teste@teste.com.br",
+	}
+
+	w := fake.MakeTestHTTP("POST", "/clients", body, fake.GenerateAnyToken())
+
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+}
+
+func Test_client_get_all_validate_token(t *testing.T) {
+	fake.Build()
+
+	w := fake.MakeTestHTTP("GET", "/clients", nil, "")
+
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
+func Test_client_get_all_clients(t *testing.T) {
 	fake.Build()
 	user := createNewUser()
 	createNewClient("teste2", "test1@teste.com.br", user.ID)
@@ -79,7 +96,7 @@ func Test_Client_Get_All_Clients(t *testing.T) {
 	assert.Equal(t, amountOfClients, len(clientsOfUser))
 }
 
-func Test_Client_Get_All_Not_Return_Clients_From_Others_Users(t *testing.T) {
+func Test_client_get_all_not_return_clients_from_others_users(t *testing.T) {
 	fake.Build()
 	currentUser := createNewUser()
 	createNewClient("teste1", "test1@teste.com.br", currentUser.ID)
@@ -94,7 +111,15 @@ func Test_Client_Get_All_Not_Return_Clients_From_Others_Users(t *testing.T) {
 	assert.Equal(t, amountOfClients, len(clientsOfUser))
 }
 
-func Test_Client_Get_By_Id_Return_Client(t *testing.T) {
+func Test_client_get_by_id_validate_token(t *testing.T) {
+	fake.Build()
+
+	w := fake.MakeTestHTTP("GET", "/clients/xpter", nil, "")
+
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
+func Test_client_get_by_id_return_client(t *testing.T) {
 	fake.Build()
 	currentUser := createNewUser()
 	entity := createNewClient("teste2", "test2@teste.com.br", currentUser.ID)
@@ -108,7 +133,7 @@ func Test_Client_Get_By_Id_Return_Client(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-func Test_Client_Get_By_Id_Not_Return_Clients_From_Others_Users(t *testing.T) {
+func Test_client_get_by_id_not_return_clients_from_others_users(t *testing.T) {
 	fake.Build()
 	currentUser := createNewUser()
 	entity := createNewClient("teste2", "test2@teste.com.br", currentUser.ID)

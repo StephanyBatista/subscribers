@@ -1,6 +1,9 @@
 package helpers
 
 import (
+	"subscribers/domain/campaigns"
+	"subscribers/domain/clients"
+	"subscribers/domain/users"
 	"subscribers/infra/database"
 	"subscribers/web/handlers"
 
@@ -21,9 +24,17 @@ func NewDI() *DI {
 	db := database.CreateConnection()
 	di.DB = db
 	di.TokenHandler = &handlers.TokenHandler{Db: db}
-	di.UserHandler = &handlers.UserHandler{Db: db}
+
+	di.UserHandler = &handlers.UserHandler{
+		UserRepository: &database.Repository[users.User]{DB: db},
+	}
 	di.HealthCheckHandler = &handlers.HealthCheckHandler{Db: db}
-	di.CampaignHandler = &handlers.CampaignHandler{Db: db}
-	di.ClientHandler = &handlers.ClientHandler{Db: db}
+	di.CampaignHandler = &handlers.CampaignHandler{
+		CampaignRepository: &database.Repository[campaigns.Campaign]{DB: db},
+	}
+	di.ClientHandler = &handlers.ClientHandler{
+		UserRepository:   &database.Repository[users.User]{DB: db},
+		ClientRepository: &database.Repository[clients.Client]{DB: db},
+	}
 	return di
 }

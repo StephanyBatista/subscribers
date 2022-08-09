@@ -5,16 +5,16 @@ import (
 	"net/http"
 	"subscribers/domain"
 	"subscribers/domain/campaigns"
+	"subscribers/infra/database"
 	"subscribers/web"
 
 	"subscribers/web/auth"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type CampaignHandler struct {
-	Db *gorm.DB
+	CampaignRepository database.IRepository[campaigns.Campaign]
 }
 
 func (h *CampaignHandler) Post(c *gin.Context) {
@@ -29,10 +29,8 @@ func (h *CampaignHandler) Post(c *gin.Context) {
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
 
 	entity := campaigns.NewCampaign(body.Name, body.From, body.Body, claim.UserId, claim.UserName)
-
-	result := h.Db.Create(&entity)
-	if result.Error != nil {
-		log.Println(result.Error)
+	ok := h.CampaignRepository.Create(entity)
+	if !ok {
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
 		return
 	}
@@ -44,13 +42,8 @@ func (h *CampaignHandler) GetById(c *gin.Context) {
 
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
 
-	var entity campaigns.Campaign
-	result := h.Db.Where(campaigns.Campaign{Entity: domain.Entity{ID: id}}).FirstOrInit(&entity)
-	if result.Error != nil {
-		log.Println(result.Error)
-		c.JSON(http.StatusInternalServerError, web.NewInternalError())
-		return
-	} else if entity.IDIsNull() || claim.UserId != entity.CreatedBy.Id {
+	entity := h.CampaignRepository.GetBy(campaigns.Campaign{Entity: domain.Entity{ID: id}})
+	if entity == nil || claim.UserId != entity.CreatedBy.Id {
 		log.Println("Campaign not found")
 		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
 		return
@@ -61,13 +54,8 @@ func (h *CampaignHandler) GetById(c *gin.Context) {
 func (h *CampaignHandler) GetAll(c *gin.Context) {
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
 
-	var entities []campaigns.Campaign
-	result := h.Db.Where(campaigns.Campaign{CreatedBy: domain.UserValue{Id: claim.UserId}}).Find(&entities)
-	if result.Error != nil {
-		log.Println(result.Error)
-		c.JSON(http.StatusInternalServerError, web.NewInternalError())
-		return
-	} else if len(entities) == 0 {
+	entities := h.CampaignRepository.List(campaigns.Campaign{CreatedBy: domain.UserValue{Id: claim.UserId}})
+	if entities == nil {
 		log.Println("Campaign not found")
 		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
 		return

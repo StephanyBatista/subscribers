@@ -5,15 +5,15 @@ import (
 	"net/http"
 	"subscribers/domain"
 	"subscribers/domain/users"
+	"subscribers/infra/database"
 	"subscribers/web"
 	"subscribers/web/auth"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type UserHandler struct {
-	Db *gorm.DB
+	UserRepository database.IRepository[users.User]
 }
 
 func (h *UserHandler) Post(c *gin.Context) {
@@ -33,17 +33,15 @@ func (h *UserHandler) Post(c *gin.Context) {
 		return
 	}
 
-	var userSaved users.User
-	h.Db.Where(users.User{Email: body.Email}).First(&userSaved)
-	if !userSaved.IDIsNull() {
+	userSaved := h.UserRepository.GetBy(users.User{Email: body.Email})
+	if userSaved != nil {
 		log.Println(body.Email + " already exist")
 		c.JSON(http.StatusBadRequest, web.NewErrorReponse("Email already saved"))
 		return
 	}
 
-	result := h.Db.Create(&user)
-	if result.Error != nil {
-		log.Println(result.Error)
+	ok := h.UserRepository.Create(user)
+	if !ok {
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
 		return
 	}
