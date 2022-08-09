@@ -45,6 +45,7 @@ const validation = Yup.object().shape({
 export function Edit() {
     const [campaign, setCampaign] = useState({} as CampaignData);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSendEmail, setIsSendEmail] = useState(false);
     const [updateState, setUpdateState] = useState(false);
     const { campaignId } = useParams();
 
@@ -64,6 +65,16 @@ export function Edit() {
 
     }
 
+    const handleSendEmails = useCallback(async () => {
+        setIsSendEmail(true);
+        api.post(`campaigns/${campaignId}/send`)
+            .then((response) => {
+                console.log(response);
+            }).catch((err) => {
+                console.log(err)
+            }).finally(() => setIsSendEmail(false));
+    }, [])
+
     const getCampaign = useCallback(async () => {
         api.get(`campaigns/${campaignId}`)
             .then((response) => {
@@ -75,7 +86,7 @@ export function Edit() {
                     from: response.data.from,
                     id: response.data.id,
                     name: response.data.name,
-                    status: 'draft'
+                    status: response.data.status,
                 })
             }).catch(err => console.log(err))
             .finally(() => setIsLoading(false));
@@ -147,7 +158,7 @@ export function Edit() {
 
                         <Input
                             {...register('name')}
-                            isDisabled={campaign?.status === 'draft' ? false : true}
+                            isDisabled={campaign?.status === 'Draft' ? false : true}
                             error={errors.name}
                             type="text"
                             label="Nome"
@@ -155,7 +166,7 @@ export function Edit() {
                         />
                         <Input
                             {...register('from')}
-                            isDisabled={campaign?.status === 'draft' ? false : true}
+                            isDisabled={campaign?.status === 'Draft' ? false : true}
                             error={errors.from}
                             type="email"
                             label="De"
@@ -163,7 +174,7 @@ export function Edit() {
                         />
                         <Input
                             {...register('subject')}
-                            isDisabled={campaign?.status === 'draft' ? false : true}
+                            isDisabled={campaign?.status === 'Draft' ? false : true}
                             error={errors.subject}
                             type="text"
                             label="Assunto"
@@ -173,7 +184,7 @@ export function Edit() {
                             <FormLabel>Texto</FormLabel>
                             <Textarea
                                 {...register('body')}
-                                isDisabled={campaign?.status === 'draft' ? false : true}
+                                isDisabled={campaign?.status === 'Draft' ? false : true}
                                 resize="none"
                                 bg="gray.950"
                                 border="none"
@@ -194,7 +205,7 @@ export function Edit() {
 
                     <HStack mt="10">
                         <Button
-                            disabled={campaign?.status === 'draft' ? false : true}
+                            disabled={campaign?.status === 'Draft' ? false : true}
                             type="submit"
                             transition="filter 0.2s"
                             _hover={{ filter: "brightness(0.9)" }}
@@ -202,11 +213,12 @@ export function Edit() {
                         >Atualizar
                         </Button>
                         <Button
-                            disabled={campaign?.status === 'draft' ? false : true}
+                            disabled={campaign?.status === 'Draft' ? false : true}
                             type="submit"
                             transition="filter 0.2s"
                             _hover={{ filter: "brightness(0.9)" }}
                             bg="green.700"
+                            onClick={handleSendEmails}
                         >Disparar E-mails
                         </Button>
                     </HStack>
