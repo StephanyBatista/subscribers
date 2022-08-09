@@ -4,8 +4,8 @@ import "gorm.io/gorm"
 
 type IRepository[Entity any] interface {
 	Create(obj *Entity) bool
+	Save(obj *Entity) bool
 	List(where Entity) *[]Entity
-	GetById(id string) *Entity
 	GetBy(where Entity) *Entity
 }
 
@@ -18,6 +18,11 @@ func (r *Repository[Entity]) Create(obj *Entity) bool {
 	return result.Error == nil
 }
 
+func (r *Repository[Entity]) Save(obj *Entity) bool {
+	result := r.DB.Save(obj)
+	return result.Error == nil
+}
+
 func (r *Repository[Entity]) List(where Entity) *[]Entity {
 	var entities *[]Entity
 	result := r.DB.Where(where).Find(&entities)
@@ -25,12 +30,6 @@ func (r *Repository[Entity]) List(where Entity) *[]Entity {
 		return nil
 	}
 	return entities
-}
-
-func (r *Repository[Entity]) GetById(id string) *Entity {
-	var entity *Entity
-	r.DB.First(&entity, id)
-	return entity
 }
 
 func (r *Repository[Entity]) GetBy(where Entity) *Entity {

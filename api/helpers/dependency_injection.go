@@ -16,6 +16,7 @@ type DI struct {
 	UserHandler        *handlers.UserHandler
 	HealthCheckHandler *handlers.HealthCheckHandler
 	CampaignHandler    *handlers.CampaignHandler
+	SubscriberHander   *handlers.SubscriberHandler
 	ClientHandler      *handlers.ClientHandler
 }
 
@@ -30,7 +31,14 @@ func NewDI() *DI {
 	}
 	di.HealthCheckHandler = &handlers.HealthCheckHandler{Db: db}
 	di.CampaignHandler = &handlers.CampaignHandler{
-		CampaignRepository: &database.Repository[campaigns.Campaign]{DB: db},
+		CampaignRepository:   &database.Repository[campaigns.Campaign]{DB: db},
+		SubscriberRepository: &database.Repository[campaigns.Subscriber]{DB: db},
+		ClientRepository:     &database.Repository[clients.Client]{DB: db},
+	}
+	di.SubscriberHander = &handlers.SubscriberHandler{
+		CampaignRepository:   &database.Repository[campaigns.Campaign]{DB: db},
+		SubscriberRepository: &database.Repository[campaigns.Subscriber]{DB: db},
+		ClientRepository:     &database.Repository[clients.Client]{DB: db},
 	}
 	di.ClientHandler = &handlers.ClientHandler{
 		UserRepository:   &database.Repository[users.User]{DB: db},

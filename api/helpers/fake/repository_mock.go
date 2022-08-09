@@ -2,6 +2,7 @@ package fake
 
 type RepositoryMock[Entity any] struct {
 	ReturnsCreate  bool
+	ReturnsSave    bool
 	ReturnsGetBy   *Entity
 	ReturnsGetById *Entity
 	ReturnsList    *[]Entity
@@ -9,6 +10,10 @@ type RepositoryMock[Entity any] struct {
 
 func (r *RepositoryMock[Entity]) Create(obj *Entity) bool {
 	return r.ReturnsCreate
+}
+
+func (r *RepositoryMock[Entity]) Save(obj *Entity) bool {
+	return r.ReturnsSave
 }
 
 func (r *RepositoryMock[Entity]) GetBy(where Entity) *Entity {

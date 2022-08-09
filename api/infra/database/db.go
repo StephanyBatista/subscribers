@@ -16,6 +16,7 @@ func CreateConnection() *gorm.DB {
 	db.AutoMigrate(&users.User{})
 	db.AutoMigrate(&clients.Client{})
 	db.AutoMigrate(&campaigns.Campaign{})
+	db.AutoMigrate(&campaigns.Subscriber{})
 
 	return db
 }
