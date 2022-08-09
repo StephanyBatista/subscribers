@@ -41,7 +41,14 @@ export function Navbar() {
                             _hover={{ textDecoration: 'none', background: "blue.900", color: 'gray.50' }}
                         >Campanhas
                         </Link>
-
+                        <Link
+                            as={ReactLink}
+                            to='/clients'
+                            py="1"
+                            transition="background 0.2s, color 0.2s"
+                            _hover={{ textDecoration: 'none', background: "blue.900", color: 'gray.50' }}
+                        >Clientes
+                        </Link>
                     </Flex>
                 </PopoverContent>
             </Popover>
