@@ -1,4 +1,4 @@
-import { Box, Link, Button, Flex, Heading, HStack, List, ListItem, Stack, Tab, Table, TabList, TabPanel, TabPanels, Tabs, Th, Thead, Tr, useDisclosure, useToast, Icon } from "@chakra-ui/react";
+import { Box, Link, Button, Flex, Heading, HStack, List, ListItem, Stack, Tab, Table, TabList, TabPanel, TabPanels, Tabs, Th, Thead, Tr, useDisclosure, useToast, Icon, FormControl, FormLabel, Textarea, Alert, AlertDescription, Spinner } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, Link as ReactLink } from "react-router-dom";
 import { Layout } from "../../components/templates/Layout";
@@ -23,12 +23,14 @@ interface CreatedBy {
 }
 
 interface CampaignData {
-    Active: boolean;
-    CreatedAt: string;
-    CreatedBy: CreatedBy;
-    Description: string;
-    ID: string;
-    Name: string;
+    body: string;
+    subject: string;
+    createdAt: string;
+    createdBy: CreatedBy;
+    from: string;
+    id: string;
+    name: string;
+    status: string;
 
 }
 
@@ -41,7 +43,8 @@ const validation = Yup.object().shape({
 })
 
 export function Edit() {
-    const [campaign, SetCampaign] = useState({} as CampaignData);
+    const [campaign, setCampaign] = useState({} as CampaignData);
+    const [isLoading, setIsLoading] = useState(true);
     const [updateState, setUpdateState] = useState(false);
     const { campaignId } = useParams();
 
@@ -62,108 +65,156 @@ export function Edit() {
     }
 
     const getCampaign = useCallback(async () => {
-        const response = await api.get(`campaigns/${campaignId}`);
-        SetCampaign(response.data);
-        console.log(response);
+        api.get(`campaigns/${campaignId}`)
+            .then((response) => {
+                setCampaign({
+                    body: response.data.body,
+                    subject: response.data.subject,
+                    createdAt: response.data.createdAt,
+                    createdBy: response.data.createdBy,
+                    from: response.data.from,
+                    id: response.data.id,
+                    name: response.data.name,
+                    status: 'draft'
+                })
+            }).catch(err => console.log(err))
+            .finally(() => setIsLoading(false));
+        // setCampaign(response.data);
+
     }, []);
 
     useEffect(() => {
         getCampaign();
     }, [updateState]);
 
-
+    if (isLoading) {
+        return (
+            <Layout>
+                <Flex
+                    w="100vw"
+                    maxW={1480}
+                    flex="1"
+                    justify="center"
+                    align="center"
+                >
+                    <Spinner />
+                </Flex>
+            </Layout>
+        )
+    }
     return (
         <Layout>
+
             <Flex
-                px={["2", "8"]}
-                ml={["-6", ""]}
-                py={["2", "8"]}
-                h="100%"
                 w="100vw"
                 maxW={1480}
-                justify="space-between"
-                mx="auto"
-                bg="gray.800"
-                borderRadius="8"
+                flex="1"
                 flexDirection="column"
+                justify="center"
+                align="center"
             >
-
-                {/* <HStack>
+                <Flex
+                    w="100%"
+                    maxW={[350, 800]}
+                    ml={["-10", ""]}
+                    mb="5"
+                    justify="space-between"
+                    align="center">
+                    <Heading fontSize="xl">Gerenciar campanha</Heading>
+                    <Link
+                        as={ReactLink}
+                        to="/campaigns"
+                    >
+                        <Icon as={BiArrowBack} fontSize="2xl" />
+                    </Link>
+                </Flex>
+                <Flex
+                    px={["2", "8"]}
+                    ml={["-10", ""]}
+                    py={["4", "8"]}
+                    h="100%"
+                    w="100%"
+                    maxW={[350, 800]}
+                    justify="space-between"
+                    // mx="auto"
+                    bg="gray.800"
+                    borderRadius="8"
+                    flexDirection="column"
+                >
                     <Stack
                         as="form"
                         spacing={3}>
+
                         <Input
-                            name=""
+                            {...register('name')}
+                            isDisabled={campaign?.status === 'draft' ? false : true}
+                            error={errors.name}
                             type="text"
                             label="Nome"
+                            defaultValue={campaign?.name}
                         />
                         <Input
-                            name=""
-                            type="text"
-                            label="Descrição"
+                            {...register('from')}
+                            isDisabled={campaign?.status === 'draft' ? false : true}
+                            error={errors.from}
+                            type="email"
+                            label="De"
+                            defaultValue={campaign?.from}
                         />
-                        <Box mt="10">
-                            <Button
-                                type="submit"
-                                transition="filter 0.2s"
-                                _hover={{ filter: "brightness(0.9)" }}
-                                bg="blue.900"
-                            >Atualizar
-                            </Button>
-                        </Box>
+                        <Input
+                            {...register('subject')}
+                            isDisabled={campaign?.status === 'draft' ? false : true}
+                            error={errors.subject}
+                            type="text"
+                            label="Assunto"
+                            defaultValue={campaign?.subject}
+                        />
+                        <FormControl>
+                            <FormLabel>Texto</FormLabel>
+                            <Textarea
+                                {...register('body')}
+                                isDisabled={campaign?.status === 'draft' ? false : true}
+                                resize="none"
+                                bg="gray.950"
+                                border="none"
+                                defaultValue={campaign?.body}
+                            />
+                            {errors.body && (
+                                <Alert bg="transparent" color="red.600" fontSize="0.875rem">
+                                    <AlertDescription>
+                                        {/* @ts-ignore */}
+                                        {errors.body?.message}
+                                    </AlertDescription>
+                                </Alert>
+
+                            )}
+                        </FormControl>
+
                     </Stack>
-                    <List >
-                        <ListItem><strong>Criado por: </strong>{campaign.CreatedBy.Name}</ListItem>
-                        <ListItem><strong>as: </strong>{campaign.CreatedBy.Name}</ListItem>
-                    </List>
-                </HStack> */}
 
-                <Flex flexDirection="column">
-                    <Flex justify="space-between" align="center" mb="4">
-                        <Heading fontSize="2xl">Clientes</Heading>
-                        <HStack spacing={8} align="center">
-                            <Link as={ReactLink} to="/campaigns">
-                                <Icon as={BiArrowBack} fontSize={22} />
-                            </Link>
-                            <Button onClick={onOpen} colorScheme="green">Adicionar cliente</Button>
-                        </HStack>
-                    </Flex>
-                    <Table colorScheme="whiteAlpha">
-                        <Thead>
-                            <Tr>
-                                <Th w="8">#</Th>
-                                <Th>Nome</Th>
-                                <Th>E-mail</Th>
-                                <Th></Th>
-                            </Tr>
-                        </Thead>
-                    </Table>
+                    <HStack mt="10">
+                        <Button
+                            disabled={campaign?.status === 'draft' ? false : true}
+                            type="submit"
+                            transition="filter 0.2s"
+                            _hover={{ filter: "brightness(0.9)" }}
+                            bg="blue.900"
+                        >Atualizar
+                        </Button>
+                        <Button
+                            disabled={campaign?.status === 'draft' ? false : true}
+                            type="submit"
+                            transition="filter 0.2s"
+                            _hover={{ filter: "brightness(0.9)" }}
+                            bg="green.700"
+                        >Disparar E-mails
+                        </Button>
+                    </HStack>
+
                 </Flex>
-                {/* <Tabs variant="unstyled">
-                    <TabList>
-                        <Tab transition="color 0.2s, fontWeight 0.2s" _selected={{ color: 'blue.900', bg: 'transparent', fontWeight: 'bold' }}>Campanha</Tab>
-                        <Tab transition="color 0.2s, fontWeight 0.2s" _selected={{ color: 'blue.900', bg: 'transparent', fontWeight: 'bold' }}>Clientes</Tab>
-                    </TabList>
-
-                    <TabPanels>
-                        <TabPanel>
-                            <p>one!</p>
-                        </TabPanel>
-                        <TabPanel>
-                            <p>two!</p>
-                        </TabPanel>
-                        <TabPanel>
-                            <p>three!</p>
-                        </TabPanel>
-                    </TabPanels>
-                </Tabs> */}
             </Flex>
-            <ClientModal
-                isOpen={isOpen}
-                campaignId={campaignId}
-                onClose={onClose}
-                onUpdateState={handleUpdateState}
-            />
+
+
         </Layout>
     )
 }

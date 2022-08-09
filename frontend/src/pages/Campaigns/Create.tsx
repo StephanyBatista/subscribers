@@ -59,95 +59,118 @@ export function Create() {
     return (
         <Layout>
             <Flex
-                bg="gray.800"
-                maxH={700}
-                p="8"
                 w="100vw"
-                maxW={600}
-                m="0 auto"
+                maxW={1480}
+                flex="1"
                 flexDirection="column"
-                borderRadius={8}>
+                justify="center"
+                align="center"
+            >
                 <Flex
-                    onSubmit={handleSubmit(onHandleSubmit)}
-                    as="form"
-                    flexDirection="column"
+                    w="100%"
+                    maxW={[350, 800]}
+                    ml={["-10", ""]}
+                    mb="5"
                     justify="space-between"
+                    align="center"
                 >
-                    <Stack spacing={20}>
-                        <Flex justify="space-between" align="center">
-                            <Heading fontSize="xl">Criar uma campanha</Heading>
+                    <Heading fontSize="xl">Criar uma campanha</Heading>
+                    <Link
+                        as={ReactLink}
+                        to="/campaigns"
+                    >
+                        <Icon as={BiArrowBack} fontSize="2xl" />
+                    </Link>
+                </Flex>
+                <Flex
+                    px={["2", "8"]}
+                    ml={["-10", ""]}
+                    py={["4", "8"]}
+                    h="100%"
+                    w="100%"
+                    maxW={[350, 800]}
+                    justify="space-between"
+                    // mx="auto"
+                    bg="gray.800"
+                    borderRadius="8"
+                    flexDirection="column">
+
+                    <Flex
+                        onSubmit={handleSubmit(onHandleSubmit)}
+                        as="form"
+                        flexDirection="column"
+                        justify="space-between"
+                    >
+                        <Stack spacing={20}>
+
+                            <Stack>
+                                <Input
+                                    {...register('name')}
+                                    type="text"
+                                    label="Nome"
+                                    error={errors.name}
+                                />
+                                <Input
+                                    {...register('from')}
+                                    type="email"
+                                    label="De"
+                                    placeholder="exemplo@dominio.com"
+                                    error={errors.from}
+                                />
+                                <Input
+                                    {...register('subject')}
+                                    type="text"
+                                    label="Assunto"
+                                    error={errors.subject}
+                                />
+                                <FormControl>
+                                    <FormLabel>Texto</FormLabel>
+                                    <Textarea
+                                        {...register('body')}
+                                        resize="none"
+                                        bg="gray.950"
+                                        border="none"
+                                    />
+                                    {errors.body && (
+                                        <Alert bg="transparent" color="red.600" fontSize="0.875rem">
+                                            <AlertDescription>
+                                                {/* @ts-ignore */}
+                                                {errors.body?.message}
+                                            </AlertDescription>
+                                        </Alert>
+
+                                    )}
+                                </FormControl>
+                            </Stack>
+                        </Stack>
+                        <Flex mt="10">
                             <Link
+                                py="2"
+                                px="4"
+                                borderRadius="6"
+                                transition="filter 0.2s"
+                                _hover={{ filter: "brightness(0.9)" }}
+                                bg="gray.600"
                                 as={ReactLink}
+                                mr={3}
                                 to="/campaigns"
                             >
-                                <Icon as={BiArrowBack} fontSize="2xl" />
+                                Voltar
                             </Link>
+                            <Button
+                                type="submit"
+                                transition="filter 0.2s"
+                                _hover={{ filter: "brightness(0.9)" }}
+                                bg="blue.900"
+                            >Salvar
+                            </Button>
                         </Flex>
-                        <Stack>
-                            <Input
-                                {...register('name')}
-                                type="text"
-                                label="Nome"
-                                error={errors.name}
-                            />
-                            <Input
-                                {...register('from')}
-                                type="email"
-                                label="De"
-                                placeholder="exemplo@dominio.com"
-                                error={errors.from}
-                            />
-                            <Input
-                                {...register('subject')}
-                                type="text"
-                                label="Assunto"
-                                error={errors.subject}
-                            />
-                            <FormControl>
-                                <FormLabel>Texto</FormLabel>
-                                <Textarea
-                                    {...register('body')}
-                                    resize="none"
-                                    bg="gray.950"
-                                    border="none"
-                                />
-                                {errors.body && (
-                                    <Alert bg="transparent" color="red.600" fontSize="0.875rem">
-                                        <AlertDescription>
-                                            {errors.body?.message}
-                                        </AlertDescription>
-                                    </Alert>
-
-                                )}
-                            </FormControl>
-                        </Stack>
-                    </Stack>
-                    <Flex mt="10">
-                        <Link
-                            py="2"
-                            px="4"
-                            borderRadius="6"
-                            transition="filter 0.2s"
-                            _hover={{ filter: "brightness(0.9)" }}
-                            bg="gray.600"
-                            as={ReactLink}
-                            mr={3}
-                            to="/campaigns"
-                        >
-                            Voltar
-                        </Link>
-                        <Button
-                            type="submit"
-                            transition="filter 0.2s"
-                            _hover={{ filter: "brightness(0.9)" }}
-                            bg="blue.900"
-                        >Salvar
-                        </Button>
                     </Flex>
+
+
                 </Flex>
-
-
             </Flex>
+
         </Layout>
     )
 }
