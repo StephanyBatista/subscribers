@@ -27,8 +27,6 @@ export function CreateClient() {
     const navigate = useNavigate();
 
     const onHandleSubmit: SubmitHandler<FormProps | FieldValues> = async (values) => {
-        console.log(values)
-
         const response = await api.post('clients', {
             name: values.name,
             email: values.email,
