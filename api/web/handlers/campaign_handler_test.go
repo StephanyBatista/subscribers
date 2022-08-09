@@ -12,7 +12,7 @@ import (
 )
 
 func createNewCampaign(name, from, body, userId string) campaigns.Campaign {
-	entity := campaigns.NewCampaign(name, from, body, userId, "test")
+	entity := campaigns.NewCampaign(name, from, "test", body, userId, "test")
 	fake.DB.Create(&entity)
 	return *entity
 }

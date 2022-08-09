@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"subscribers/domain"
 	"subscribers/domain/campaigns"
+	"subscribers/domain/clients"
 	"subscribers/infra/database"
 	"subscribers/web"
 
@@ -14,7 +15,9 @@ import (
 )
 
 type CampaignHandler struct {
-	CampaignRepository database.IRepository[campaigns.Campaign]
+	CampaignRepository   database.IRepository[campaigns.Campaign]
+	SubscriberRepository database.IRepository[campaigns.Subscriber]
+	ClientRepository     database.IRepository[clients.Client]
 }
 
 func (h *CampaignHandler) Post(c *gin.Context) {
@@ -28,12 +31,13 @@ func (h *CampaignHandler) Post(c *gin.Context) {
 
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
 
-	entity := campaigns.NewCampaign(body.Name, body.From, body.Body, claim.UserId, claim.UserName)
+	entity := campaigns.NewCampaign(body.Name, body.From, body.Subject, body.Body, claim.UserId, claim.UserName)
 	ok := h.CampaignRepository.Create(entity)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
 		return
 	}
+
 	c.JSON(http.StatusCreated, gin.H{"id": entity.ID})
 }
 
