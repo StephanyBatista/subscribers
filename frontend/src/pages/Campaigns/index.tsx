@@ -19,7 +19,9 @@ interface CampaignsData {
     from: string;
     id: string;
     name: string;
+    body: string;
     status: string;
+    subject: string;
 }
 
 export function Campaigns() {
@@ -40,8 +42,21 @@ export function Campaigns() {
         getAllCampaigns();
     }, []);
 
+    const data = campaigns?.map(campaign => {
 
+        return {
+            id: campaign.id,
+            body: campaign.body,
+            createdAt: Intl.DateTimeFormat('pt-BR').format(new Date(campaign.createdAt)),
+            from: campaign.from,
+            name: campaign.name,
+            subject: campaign.subject,
+            createdBy: campaign.createdBy,
+            status: campaign.status === "Processing" && "Processando" || campaign.status === "Draft" && "Rascunho"
+        }
+    })
 
+    console.log(data)
     return (
         <Layout>
             <Flex justify="space-between" mb="8" align="center">
@@ -89,7 +104,7 @@ export function Campaigns() {
                                 </Tr>
                             </Thead>
                             <Tbody>
-                                {campaigns.map(campaign => (
+                                {data?.map(campaign => (
                                     <Tr key={campaign.id} >
                                         <Td>{campaign.id}</Td>
                                         <Td>{campaign.name}</Td>

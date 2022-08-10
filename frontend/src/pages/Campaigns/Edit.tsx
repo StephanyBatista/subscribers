@@ -1,4 +1,4 @@
-import { Box, Link, Button, Flex, Heading, HStack, List, ListItem, Stack, Tab, Table, TabList, TabPanel, TabPanels, Tabs, Th, Thead, Tr, useDisclosure, useToast, Icon, FormControl, FormLabel, Textarea, Alert, AlertDescription, Spinner } from "@chakra-ui/react";
+import { Box, Link, Button, Flex, Heading, HStack, List, ListItem, Stack, Tab, Table, TabList, TabPanel, TabPanels, Tabs, Th, Thead, Tr, useDisclosure, useToast, Icon, FormControl, FormLabel, Textarea, Alert, AlertDescription, Spinner, Grid, GridItem, Text, Divider } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, Link as ReactLink } from "react-router-dom";
 import { Layout } from "../../components/templates/Layout";
@@ -9,7 +9,7 @@ import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { ClientModal } from "../../components/campaigns/ClientModal";
 import { BiArrowBack } from "react-icons/bi";
-
+import { AiOutlineUserSwitch } from "react-icons/ai";
 
 interface FormProps {
     name: string;
@@ -30,7 +30,10 @@ interface CampaignData {
     from: string;
     id: string;
     name: string;
-    status: string;
+    status: string | boolean;
+    baseofSubscribers: number;
+    totalRead: number;
+    totalSent: number;
 
 }
 
@@ -76,7 +79,7 @@ export function Edit() {
     }, [])
 
     const getCampaign = useCallback(async () => {
-        api.get(`campaigns/${campaignId}`)
+        api.get<CampaignData>(`campaigns/${campaignId}`)
             .then((response) => {
 
                 console.log(response)
@@ -88,14 +91,17 @@ export function Edit() {
                     from: response.data.from,
                     id: response.data.id,
                     name: response.data.name,
-                    status: response.data.status,
+                    totalSent: response.data.totalSent,
+                    totalRead: response.data.totalRead,
+                    baseofSubscribers: response.data.baseofSubscribers,
+                    status: response.data.status === "Processing" && "Processando" || response.data.status === "Rascunho" && "Rascunho",
                 })
             }).catch(err => console.log(err))
             .finally(() => setIsLoading(false));
         // setCampaign(response.data);
 
     }, []);
-
+    console.log(campaign)
     useEffect(() => {
         getCampaign();
     }, [updateState]);
@@ -126,6 +132,7 @@ export function Edit() {
                 justify="center"
                 align="center"
             >
+
                 <Flex
                     w="100%"
                     maxW={[350, 800]}
@@ -140,6 +147,64 @@ export function Edit() {
                     >
                         <Icon as={BiArrowBack} fontSize="2xl" />
                     </Link>
+                </Flex>
+                <Flex
+                    w="100%"
+                    maxW={[350, 800]}
+                    ml={["-10", ""]}
+                    mb="5"
+                    justify="space-between"
+                    align="center">
+                    <Grid templateColumns={["1fr", "1fr 1fr 1fr"]} w="100%" gap="4" >
+                        <GridItem >
+                            <Flex
+                                bg="gray.800"
+                                px="2"
+                                py="2"
+                                w="100%"
+                                h="100px"
+                                maxHeight={150}
+                                align="center"
+                                flexDirection="column"
+                                justify="space-between">
+                                <Text fontSize="small" fontWeight="semibold">Total de Clientes</Text>
+                                <Divider />
+                                <Text fontSize="3xl" fontWeight="semibold" color="green">{campaign?.baseofSubscribers}</Text>
+                            </Flex>
+                        </GridItem>
+                        <GridItem >
+                            <Flex
+                                bg="gray.800"
+                                px="2"
+                                py="2"
+                                w="100%"
+                                h="100px"
+                                maxHeight={150}
+                                align="center"
+                                flexDirection="column"
+                                justify="space-between">
+                                <Text fontSize="small" fontWeight="semibold">Total enviados</Text>
+                                <Divider />
+                                <Text fontSize="3xl" fontWeight="semibold" color="blue">{campaign?.totalSent}</Text>
+                            </Flex>
+                        </GridItem>
+                        <GridItem >
+                            <Flex
+                                bg="gray.800"
+                                px="2"
+                                py="2"
+                                w="100%"
+                                h="100px"
+                                maxHeight={150}
+                                align="center"
+                                flexDirection="column"
+                                justify="space-between">
+                                <Text fontSize="small" fontWeight="semibold">Totais abertos</Text>
+                                <Divider />
+                                <Text fontSize="3xl" fontWeight="semibold" color="yellow">{campaign?.totalRead}</Text>
+                            </Flex>
+                        </GridItem>
+                    </Grid>
                 </Flex>
                 <Flex
                     px={["2", "8"]}
@@ -160,7 +225,7 @@ export function Edit() {
 
                         <Input
                             {...register('name')}
-                            isDisabled={campaign?.status === 'Draft' ? false : true}
+                            isDisabled={campaign?.status === 'Rascunho' ? false : true}
                             error={errors.name}
                             type="text"
                             label="Nome"
@@ -168,7 +233,7 @@ export function Edit() {
                         />
                         <Input
                             {...register('from')}
-                            isDisabled={campaign?.status === 'Draft' ? false : true}
+                            isDisabled={campaign?.status === 'Rascunho' ? false : true}
                             error={errors.from}
                             type="email"
                             label="De"
@@ -176,7 +241,7 @@ export function Edit() {
                         />
                         <Input
                             {...register('subject')}
-                            isDisabled={campaign?.status === 'Draft' ? false : true}
+                            isDisabled={campaign?.status === 'Rascunho' ? false : true}
                             error={errors.subject}
                             type="text"
                             label="Assunto"
@@ -186,7 +251,7 @@ export function Edit() {
                             <FormLabel>Texto</FormLabel>
                             <Textarea
                                 {...register('body')}
-                                isDisabled={campaign?.status === 'Draft' ? false : true}
+                                isDisabled={campaign?.status === 'Rascunho' ? false : true}
                                 resize="none"
                                 bg="gray.950"
                                 border="none"
@@ -205,25 +270,28 @@ export function Edit() {
 
                     </Stack>
 
-                    <HStack mt="10">
-                        <Button
-                            disabled={campaign?.status === 'Draft' ? false : true}
-                            type="submit"
-                            transition="filter 0.2s"
-                            _hover={{ filter: "brightness(0.9)" }}
-                            bg="blue.900"
-                        >Atualizar
-                        </Button>
-                        <Button
-                            disabled={campaign?.status === 'Draft' ? false : true}
-                            type="submit"
-                            transition="filter 0.2s"
-                            _hover={{ filter: "brightness(0.9)" }}
-                            bg="green.700"
-                            onClick={handleSendEmails}
-                        >Disparar E-mails
-                        </Button>
-                    </HStack>
+                    <Flex mt="10" justify="space-between" >
+                        <HStack >
+                            <Button
+                                disabled={campaign?.status === 'Rascunho' ? false : true}
+                                type="submit"
+                                transition="filter 0.2s"
+                                _hover={{ filter: "brightness(0.9)" }}
+                                bg="blue.900"
+                            >Atualizar
+                            </Button>
+                            <Button
+                                disabled={campaign?.status === 'Rascunho' ? false : true}
+                                type="submit"
+                                transition="filter 0.2s"
+                                _hover={{ filter: "brightness(0.9)" }}
+                                bg="green.700"
+                                onClick={handleSendEmails}
+                            >Disparar E-mails
+                            </Button>
+                        </HStack>
+                        <Text fontSize="small" fontWeight="semibold" color="gray.300">Status: {campaign?.status}</Text>
+                    </Flex>
 
                 </Flex>
             </Flex>
