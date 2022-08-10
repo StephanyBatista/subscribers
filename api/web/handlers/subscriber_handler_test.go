@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"subscribers/domain"
 	"subscribers/domain/campaigns"
+	"subscribers/helpers"
 	"subscribers/helpers/fake"
 	"testing"
 	"time"
@@ -37,6 +38,19 @@ func Test_campaign_send_post_must_campaign_change_status_to_sending(t *testing.T
 
 	campaignUpdated := repository.GetBy(campaigns.Campaign{Entity: domain.Entity{ID: campaign.ID}})
 	assert.Equal(t, campaigns.Sending, campaignUpdated.Status)
+}
+
+func Test_campaign_send_post_campaign_must_be_draft(t *testing.T) {
+	fake.Build()
+	campaign := createNewCampaign("xpto", "teste")
+	campaign.Sending()
+	fake.DB.Save(&campaign)
+
+	w := fake.MakeTestHTTP("POST", "/campaigns/"+campaign.ID+"/send", nil, fake.GenerateAnyToken())
+
+	response := helpers.BufferToString(w.Body)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, response, "Campaings is with different status")
 }
 
 func Test_campaign_send_post_must_create_subscriber_from_clients(t *testing.T) {

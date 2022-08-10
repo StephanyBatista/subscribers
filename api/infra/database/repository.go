@@ -1,6 +1,10 @@
 package database
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+)
 
 type IRepository[Entity any] interface {
 	Create(obj *Entity) bool
@@ -15,6 +19,9 @@ type Repository[Entity any] struct {
 
 func (r *Repository[Entity]) Create(obj *Entity) bool {
 	result := r.DB.Create(&obj)
+	if result.Error != nil {
+		fmt.Println("Erro to create on db: " + result.Error.Error())
+	}
 	return result.Error == nil
 }
 

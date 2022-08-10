@@ -7,7 +7,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-func Send(from, to, subject, body, campaignId, subscriberId string) bool {
+func Send(from, to, subject, body, subscriberId string) bool {
 
 	if os.Getenv("sub_gotest") == "true" {
 		return false
