@@ -3,6 +3,7 @@ module subscribers
 go 1.18
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.18.0 // indirect
 	github.com/cosmtrek/air v1.40.4 // indirect
 	github.com/creack/pty v1.1.18 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

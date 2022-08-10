@@ -9,6 +9,7 @@ import (
 	"subscribers/web/handlers"
 	"testing"
 
+	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,8 +25,8 @@ func createNewUser() users.User {
 	return *user
 }
 
-func createNewClient(name string, email string, userId string) clients.Client {
-	entity := clients.NewClient(name, email, userId)
+func createNewClient(userId string) clients.Client {
+	entity := clients.NewClient(gofakeit.Name(), gofakeit.Email(), userId)
 	fake.DB.Create(&entity)
 	return *entity
 }
@@ -86,8 +87,8 @@ func Test_client_get_all_validate_token(t *testing.T) {
 func Test_client_get_all_clients(t *testing.T) {
 	fake.Build()
 	user := createNewUser()
-	createNewClient("teste2", "test1@teste.com.br", user.ID)
-	createNewClient("teste2", "test2@teste.com.br", user.ID)
+	createNewClient(user.ID)
+	createNewClient(user.ID)
 	amountOfClients := 2
 
 	w := fake.MakeTestHTTP("GET", "/clients", nil, fake.GenerateTokenWithUser(user))
@@ -99,10 +100,10 @@ func Test_client_get_all_clients(t *testing.T) {
 func Test_client_get_all_not_return_clients_from_others_users(t *testing.T) {
 	fake.Build()
 	currentUser := createNewUser()
-	createNewClient("teste1", "test1@teste.com.br", currentUser.ID)
-	createNewClient("teste2", "test2@teste.com.br", currentUser.ID)
+	createNewClient(currentUser.ID)
+	createNewClient(currentUser.ID)
 	anotherUser := createNewUser()
-	createNewClient("teste3", "test3@teste.com.br", anotherUser.ID)
+	createNewClient(anotherUser.ID)
 	amountOfClients := 2
 
 	w := fake.MakeTestHTTP("GET", "/clients", nil, fake.GenerateTokenWithUser(currentUser))
@@ -122,7 +123,7 @@ func Test_client_get_by_id_validate_token(t *testing.T) {
 func Test_client_get_by_id_return_client(t *testing.T) {
 	fake.Build()
 	currentUser := createNewUser()
-	entity := createNewClient("teste2", "test2@teste.com.br", currentUser.ID)
+	entity := createNewClient(currentUser.ID)
 
 	w := fake.MakeTestHTTP("GET", "/clients/"+entity.ID, nil, fake.GenerateTokenWithUser(currentUser))
 
@@ -136,7 +137,7 @@ func Test_client_get_by_id_return_client(t *testing.T) {
 func Test_client_get_by_id_not_return_clients_from_others_users(t *testing.T) {
 	fake.Build()
 	currentUser := createNewUser()
-	entity := createNewClient("teste2", "test2@teste.com.br", currentUser.ID)
+	entity := createNewClient(currentUser.ID)
 	fake.DB.Create(&entity)
 
 	w := fake.MakeTestHTTP("GET", "/clients/"+entity.ID, nil, fake.GenerateAnyToken())

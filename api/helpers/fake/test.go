@@ -16,6 +16,7 @@ import (
 )
 
 func FakeEnvs() {
+	os.Setenv("sub_gotest", "true")
 	os.Setenv("sub_database", "sqlite:memory")
 	os.Setenv("sub_salt_hash", "6")
 }
