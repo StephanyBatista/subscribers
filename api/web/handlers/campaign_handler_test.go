@@ -95,6 +95,27 @@ func Test_campaign_get_by_id_not_found(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Result().StatusCode)
 }
 
+func Test_campaign_get_campaign_by_id_must_calculate_dashboard(t *testing.T) {
+	fake.Build()
+	entity := createNewCampaign("xpto", gofakeit.Name())
+	fake.DB.Create(&entity)
+	sub1 := campaigns.NewSubscriber(entity, gofakeit.HexColor(), gofakeit.Email())
+	fake.DB.Create(sub1)
+	sub2 := campaigns.NewSubscriber(entity, gofakeit.HexColor(), gofakeit.Email())
+	sub2.Sent()
+	fake.DB.Create(sub2)
+	sub3 := campaigns.NewSubscriber(entity, gofakeit.HexColor(), gofakeit.Email())
+	sub3.Read()
+	fake.DB.Create(sub3)
+
+	w := fake.MakeTestHTTP("GET", "/campaigns/"+entity.ID, entity, fake.GenerateTokenWithUserId("xpto"))
+
+	response := helpers.BufferToObj[handlers.CampaignResponse](w.Body)
+	assert.Equal(t, 3, response.BaseOfSubscribers)
+	assert.Equal(t, 1, response.TotalSent)
+	assert.Equal(t, 1, response.TotalRead)
+}
+
 func Test_campaign_get_all_campaign_of_user(t *testing.T) {
 	fake.Build()
 	createNewCampaign("xpto", gofakeit.Name())
