@@ -27,6 +27,9 @@ func (h *SubscriberHandler) Post(c *gin.Context) {
 	if campaign == nil {
 		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
 		return
+	} else if campaign.Status != campaigns.Draft {
+		c.JSON(http.StatusBadRequest, web.NewErrorReponse("Campaings is with different status"))
+		return
 	}
 
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
@@ -59,7 +62,7 @@ func processSubscribers(
 	for _, subscriber := range subscribers {
 		log.Println("Send email to " + subscriber.Email)
 		ok :=
-			email.Send(campaign.From, subscriber.Email, campaign.Subject, campaign.Body, campaign.ID, subscriber.ClientID)
+			email.Send(campaign.From, subscriber.Email, campaign.Subject, campaign.Body, subscriber.ID)
 		if ok {
 			subscriber.Sent()
 		} else {
