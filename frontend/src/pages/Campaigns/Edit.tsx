@@ -78,6 +78,8 @@ export function Edit() {
     const getCampaign = useCallback(async () => {
         api.get(`campaigns/${campaignId}`)
             .then((response) => {
+
+                console.log(response)
                 setCampaign({
                     body: response.data.body,
                     subject: response.data.subject,
