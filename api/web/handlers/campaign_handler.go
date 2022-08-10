@@ -52,7 +52,28 @@ func (h *CampaignHandler) GetById(c *gin.Context) {
 		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
 		return
 	}
-	c.JSON(http.StatusOK, entity)
+	response := CampaignResponse{
+		ID:      entity.ID,
+		Name:    entity.Name,
+		Status:  entity.Status,
+		From:    entity.From,
+		Subject: entity.Subject,
+		Body:    entity.Body,
+	}
+
+	subscribers := h.SubscriberRepository.List(campaigns.Subscriber{CampaignID: entity.ID})
+	if subscribers != nil {
+		for _, subscriber := range *subscribers {
+			response.BaseOfSubscribers++
+			if subscriber.Status == campaigns.Sent {
+				response.TotalSent++
+			} else if subscriber.Status == campaigns.Read {
+				response.TotalRead++
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (h *CampaignHandler) GetAll(c *gin.Context) {

@@ -8,11 +8,13 @@ import (
 	"subscribers/web/handlers"
 	"testing"
 
+	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"
 )
 
-func createNewCampaign(name, from, body, userId string) campaigns.Campaign {
-	entity := campaigns.NewCampaign(name, from, "test", body, userId, "test")
+func createNewCampaign(userId, userName string) campaigns.Campaign {
+	entity := campaigns.NewCampaign(
+		gofakeit.Sentence(3), gofakeit.Email(), gofakeit.Sentence(3), gofakeit.Sentence(6), userId, userName)
 	fake.DB.Create(&entity)
 	return *entity
 }
@@ -33,12 +35,18 @@ func Test_campaign_post_validate_fields(t *testing.T) {
 	response := helpers.BufferToString(w.Body)
 	assert.Contains(t, response, "'Name' is required")
 	assert.Contains(t, response, "'From' is required")
+	assert.Contains(t, response, "'Subject' is required")
 	assert.Contains(t, response, "'Body' is required")
 }
 
 func Test_campaign_post_save_new_campaign(t *testing.T) {
 	fake.Build()
-	body := handlers.CampaignRequest{Name: "teste 1", From: "teste@teste.com.br", Body: "Teste"}
+	body := handlers.CampaignRequest{
+		Name:    "teste 1",
+		From:    "teste@teste.com.br",
+		Subject: "Test 2",
+		Body:    "Teste",
+	}
 
 	w := fake.MakeTestHTTP("POST", "/campaigns", body, fake.GenerateAnyToken())
 
@@ -51,7 +59,12 @@ func Test_campaign_post_show_erro_when_not_create(t *testing.T) {
 		ReturnsCreate: false,
 	}
 	fake.DI.CampaignHandler.CampaignRepository = mock
-	body := handlers.CampaignRequest{Name: "teste 1", From: "teste@teste.com.br", Body: "Teste"}
+	body := handlers.CampaignRequest{
+		Name:    "teste 1",
+		From:    "teste@teste.com.br",
+		Subject: "Test 2",
+		Body:    "Teste",
+	}
 
 	w := fake.MakeTestHTTP("POST", "/campaigns", body, fake.GenerateAnyToken())
 
@@ -60,7 +73,7 @@ func Test_campaign_post_show_erro_when_not_create(t *testing.T) {
 
 func Test_campaign_get_campaign_by_id(t *testing.T) {
 	fake.Build()
-	entity := createNewCampaign("teste 1", "teste@teste.com.br", "Teste", "xpto")
+	entity := createNewCampaign("xpto", gofakeit.Name())
 	fake.DB.Create(&entity)
 
 	w := fake.MakeTestHTTP("GET", "/campaigns/"+entity.ID, entity, fake.GenerateTokenWithUserId("xpto"))
@@ -82,14 +95,35 @@ func Test_campaign_get_by_id_not_found(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Result().StatusCode)
 }
 
+func Test_campaign_get_campaign_by_id_must_calculate_dashboard(t *testing.T) {
+	fake.Build()
+	entity := createNewCampaign("xpto", gofakeit.Name())
+	fake.DB.Create(&entity)
+	sub1 := campaigns.NewSubscriber(entity, gofakeit.HexColor(), gofakeit.Email())
+	fake.DB.Create(sub1)
+	sub2 := campaigns.NewSubscriber(entity, gofakeit.HexColor(), gofakeit.Email())
+	sub2.Sent()
+	fake.DB.Create(sub2)
+	sub3 := campaigns.NewSubscriber(entity, gofakeit.HexColor(), gofakeit.Email())
+	sub3.Read()
+	fake.DB.Create(sub3)
+
+	w := fake.MakeTestHTTP("GET", "/campaigns/"+entity.ID, entity, fake.GenerateTokenWithUserId("xpto"))
+
+	response := helpers.BufferToObj[handlers.CampaignResponse](w.Body)
+	assert.Equal(t, 3, response.BaseOfSubscribers)
+	assert.Equal(t, 1, response.TotalSent)
+	assert.Equal(t, 1, response.TotalRead)
+}
+
 func Test_campaign_get_all_campaign_of_user(t *testing.T) {
 	fake.Build()
-	createNewCampaign("teste 1", "teste@teste.com.br", "Teste", "user_current")
-	createNewCampaign("teste 2", "teste@teste.com.br", "Teste", "user_current")
-	createNewCampaign("teste 3", "teste@teste.com.br", "Teste", "another_user_current")
+	createNewCampaign("xpto", gofakeit.Name())
+	createNewCampaign("xpto", gofakeit.Name())
+	createNewCampaign("another_user_current", gofakeit.Name())
 	amountOfCampaignsExpectedOfUser := 2
 
-	w := fake.MakeTestHTTP("GET", "/campaigns", nil, fake.GenerateTokenWithUserId("user_current"))
+	w := fake.MakeTestHTTP("GET", "/campaigns", nil, fake.GenerateTokenWithUserId("xpto"))
 
 	campaignsOfUser := helpers.BufferToObj[[]campaigns.Campaign](w.Body)
 	assert.Equal(t, amountOfCampaignsExpectedOfUser, len(campaignsOfUser))

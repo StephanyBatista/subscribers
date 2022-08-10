@@ -10,7 +10,6 @@ import (
 	"subscribers/infra/email"
 	"subscribers/web"
 	"subscribers/web/auth"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,25 +32,40 @@ func (h *SubscriberHandler) Post(c *gin.Context) {
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
 	campaign.Sending()
 	h.CampaignRepository.Save(campaign)
-	clients := h.ClientRepository.List(clients.Client{UserId: claim.UserId})
-	go send(*campaign, *clients, h.SubscriberRepository)
 
 	c.JSON(http.StatusOK, "OK")
+
+	go processSubscribers(claim.UserId, *campaign, h.ClientRepository, h.SubscriberRepository)
 }
 
-func send(campaign campaigns.Campaign, clients []clients.Client, repository database.IRepository[campaigns.Subscriber]) {
-	for _, client := range clients {
-		time.Sleep(2 * time.Second)
-		log.Println("Send email to " + client.Email)
+func processSubscribers(
+	userId string,
+	campaign campaigns.Campaign,
+	clientRepository database.IRepository[clients.Client],
+	subscribersRepository database.IRepository[campaigns.Subscriber]) {
+
+	clients := clientRepository.List(clients.Client{UserId: userId})
+	if clients == nil {
+		return
+	}
+
+	subscribers := make([]campaigns.Subscriber, len(*clients))
+	for index, client := range *clients {
 		subscriber := campaigns.NewSubscriber(campaign, client.ID, client.Email)
+		subscribersRepository.Create(subscriber)
+		subscribers[index] = *subscriber
+	}
+
+	for _, subscriber := range subscribers {
+		log.Println("Send email to " + subscriber.Email)
 		ok :=
-			email.Send(campaign.From, client.Email, campaign.Subject, campaign.Body, campaign.ID, client.ID)
+			email.Send(campaign.From, subscriber.Email, campaign.Subject, campaign.Body, campaign.ID, subscriber.ClientID)
 		if ok {
 			subscriber.Sent()
 		} else {
 			subscriber.NotSent()
 		}
-		repository.Save(subscriber)
+		subscribersRepository.Save(&subscriber)
 	}
 }
 

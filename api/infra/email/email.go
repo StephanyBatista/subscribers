@@ -8,6 +8,11 @@ import (
 )
 
 func Send(from, to, subject, body, campaignId, subscriberId string) bool {
+
+	if os.Getenv("sub_gotest") == "true" {
+		return false
+	}
+
 	link := os.Getenv("sub_url_app") + "/subscribers/" + subscriberId + "/read"
 	img := `<img src="` + link + `">`
 	msg := gomail.NewMessage()
