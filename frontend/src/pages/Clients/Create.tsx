@@ -28,21 +28,24 @@ export function CreateClient() {
     const navigate = useNavigate();
 
     const onHandleSubmit: SubmitHandler<FormProps | FieldValues> = async (values) => {
-        const response = await api.post('clients', {
+        console.log(values);
+        api.post('clients', {
             name: values.name,
             email: values.email,
-        });
-        if (response.status === 201) {
-            toast({
-                description: 'Cliente adicionado com sucesso!',
-                status: 'success',
-                duration: 5000,
-                isClosable: true
-            });
-            navigate('/clients');
+        }).then((response) => {
+            if (response.status === 201) {
+                toast({
+                    description: 'Cliente adicionado com sucesso!',
+                    status: 'success',
+                    duration: 5000,
+                    isClosable: true
+                });
+                navigate('/clients');
 
-        }
-        console.log(response);
+            }
+        }).catch(err => console.log(err))
+
+
     }
     return (
         <Layout>
@@ -60,7 +63,7 @@ export function CreateClient() {
                     mb="5"
                     justify="space-between"
                     align="center">
-                    <Heading fontSize="2xl">Adicionar Clientes</Heading>
+                    <Heading fontSize="2xl">Adicionar Cliente</Heading>
                     <Link
                         as={ReactLink}
                         to="/clients"
@@ -84,6 +87,7 @@ export function CreateClient() {
                     <Flex
                         onSubmit={handleSubmit(onHandleSubmit)}
                         as="form"
+                        flex="1"
                         flexDirection="column"
                         justify="space-between"
                     >
@@ -103,17 +107,18 @@ export function CreateClient() {
                             />
 
                         </Stack>
+                        <Box>
+                            <Button
+                                type="submit"
+                                isLoading={isSubmitting}
+                                transition="filter 0.2s"
+                                _hover={{ filter: "brightnss(0.9)" }}
+                                bg="blue.900">Salvar
+                            </Button>
+                        </Box>
+
 
                     </Flex>
-                    <Box>
-                        <Button
-                            type="submit"
-                            isLoading={isSubmitting}
-                            transition="filter 0.2s"
-                            _hover={{ filter: "brightnss(0.9)" }}
-                            bg="blue.900">Salvar
-                        </Button>
-                    </Box>
                 </Flex>
 
             </Flex>

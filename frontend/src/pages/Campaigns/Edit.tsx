@@ -73,6 +73,15 @@ export function Edit() {
         api.post(`campaigns/${campaignId}/send`)
             .then((response) => {
                 console.log(response);
+                if (response.data) {
+                    toast({
+                        description: "Campanha Ativa",
+                        status: 'success',
+                        duration: 5000,
+                        isClosable: true
+                    });
+                    handleUpdateState();
+                }
             }).catch((err) => {
                 console.log(err)
             }).finally(() => setIsSendEmail(false));
@@ -94,7 +103,7 @@ export function Edit() {
                     totalSent: response.data.totalSent,
                     totalRead: response.data.totalRead,
                     baseofSubscribers: response.data.baseofSubscribers,
-                    status: response.data.status === "Processing" && "Processando" || response.data.status === "Rascunho" && "Rascunho",
+                    status: response.data.status,
                 })
             }).catch(err => console.log(err))
             .finally(() => setIsLoading(false));
@@ -225,7 +234,7 @@ export function Edit() {
 
                         <Input
                             {...register('name')}
-                            isDisabled={campaign?.status === 'Rascunho' ? false : true}
+                            isDisabled={campaign?.status === 'Draft' ? false : true}
                             error={errors.name}
                             type="text"
                             label="Nome"
@@ -233,7 +242,7 @@ export function Edit() {
                         />
                         <Input
                             {...register('from')}
-                            isDisabled={campaign?.status === 'Rascunho' ? false : true}
+                            isDisabled={campaign?.status === 'Draft' ? false : true}
                             error={errors.from}
                             type="email"
                             label="De"
@@ -241,7 +250,7 @@ export function Edit() {
                         />
                         <Input
                             {...register('subject')}
-                            isDisabled={campaign?.status === 'Rascunho' ? false : true}
+                            isDisabled={campaign?.status === 'Draft' ? false : true}
                             error={errors.subject}
                             type="text"
                             label="Assunto"
@@ -251,7 +260,7 @@ export function Edit() {
                             <FormLabel>Texto</FormLabel>
                             <Textarea
                                 {...register('body')}
-                                isDisabled={campaign?.status === 'Rascunho' ? false : true}
+                                isDisabled={campaign?.status === 'Draft' ? false : true}
                                 resize="none"
                                 bg="gray.950"
                                 border="none"
@@ -273,7 +282,7 @@ export function Edit() {
                     <Flex mt="10" justify="space-between" >
                         <HStack >
                             <Button
-                                disabled={campaign?.status === 'Rascunho' ? false : true}
+                                disabled={campaign?.status === 'Draft' ? false : true}
                                 type="submit"
                                 transition="filter 0.2s"
                                 _hover={{ filter: "brightness(0.9)" }}
@@ -281,7 +290,7 @@ export function Edit() {
                             >Atualizar
                             </Button>
                             <Button
-                                disabled={campaign?.status === 'Rascunho' ? false : true}
+                                disabled={campaign?.status === 'Draft' ? false : true}
                                 type="submit"
                                 transition="filter 0.2s"
                                 _hover={{ filter: "brightness(0.9)" }}
@@ -290,7 +299,7 @@ export function Edit() {
                             >Disparar E-mails
                             </Button>
                         </HStack>
-                        <Text fontSize="small" fontWeight="semibold" color="gray.300">Status: {campaign?.status}</Text>
+                        <Text fontSize="small" fontWeight="semibold" color="gray.300">Status: {campaign.status === "Processing" && "Processando" || campaign.status === "Draft" && "Rascunho"}</Text>
                     </Flex>
 
                 </Flex>
