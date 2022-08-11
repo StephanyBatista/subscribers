@@ -94,6 +94,10 @@ export function setupAPIClient(ctx  = undefined){
                 
             }
         }
+        if(error?.message === "Network Error"){
+            onSigOut();
+        }
+     
         return Promise.reject(error);
         
     })
