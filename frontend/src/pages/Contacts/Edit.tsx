@@ -1,6 +1,6 @@
 import { Layout } from "../../components/templates/Layout";
 
-export function EdtiClient() {
+export function EditContact() {
     return (
         <Layout>
 

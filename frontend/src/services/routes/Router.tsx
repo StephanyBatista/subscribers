@@ -2,9 +2,9 @@ import { Routes, Route } from "react-router-dom";
 import { Campaigns } from "../../pages/Campaigns";
 import { Create } from "../../pages/Campaigns/Create";
 import { Edit } from "../../pages/Campaigns/Edit";
-import { Clients } from "../../pages/Clients";
-import { CreateClient } from "../../pages/Clients/Create";
-import { EdtiClient } from "../../pages/Clients/Edit";
+import { Contacts } from "../../pages/Contacts";
+import { CreateContact } from "../../pages/Contacts/Create";
+import { EditContact } from "../../pages/Contacts/Edit";
 import { Dashboard } from "../../pages/Dashboard";
 import { Register } from "../../pages/Register";
 import { SingIn } from "../../pages/SingIn";
@@ -25,10 +25,10 @@ export function AppRoute() {
                 <Route path="edit/:campaignId" element={<Edit />} />
                 <Route index element={<Campaigns />} />
             </Route>
-            <Route path="clients" >
-                <Route path="create" element={<CreateClient />} />
-                <Route path="edit/:clientId" element={<EdtiClient />} />
-                <Route index element={<Clients />} />
+            <Route path="contacts" >
+                <Route path="create" element={<CreateContact />} />
+                <Route path="edit/:contactId" element={<EditContact />} />
+                <Route index element={<Contacts />} />
             </Route>
             <Route path="*" element={<NotFound />} />
         </Routes>

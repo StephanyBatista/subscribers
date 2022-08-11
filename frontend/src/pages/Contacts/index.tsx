@@ -6,35 +6,35 @@ import { Layout } from "../../components/templates/Layout";
 import { api } from "../../services/apiClient";
 
 
-interface ClientsData {
+interface ContactData {
     id: string;
     name: string;
     email: string;
 }
 
-export function Clients() {
-    const [clients, setClients] = useState<ClientsData[]>([]);
+export function Contacts() {
+    const [contacts, setContacts] = useState<ContactData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const getAllClientes = useCallback(async () => {
+    const getAllContacts = useCallback(async () => {
         api.get('/clients').then((response) => {
-            setClients(response.data)
+            setContacts(response.data)
         }).catch(err => console.log(err)).finally(() => setIsLoading(false));
 
     }, []);
 
     useEffect(() => {
-        getAllClientes();
+        getAllContacts();
     }, [])
 
     return (
         <Layout>
             <Flex justify="space-between" mb="8" align="center">
-                <Heading>Clientes</Heading>
+                <Heading>Contatos</Heading>
                 <Link
                     _hover={{ textDecoration: 'none' }}
                     as={ReactLink}
-                    to="/clients/create"
+                    to="/contacts/create"
                 >
                     <Button
                         type="button"
@@ -75,16 +75,16 @@ export function Clients() {
                                     </Tr>
                                 </Thead>
                                 <Tbody>
-                                    {clients?.map(client => (
-                                        <Tr key={client.id} >
-                                            <Td>{client.id}</Td>
-                                            <Td>{client.name.charAt(0).toUpperCase() + client.name.slice(1)}</Td>
-                                            <Td>{client.email}</Td>
+                                    {contacts?.map(contact => (
+                                        <Tr key={contact.id} >
+                                            <Td>{contact.id}</Td>
+                                            <Td>{contact.name.charAt(0).toUpperCase() + contact.name.slice(1)}</Td>
+                                            <Td>{contact.email}</Td>
                                             <Td>
                                                 <Link
                                                     _hover={{ textDecoration: 'none' }}
                                                     as={ReactLink}
-                                                    to={`/clients/edit/${client.id}`}
+                                                    to={`/contacts/edit/${contact.id}`}
                                                 >
                                                     <Button
                                                         type="button"

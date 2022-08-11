@@ -1,4 +1,4 @@
-import { Link, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Flex, Box, Avatar, Text, Button } from "@chakra-ui/react";
+import { Link, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Flex, Box, Avatar, Text, Button, HStack } from "@chakra-ui/react";
 import { Link as ReactLink } from 'react-router-dom';
 
 import { FiPlus } from "react-icons/fi";
@@ -10,58 +10,38 @@ export function Navbar() {
             mr="4"
             as="aside"
         >
-            <Popover
-                placement="bottom-end"
-            >
-                <PopoverTrigger>
-                    <IconButton
-                        color="gray.50"
-                        fontSize="xl"
-                        variant="unstyled"
-                        aria-label='action button'
-                        icon={<FiPlus />}
-                    />
-                </PopoverTrigger>
-                <PopoverContent
-                    maxWidth={200}
-                    //px="4"
+            <HStack mr="20" spacing={4}>
+                <Link
+                    as={ReactLink}
+                    to='/campaigns'
                     py="1"
-                    textAlign="center"
-                    gap="2"
-                    color="gray.900">
-                    <Flex
-                        flexDirection="column"
-                        w="100%"
-                    >
-                        <Link
-                            as={ReactLink}
-                            to='/campaigns'
-                            py="1"
-                            transition="background 0.2s, color 0.2s"
-                            _hover={{ textDecoration: 'none', background: "blue.900", color: 'gray.50' }}
-                        >Campanhas
-                        </Link>
-                        <Link
-                            as={ReactLink}
-                            to='/clients'
-                            py="1"
-                            transition="background 0.2s, color 0.2s"
-                            _hover={{ textDecoration: 'none', background: "blue.900", color: 'gray.50' }}
-                        >Clientes
-                        </Link>
-                    </Flex>
-                </PopoverContent>
-            </Popover>
+                    transition=" color 0.2s"
+                    _hover={{ textDecoration: 'none', color: 'blue.900' }}
+                >Campanhas
+                </Link>
+                <Link
+                    as={ReactLink}
+                    to='/contacts'
+                    py="1"
+                    transition=" color 0.2s"
+                    _hover={{ textDecoration: 'none', color: 'blue.900' }}
+                >Contatos
+                </Link>
+            </HStack>
 
 
             <Flex align="center">
                 <Popover
                     placement="bottom-end">
-                    <PopoverTrigger>
-                        <Avatar
-                            size="md"
-                            name={user?.name}
-                        />
+                    <PopoverTrigger >
+                        <Box
+                            _hover={{ cursor: 'pointer' }}
+                        >
+                            <Avatar
+                                size="md"
+                                name={user?.name}
+                            />
+                        </Box>
                     </PopoverTrigger>
                     <PopoverContent color="gray.800" w="200px">
                         <Button type="button" onClick={onSigOut} variant="unstyled">Sair</Button>

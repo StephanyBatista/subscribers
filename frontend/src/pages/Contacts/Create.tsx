@@ -19,7 +19,7 @@ const validation = Yup.object().shape({
 });
 
 
-export function CreateClient() {
+export function CreateContact() {
     const { register, handleSubmit, reset, formState } = useForm({
         resolver: yupResolver(validation)
     });
@@ -35,12 +35,12 @@ export function CreateClient() {
         }).then((response) => {
             if (response.status === 201) {
                 toast({
-                    description: 'Cliente adicionado com sucesso!',
+                    description: 'Contato adicionado com sucesso!',
                     status: 'success',
                     duration: 5000,
                     isClosable: true
                 });
-                navigate('/clients');
+                navigate('/contacts');
 
             }
         }).catch(err => console.log(err))
@@ -63,10 +63,10 @@ export function CreateClient() {
                     mb="5"
                     justify="space-between"
                     align="center">
-                    <Heading fontSize="2xl">Adicionar Cliente</Heading>
+                    <Heading fontSize="2xl">Adicionar contato</Heading>
                     <Link
                         as={ReactLink}
-                        to="/clients"
+                        to="/contacts"
                     >
                         <Icon as={BiArrowBack} fontSize="2xl" />
                     </Link>

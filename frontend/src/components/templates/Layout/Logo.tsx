@@ -7,6 +7,7 @@ export function Logo() {
             _hover={{ textDecoration: 'none' }}
             as={ReactLink}
             to="/dashboard"
+            ml="4"
         >
             <Box >
                 <Heading fontSize="xl" as="span" >Subs</Heading>
