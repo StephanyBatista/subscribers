@@ -28,9 +28,9 @@ func CreateRouter(di *helpers.DI) *gin.Engine {
 		secured.GET("/campaigns/:id", di.CampaignHandler.GetById)
 		secured.GET("/campaigns", di.CampaignHandler.GetAll)
 		secured.POST("/campaigns/:campaignID/send", di.SubscriberHander.Post)
-		secured.POST("/clients", di.ClientHandler.Post)
-		secured.GET("/clients", di.ClientHandler.GetAll)
-		secured.GET("/clients/:id", di.ClientHandler.GetById)
+		secured.POST("/contacts", di.ContactHandler.Post)
+		secured.GET("/contacts", di.ContactHandler.GetAll)
+		secured.GET("/contacts/:id", di.ContactHandler.GetById)
 	}
 
 	return r

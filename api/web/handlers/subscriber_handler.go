@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"subscribers/domain"
 	"subscribers/domain/campaigns"
-	"subscribers/domain/clients"
+	"subscribers/domain/contacts"
 	"subscribers/infra/database"
 	"subscribers/infra/email"
 	"subscribers/web"
@@ -17,7 +17,7 @@ import (
 type SubscriberHandler struct {
 	CampaignRepository   database.IRepository[campaigns.Campaign]
 	SubscriberRepository database.IRepository[campaigns.Subscriber]
-	ClientRepository     database.IRepository[clients.Client]
+	ContactRepository    database.IRepository[contacts.Contact]
 }
 
 func (h *SubscriberHandler) Post(c *gin.Context) {
@@ -38,16 +38,16 @@ func (h *SubscriberHandler) Post(c *gin.Context) {
 
 	c.JSON(http.StatusOK, "OK")
 
-	go processSubscribers(claim.UserId, *campaign, h.ClientRepository, h.SubscriberRepository)
+	go processSubscribers(claim.UserId, *campaign, h.ContactRepository, h.SubscriberRepository)
 }
 
 func processSubscribers(
 	userId string,
 	campaign campaigns.Campaign,
-	clientRepository database.IRepository[clients.Client],
+	contactRepository database.IRepository[contacts.Contact],
 	subscribersRepository database.IRepository[campaigns.Subscriber]) {
 
-	clients := clientRepository.List(clients.Client{UserId: userId})
+	clients := contactRepository.List(contacts.Contact{UserId: userId})
 	if clients == nil {
 		return
 	}

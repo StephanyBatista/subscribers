@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"subscribers/domain"
 	"subscribers/domain/campaigns"
-	"subscribers/domain/clients"
+	"subscribers/domain/contacts"
 	"subscribers/infra/database"
 	"subscribers/web"
 
@@ -17,7 +17,7 @@ import (
 type CampaignHandler struct {
 	CampaignRepository   database.IRepository[campaigns.Campaign]
 	SubscriberRepository database.IRepository[campaigns.Subscriber]
-	ClientRepository     database.IRepository[clients.Client]
+	ContactRepository    database.IRepository[contacts.Contact]
 }
 
 func (h *CampaignHandler) Post(c *gin.Context) {

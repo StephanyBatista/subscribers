@@ -1,8 +1,8 @@
-package clients
+package contacts
 
 import "subscribers/domain"
 
-type Client struct {
+type Contact struct {
 	domain.Entity
 	Name   string `json:"name" gorm:"not null;size:100;"`
 	Email  string `json:"email" gorm:"not null;size:100;"`
@@ -10,15 +10,13 @@ type Client struct {
 	UserId string `json:"userId" gorm:"not null"`
 }
 
-func NewClient(name string, email string, userId string) *Client {
+func NewContact(name string, email string, userId string) *Contact {
 
-	client := &Client{
+	return &Contact{
 		Name:   name,
 		Email:  email,
 		Active: true,
 		Entity: domain.NewEntity(),
 		UserId: userId,
 	}
-
-	return client
 }

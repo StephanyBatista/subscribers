@@ -2,7 +2,7 @@ package helpers
 
 import (
 	"subscribers/domain/campaigns"
-	"subscribers/domain/clients"
+	"subscribers/domain/contacts"
 	"subscribers/domain/users"
 	"subscribers/infra/database"
 	"subscribers/web/handlers"
@@ -17,7 +17,7 @@ type DI struct {
 	HealthCheckHandler *handlers.HealthCheckHandler
 	CampaignHandler    *handlers.CampaignHandler
 	SubscriberHander   *handlers.SubscriberHandler
-	ClientHandler      *handlers.ClientHandler
+	ContactHandler     *handlers.ContactHandler
 }
 
 func NewDI() *DI {
@@ -33,16 +33,16 @@ func NewDI() *DI {
 	di.CampaignHandler = &handlers.CampaignHandler{
 		CampaignRepository:   &database.Repository[campaigns.Campaign]{DB: db},
 		SubscriberRepository: &database.Repository[campaigns.Subscriber]{DB: db},
-		ClientRepository:     &database.Repository[clients.Client]{DB: db},
+		ContactRepository:    &database.Repository[contacts.Contact]{DB: db},
 	}
 	di.SubscriberHander = &handlers.SubscriberHandler{
 		CampaignRepository:   &database.Repository[campaigns.Campaign]{DB: db},
 		SubscriberRepository: &database.Repository[campaigns.Subscriber]{DB: db},
-		ClientRepository:     &database.Repository[clients.Client]{DB: db},
+		ContactRepository:    &database.Repository[contacts.Contact]{DB: db},
 	}
-	di.ClientHandler = &handlers.ClientHandler{
-		UserRepository:   &database.Repository[users.User]{DB: db},
-		ClientRepository: &database.Repository[clients.Client]{DB: db},
+	di.ContactHandler = &handlers.ContactHandler{
+		UserRepository:    &database.Repository[users.User]{DB: db},
+		ContactRepository: &database.Repository[contacts.Contact]{DB: db},
 	}
 	return di
 }

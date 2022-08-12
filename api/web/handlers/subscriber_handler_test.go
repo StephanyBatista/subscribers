@@ -58,8 +58,8 @@ func Test_campaign_send_post_must_create_subscriber_from_clients(t *testing.T) {
 	userId := "232cecsd2"
 	campaign := createNewCampaign(userId, "teste")
 	repository := fake.DI.SubscriberHander.SubscriberRepository
-	createNewClient(userId)
-	createNewClient(userId)
+	createNewContact(userId)
+	createNewContact(userId)
 	amountOfClients := 2
 
 	fake.MakeTestHTTP("POST", "/campaigns/"+campaign.ID+"/send", nil, fake.GenerateTokenWithUserId(userId))
@@ -74,7 +74,7 @@ func Test_campaign_send_post_must_try_send_email(t *testing.T) {
 	userId := "232cecsd2"
 	campaign := createNewCampaign(userId, "teste")
 	repository := fake.DI.SubscriberHander.SubscriberRepository
-	createNewClient(userId)
+	createNewContact(userId)
 
 	fake.MakeTestHTTP("POST", "/campaigns/"+campaign.ID+"/send", nil, fake.GenerateTokenWithUserId(userId))
 	time.Sleep(1 * time.Second)
