@@ -1,10 +1,8 @@
-import { Box, Button, Flex, Grid, GridItem, Heading, Link, List, ListItem, Stack, Table, Tbody, Td, Th, Image, Text, Tr, Thead, Icon } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Link, Stack, Table, Tbody, Td, Th, Tr, Thead, Icon } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { Link as ReactLink } from "react-router-dom";
 import { Layout } from "../../components/templates/Layout";
 import { api } from "../../services/apiClient";
-import Test from "../../assets/test.jpeg"
-import { FiPenTool } from "react-icons/fi";
 import { BiPencil } from "react-icons/bi";
 
 
@@ -27,19 +25,18 @@ interface CampaignsData {
 export function Campaigns() {
     const [campaigns, setCampaigns] = useState<CampaignsData[]>([]);
 
-    const getAllCampaigns = useCallback(async () => {
-        api.get('/campaigns').then((response) => {
-            console.log(response)
-            setCampaigns(response.data);
-        }).catch((error) => {
-            console.log('rttot ', error)
-        });
-
-
-    }, []);
-
     useEffect(() => {
-        getAllCampaigns();
+        const controller = new AbortController();
+        try {
+            api.get('/campaigns', { signal: controller.signal }).then((response) => {
+                setCampaigns(response.data);
+            }).catch((error) => {
+
+            });
+        } catch (error) {
+
+        }
+        return () => { controller.abort() };
     }, []);
 
     const data = campaigns?.map(campaign => {
@@ -56,7 +53,7 @@ export function Campaigns() {
         }
     })
 
-    console.log(data)
+
     return (
         <Layout>
             <Flex justify="space-between" mb="8" align="center">

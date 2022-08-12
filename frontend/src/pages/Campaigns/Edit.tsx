@@ -72,7 +72,7 @@ export function Edit() {
         setIsSendEmail(true);
         api.post(`campaigns/${campaignId}/send`)
             .then((response) => {
-                console.log(response);
+
                 if (response.data) {
                     toast({
                         description: "Campanha Ativa",
@@ -88,31 +88,36 @@ export function Edit() {
     }, [])
 
     const getCampaign = useCallback(async () => {
-        api.get<CampaignData>(`campaigns/${campaignId}`)
-            .then((response) => {
 
-                console.log(response)
-                setCampaign({
-                    body: response.data.body,
-                    subject: response.data.subject,
-                    createdAt: response.data.createdAt,
-                    createdBy: response.data.createdBy,
-                    from: response.data.from,
-                    id: response.data.id,
-                    name: response.data.name,
-                    totalSent: response.data.totalSent,
-                    totalRead: response.data.totalRead,
-                    baseofSubscribers: response.data.baseofSubscribers,
-                    status: response.data.status,
-                })
-            }).catch(err => console.log(err))
-            .finally(() => setIsLoading(false));
-        // setCampaign(response.data);
 
     }, []);
-    console.log(campaign)
+
     useEffect(() => {
-        getCampaign();
+        const controller = new AbortController();
+        try {
+            api.get<CampaignData>(`campaigns/${campaignId}`, { signal: controller.signal })
+                .then((response) => {
+                    setCampaign({
+                        body: response.data.body,
+                        subject: response.data.subject,
+                        createdAt: response.data.createdAt,
+                        createdBy: response.data.createdBy,
+                        from: response.data.from,
+                        id: response.data.id,
+                        name: response.data.name,
+                        totalSent: response.data.totalSent,
+                        totalRead: response.data.totalRead,
+                        baseofSubscribers: response.data.baseofSubscribers,
+                        status: response.data.status,
+                    })
+                }).catch(err => console.log(err))
+                .finally(() => setIsLoading(false));
+        } catch (error) {
+
+        }
+
+        return () => { controller.abort() };
+
     }, [updateState]);
 
     if (isLoading) {

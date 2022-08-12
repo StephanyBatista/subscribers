@@ -29,7 +29,7 @@ export function CreateContact() {
 
     const onHandleSubmit: SubmitHandler<FormProps | FieldValues> = async (values) => {
         console.log(values);
-        api.post('clients', {
+        api.post('contacts', {
             name: values.name,
             email: values.email,
         }).then((response) => {

@@ -11,7 +11,7 @@ export function Private({ children }: PrivateProps) {
     const { isAuthenticated } = useAuth();
     const toast = useToast();
     const navigate = useNavigate();
-    console.log('isAuthenticated ', isAuthenticated);
+
 
     useEffect(() => {
         if (!isAuthenticated) {
