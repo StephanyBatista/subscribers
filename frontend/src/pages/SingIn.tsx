@@ -45,7 +45,7 @@ export function SingIn() {
                 })
             }
         });
-        console.log(response);
+
     }
 
     return (

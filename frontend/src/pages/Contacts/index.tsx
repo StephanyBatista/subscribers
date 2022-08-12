@@ -1,7 +1,7 @@
 import { Box, Button, Flex, Heading, Icon, Link, Spinner, Stack, Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
 import { Link as ReactLink } from "react-router-dom";
 import { BiPencil } from "react-icons/bi";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Layout } from "../../components/templates/Layout";
 import { api } from "../../services/apiClient";
 
@@ -16,15 +16,18 @@ export function Contacts() {
     const [contacts, setContacts] = useState<ContactData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const getAllContacts = useCallback(async () => {
-        api.get('/clients').then((response) => {
-            setContacts(response.data)
-        }).catch(err => console.log(err)).finally(() => setIsLoading(false));
-
-    }, []);
-
     useEffect(() => {
-        getAllContacts();
+        const controller = new AbortController();
+        try {
+            api.get('/contacts', { signal: controller.signal }).then((response) => {
+                setContacts(response.data)
+            }).catch(err => console.log(err)).finally(() => setIsLoading(false));
+
+        } catch (error) {
+            console.log(error);
+        }
+
+        return () => { controller.abort() };
     }, [])
 
     return (

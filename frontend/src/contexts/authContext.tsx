@@ -75,9 +75,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const onGetUserInfos = useCallback(async () => {
 
         api.get('/users/info').then(response => {
-            console.log(response)
             setUser(response.data);
-
         }).catch((errors) => {
             console.log(errors)
             // onSigOut();
