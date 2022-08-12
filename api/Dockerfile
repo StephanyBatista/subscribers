@@ -17,6 +17,6 @@ COPY --from=builder /usr/share/zoneinfo/America/Sao_Paulo /usr/share/zoneinfo/Am
 ENV TZ America/Sao_Paulo
 WORKDIR /app
 COPY --from=builder /app/api /app/api
-COPY --from=builder /app/.env /app
+#COPY --from=builder /app/.env /app
 EXPOSE 6004
 CMD ["./api"]
