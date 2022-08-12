@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"subscribers/helpers"
 	"subscribers/web/routers"
 
@@ -17,8 +16,5 @@ func main() {
 }
 
 func loadEnvs() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	godotenv.Load()
 }
