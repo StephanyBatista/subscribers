@@ -264,48 +264,61 @@ export function Edit() {
                     <Stack
                         as="form"
                         spacing={3}>
-
-                        <Input
-                            {...register('name')}
-                            isDisabled={campaign?.status === 'Draft' ? false : true}
-                            error={errors.name}
-                            type="text"
-                            label="Nome"
-                            defaultValue={campaign?.name}
-                        />
-                        <Input
-                            {...register('from')}
-                            isDisabled={campaign?.status === 'Draft' ? false : true}
-                            error={errors.from}
-                            type="email"
-                            label="De"
-                            defaultValue={campaign?.from}
-                        />
-                        <Input
-                            {...register('subject')}
-                            isDisabled={campaign?.status === 'Draft' ? false : true}
-                            error={errors.subject}
-                            type="text"
-                            label="Assunto"
-                            defaultValue={campaign?.subject}
-                        />
-                        <FormControl>
-                            <FormLabel>Anexo da campanha</FormLabel>
-                            <InputGroup
-                                alignItems="center" >
-                                <InputRightElement
-                                    pointerEvents="none"
-                                    children={<Icon as={AiOutlinePaperClip} fontSize="20" />}
-                                />
+                        <Grid templateColumns={["1fr", "1fr 1fr"]} gap="4">
+                            <GridItem>
                                 <Input
+                                    {...register('name')}
                                     isDisabled={campaign?.status === 'Draft' ? false : true}
-                                    type="file"
-                                    name="file"
-                                    accept="application/pdf,application/msword,.docx"
-                                    onChange={handleAttachment}
+                                    error={errors.name}
+                                    type="text"
+                                    label="Nome"
+                                    defaultValue={campaign?.name}
                                 />
-                            </InputGroup>
-                        </FormControl>
+                            </GridItem>
+                            <GridItem>
+                                <Input
+                                    {...register('subject')}
+                                    isDisabled={campaign?.status === 'Draft' ? false : true}
+                                    error={errors.subject}
+                                    type="text"
+                                    label="Assunto"
+                                    defaultValue={campaign?.subject}
+                                />
+                            </GridItem>
+
+                        </Grid>
+                        <Grid templateColumns={["1fr", "1fr 1fr"]} gap="4">
+                            <GridItem>
+                                <Input
+                                    {...register('from')}
+                                    isDisabled={campaign?.status === 'Draft' ? false : true}
+                                    error={errors.from}
+                                    type="email"
+                                    label="De"
+                                    defaultValue={campaign?.from}
+                                />
+                            </GridItem>
+                            <GridItem>
+                                <FormControl>
+                                    <FormLabel>Anexo da campanha</FormLabel>
+                                    <InputGroup
+                                        alignItems="center" >
+                                        <InputRightElement
+                                            pointerEvents="none"
+                                            children={<Icon as={AiOutlinePaperClip} fontSize="20" />}
+                                        />
+                                        <Input
+                                            isDisabled={campaign?.status === 'Draft' ? false : true}
+                                            type="file"
+                                            name="file"
+                                            accept="application/pdf,application/msword,.docx"
+                                            onChange={handleAttachment}
+                                        />
+                                    </InputGroup>
+                                </FormControl>
+                            </GridItem>
+                        </Grid>
+
                         <FormControl>
                             <FormLabel>Texto</FormLabel>
                             <Textarea
