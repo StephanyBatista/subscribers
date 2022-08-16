@@ -1,4 +1,4 @@
-import { Box, Link, Button, Flex, Heading, HStack, List, ListItem, Stack, Tab, Table, TabList, TabPanel, TabPanels, Tabs, Th, Thead, Tr, useDisclosure, useToast, Icon, FormControl, FormLabel, Textarea, Alert, AlertDescription, Spinner, Grid, GridItem, Text, Divider } from "@chakra-ui/react";
+import { Link, Button, Flex, Heading, HStack, Stack, useDisclosure, useToast, Icon, FormControl, FormLabel, Textarea, Alert, AlertDescription, Spinner, Grid, GridItem, Text, Divider, InputGroup, InputRightElement } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, Link as ReactLink } from "react-router-dom";
 import { Layout } from "../../components/templates/Layout";
@@ -7,9 +7,8 @@ import { api } from "../../services/apiClient";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { ClientModal } from "../../components/campaigns/ClientModal";
 import { BiArrowBack } from "react-icons/bi";
-import { AiOutlineUserSwitch } from "react-icons/ai";
+import { AiOutlinePaperClip } from "react-icons/ai";
 
 interface FormProps {
     name: string;
@@ -50,6 +49,7 @@ export function Edit() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSendEmail, setIsSendEmail] = useState(false);
     const [updateState, setUpdateState] = useState(false);
+    const [attachment, setAttachment] = useState<File>();
     const { campaignId } = useParams();
 
     const { register, handleSubmit, reset, formState } = useForm({
@@ -87,10 +87,7 @@ export function Edit() {
             }).finally(() => setIsSendEmail(false));
     }, [])
 
-    const getCampaign = useCallback(async () => {
 
-
-    }, []);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -119,6 +116,37 @@ export function Edit() {
         return () => { controller.abort() };
 
     }, [updateState]);
+
+
+    const handleAttachment = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const input = event.target;
+        if (!input.files?.length) {
+            return;
+        }
+        const file = input.files[0];
+
+        switch (file.type) {
+            case 'application/pdf':
+                break;
+
+            case 'application/msword':
+                break;
+
+            default:
+                toast({
+                    title: "Formato de arquivo inválido!",
+                    description: "Aceito somente arquivos, pdf ou .doc, docx",
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: true
+                })
+                return
+        }
+
+
+
+    }
+
 
     if (isLoading) {
         return (
@@ -261,6 +289,23 @@ export function Edit() {
                             label="Assunto"
                             defaultValue={campaign?.subject}
                         />
+                        <FormControl>
+                            <FormLabel>Anexo da campanha</FormLabel>
+                            <InputGroup
+                                alignItems="center" >
+                                <InputRightElement
+                                    pointerEvents="none"
+                                    children={<Icon as={AiOutlinePaperClip} fontSize="20" />}
+                                />
+                                <Input
+                                    isDisabled={campaign?.status === 'Draft' ? false : true}
+                                    type="file"
+                                    name="file"
+                                    accept="application/pdf,application/msword,.docx"
+                                    onChange={handleAttachment}
+                                />
+                            </InputGroup>
+                        </FormControl>
                         <FormControl>
                             <FormLabel>Texto</FormLabel>
                             <Textarea
