@@ -31,6 +31,7 @@ func CreateRouter(di *helpers.DI) *gin.Engine {
 		secured.POST("/contacts", di.ContactHandler.Post)
 		secured.GET("/contacts", di.ContactHandler.GetAll)
 		secured.GET("/contacts/:id", di.ContactHandler.GetById)
+		secured.POST("/files", di.FileHandler.Post)
 	}
 
 	return r

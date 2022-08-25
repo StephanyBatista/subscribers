@@ -53,12 +53,13 @@ func (h *CampaignHandler) GetById(c *gin.Context) {
 		return
 	}
 	response := CampaignResponse{
-		ID:      entity.ID,
-		Name:    entity.Name,
-		Status:  entity.Status,
-		From:    entity.From,
-		Subject: entity.Subject,
-		Body:    entity.Body,
+		ID:            entity.ID,
+		Name:          entity.Name,
+		Status:        entity.Status,
+		From:          entity.From,
+		Subject:       entity.Subject,
+		Body:          entity.Body,
+		AttachmentURL: entity.AttachmentURL,
 	}
 
 	subscribers := h.SubscriberRepository.List(campaigns.Subscriber{CampaignID: entity.ID})

@@ -7,6 +7,7 @@ type CampaignResponse struct {
 	From              string `json:"from"`
 	Subject           string `json:"subject"`
 	Body              string `json:"body"`
+	AttachmentURL     string `json:"attachmentURL"`
 	BaseOfSubscribers int    `json:"baseofSubscribers"`
 	TotalSent         int    `json:"totalSent"`
 	TotalRead         int    `json:"totalRead"`
