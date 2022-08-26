@@ -1,4 +1,4 @@
-import { Link, Button, Flex, Heading, HStack, Stack, useDisclosure, useToast, Icon, FormControl, FormLabel, Textarea, Alert, AlertDescription, Spinner, Grid, GridItem, Text, Divider, InputGroup, InputRightElement } from "@chakra-ui/react";
+import { Link, Button, Flex, Heading, HStack, Stack, useDisclosure, useToast, Icon, FormControl, FormLabel, Textarea, Alert, AlertDescription, Spinner, Grid, GridItem, Text, Divider, InputGroup, InputRightElement, ListItem, List } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, Link as ReactLink } from "react-router-dom";
 import { Layout } from "../../components/templates/Layout";
@@ -9,6 +9,7 @@ import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BiArrowBack } from "react-icons/bi";
 import { AiOutlinePaperClip } from "react-icons/ai";
+import { useDropzone } from "react-dropzone";
 
 interface FormProps {
     name: string;
@@ -87,6 +88,53 @@ export function Edit() {
             }).finally(() => setIsSendEmail(false));
     }, [])
 
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+
+        switch (acceptedFiles[0].type) {
+            case 'application/pdf':
+                break;
+
+            case 'application/msword':
+                break;
+
+            default:
+                toast({
+                    title: "Formato de arquivo inválido!",
+                    description: "Aceito somente arquivos, pdf ou .doc, docx",
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: true
+                })
+                return
+        }
+
+
+        if (acceptedFiles[0].size >= 10735049) {
+            toast({
+
+                description: "Tamanho excedido, maximo permitido por arquivo é 10MB.",
+                status: 'error',
+                duration: 9000,
+                isClosable: true
+            })
+
+            return false;
+        }
+    }, []);
+
+
+    const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+        maxFiles: 1,
+        onDrop,
+    });
+
+    const files = acceptedFiles.map(file => (
+        //@ts-ignore
+        <ListItem key={file.path}>
+            {/*@ts-ignore */}
+            {file.path} - {file.size} bytes
+        </ListItem>
+    ));
 
 
     useEffect(() => {
@@ -142,6 +190,15 @@ export function Edit() {
                 })
                 return
         }
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('kind', 'campaign');
+        formData.append('keyId', String(campaignId));
+
+        api.post('/files', formData).then((response) => {
+            console.log(response)
+        }).catch(err => console.log(err))
+            .finally()
 
 
 
@@ -299,7 +356,30 @@ export function Edit() {
                                 />
                             </GridItem>
                             <GridItem>
-                                <FormControl>
+                                <Flex as="section" flexDirection="column" >
+                                    <Text fontWeight="600">Arquivo*:</Text>
+                                    <Flex
+                                        border="dashed"
+                                        py="8"
+                                        px="8"
+                                        borderWidth={1}
+                                        {...getRootProps({ className: 'dropzone' })}
+                                        align="center"
+                                        justify="center"
+                                    >
+                                        <input type="file" {...register('arquivo')} name="arquivo" {...getInputProps()} />
+                                        <Text fontSize="12">Clique aqui para selecionar ou arraste o arquivo</Text>
+                                    </Flex>
+                                    <Flex as="aside" flexDirection="column" >
+                                        <Text fontSize="small" fontWeight="bold">Arquivo selecioando:</Text>
+                                        <List>
+                                            <Text fontSize="small">{files}</Text>
+                                        </List>
+                                    </Flex>
+
+                                </Flex>
+
+                                {/* <FormControl>
                                     <FormLabel>Anexo da campanha</FormLabel>
                                     <InputGroup
                                         alignItems="center" >
@@ -315,7 +395,7 @@ export function Edit() {
                                             onChange={handleAttachment}
                                         />
                                     </InputGroup>
-                                </FormControl>
+                                </FormControl> */}
                             </GridItem>
                         </Grid>
 
