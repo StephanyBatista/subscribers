@@ -18,6 +18,7 @@ type DI struct {
 	CampaignHandler    *handlers.CampaignHandler
 	SubscriberHander   *handlers.SubscriberHandler
 	ContactHandler     *handlers.ContactHandler
+	FileHandler        *handlers.FileHandler
 }
 
 func NewDI() *DI {
@@ -43,6 +44,9 @@ func NewDI() *DI {
 	di.ContactHandler = &handlers.ContactHandler{
 		UserRepository:    &database.Repository[users.User]{DB: db},
 		ContactRepository: &database.Repository[contacts.Contact]{DB: db},
+	}
+	di.FileHandler = &handlers.FileHandler{
+		CampaignRepository: &database.Repository[campaigns.Campaign]{DB: db},
 	}
 	return di
 }

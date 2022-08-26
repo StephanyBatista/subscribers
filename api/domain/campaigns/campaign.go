@@ -15,12 +15,13 @@ const (
 
 type Campaign struct {
 	domain.Entity
-	Name      string           `json:"name" gorm:"size:100; not null"`
-	Status    string           `json:"status" gorm:"size:15; not null"`
-	From      string           `json:"from" gorm:"size:100; not null"`
-	Subject   string           `json:"subject" gorm:"size:150;not null"`
-	Body      string           `json:"body" gorm:"not null"`
-	CreatedBy domain.UserValue `json:"createdBy" gorm:"embedded;embeddedPrefix:createdby_"`
+	Name          string           `json:"name" gorm:"size:100; not null"`
+	Status        string           `json:"status" gorm:"size:15; not null"`
+	From          string           `json:"from" gorm:"size:100; not null"`
+	Subject       string           `json:"subject" gorm:"size:150;not null"`
+	Body          string           `json:"body" gorm:"not null"`
+	AttachmentURL string           `json:"attachmentURL"`
+	CreatedBy     domain.UserValue `json:"createdBy" gorm:"embedded;embeddedPrefix:createdby_"`
 }
 
 func (c *Campaign) Sending() {
