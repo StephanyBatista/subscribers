@@ -34,6 +34,7 @@ interface CampaignData {
     baseofSubscribers: number;
     totalRead: number;
     totalSent: number;
+    attachmentURL?: string;
 
 }
 
@@ -142,6 +143,7 @@ export function Edit() {
         try {
             api.get<CampaignData>(`campaigns/${campaignId}`, { signal: controller.signal })
                 .then((response) => {
+                    console.log(response)
                     setCampaign({
                         body: response.data.body,
                         subject: response.data.subject,
@@ -154,6 +156,7 @@ export function Edit() {
                         totalRead: response.data.totalRead,
                         baseofSubscribers: response.data.baseofSubscribers,
                         status: response.data.status,
+                        attachmentURL: response.data.attachmentURL,
                     })
                 }).catch(err => console.log(err))
                 .finally(() => setIsLoading(false));
@@ -355,48 +358,65 @@ export function Edit() {
                                     defaultValue={campaign?.from}
                                 />
                             </GridItem>
-                            <GridItem>
-                                <Flex as="section" flexDirection="column" >
-                                    <Text fontWeight="600">Arquivo*:</Text>
-                                    <Flex
-                                        border="dashed"
-                                        py="8"
-                                        px="8"
-                                        borderWidth={1}
-                                        {...getRootProps({ className: 'dropzone' })}
-                                        align="center"
-                                        justify="center"
-                                    >
-                                        <input type="file" {...register('arquivo')} name="arquivo" {...getInputProps()} />
-                                        <Text fontSize="12">Clique aqui para selecionar ou arraste o arquivo</Text>
-                                    </Flex>
-                                    <Flex as="aside" flexDirection="column" >
-                                        <Text fontSize="small" fontWeight="bold">Arquivo selecioando:</Text>
-                                        <List>
-                                            <Text fontSize="small">{files}</Text>
-                                        </List>
+                            {campaign?.attachmentURL ? (
+                                <GridItem>
+                                    <FormControl>
+                                        <FormLabel mb="5">Arquivo</FormLabel>
+                                        <Link bg="transparent"
+                                            borderWidth={1}
+                                            borderColor="blue.900"
+                                            px="4"
+                                            py="2"
+                                            _hover={{ filter: "brightness(0.9)", textDecoration: 'none', bg: "blue.900" }}
+                                            fontWeight="bold"
+                                            href={campaign.attachmentURL}
+                                            target="_blank"
+                                        >Baixar</Link>
+                                    </FormControl>
+
+                                </GridItem>
+                            ) : (
+                                <GridItem>
+                                    <Flex as="section" flexDirection="column" >
+                                        <Text fontWeight="600">Arquivo*:</Text>
+                                        <Flex
+                                            border="dashed"
+                                            py="8"
+                                            px="8"
+                                            borderWidth={1}
+                                            {...getRootProps({ className: 'dropzone' })}
+                                            align="center"
+                                            justify="center"
+                                        >
+                                            <input type="file" {...register('arquivo')} name="arquivo" {...getInputProps()} />
+                                            <Text fontSize="12">Clique aqui para selecionar ou arraste o arquivo</Text>
+                                        </Flex>
+                                        {campaign?.attachmentURL && (
+                                            < Link fontWeight="bold" href={campaign.attachmentURL} target="_blank" fontSize="small">Baixar</Link>
+                                        )}
+
                                     </Flex>
 
-                                </Flex>
+                                    {/* <FormControl>
+                                     <FormLabel>Anexo da campanha</FormLabel>
+                                     <InputGroup
+                                         alignItems="center" >
+                                         <InputRightElement
+                                             pointerEvents="none"
+                                             children={<Icon as={AiOutlinePaperClip} fontSize="20" />}
+                                         />
+                                         <Input
+                                             isDisabled={campaign?.status === 'Draft' ? false : true}
+                                             type="file"
+                                             name="file"
+                                             accept="application/pdf,application/msword,.docx"
+                                             onChange={handleAttachment}
+                                         />
+                                     </InputGroup>
+                                 </FormControl> */}
+                                </GridItem>
+                            )}
 
-                                {/* <FormControl>
-                                    <FormLabel>Anexo da campanha</FormLabel>
-                                    <InputGroup
-                                        alignItems="center" >
-                                        <InputRightElement
-                                            pointerEvents="none"
-                                            children={<Icon as={AiOutlinePaperClip} fontSize="20" />}
-                                        />
-                                        <Input
-                                            isDisabled={campaign?.status === 'Draft' ? false : true}
-                                            type="file"
-                                            name="file"
-                                            accept="application/pdf,application/msword,.docx"
-                                            onChange={handleAttachment}
-                                        />
-                                    </InputGroup>
-                                </FormControl> */}
-                            </GridItem>
                         </Grid>
 
                         <FormControl>
@@ -449,6 +469,6 @@ export function Edit() {
             </Flex>
 
 
-        </Layout>
+        </Layout >
     )
 }
