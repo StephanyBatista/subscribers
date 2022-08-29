@@ -1,4 +1,4 @@
-import { Box, Link, Button, Flex, Heading, HStack, List, ListItem, Stack, Tab, Table, TabList, TabPanel, TabPanels, Tabs, Th, Thead, Tr, useDisclosure, useToast, Icon, FormControl, FormLabel, Textarea, Alert, AlertDescription, Spinner, Grid, GridItem, Text, Divider } from "@chakra-ui/react";
+import { Link, Button, Flex, Heading, HStack, Stack, useDisclosure, useToast, Icon, FormControl, FormLabel, Textarea, Alert, AlertDescription, Spinner, Grid, GridItem, Text, Divider, InputGroup, InputRightElement, ListItem, List } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, Link as ReactLink } from "react-router-dom";
 import { Layout } from "../../components/templates/Layout";
@@ -7,9 +7,9 @@ import { api } from "../../services/apiClient";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { ClientModal } from "../../components/campaigns/ClientModal";
 import { BiArrowBack } from "react-icons/bi";
-import { AiOutlineUserSwitch } from "react-icons/ai";
+import { AiOutlinePaperClip } from "react-icons/ai";
+import { useDropzone } from "react-dropzone";
 
 interface FormProps {
     name: string;
@@ -34,6 +34,7 @@ interface CampaignData {
     baseofSubscribers: number;
     totalRead: number;
     totalSent: number;
+    attachmentURL?: string;
 
 }
 
@@ -50,6 +51,7 @@ export function Edit() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSendEmail, setIsSendEmail] = useState(false);
     const [updateState, setUpdateState] = useState(false);
+    const [attachment, setAttachment] = useState<File>();
     const { campaignId } = useParams();
 
     const { register, handleSubmit, reset, formState } = useForm({
@@ -87,16 +89,61 @@ export function Edit() {
             }).finally(() => setIsSendEmail(false));
     }, [])
 
-    const getCampaign = useCallback(async () => {
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+
+        switch (acceptedFiles[0].type) {
+            case 'application/pdf':
+                break;
+
+            case 'application/msword':
+                break;
+
+            default:
+                toast({
+                    title: "Formato de arquivo inválido!",
+                    description: "Aceito somente arquivos, pdf ou .doc, docx",
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: true
+                })
+                return
+        }
 
 
+        if (acceptedFiles[0].size >= 10735049) {
+            toast({
+
+                description: "Tamanho excedido, maximo permitido por arquivo é 10MB.",
+                status: 'error',
+                duration: 9000,
+                isClosable: true
+            })
+
+            return false;
+        }
     }, []);
+
+
+    const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+        maxFiles: 1,
+        onDrop,
+    });
+
+    const files = acceptedFiles.map(file => (
+        //@ts-ignore
+        <ListItem key={file.path}>
+            {/*@ts-ignore */}
+            {file.path} - {file.size} bytes
+        </ListItem>
+    ));
+
 
     useEffect(() => {
         const controller = new AbortController();
         try {
             api.get<CampaignData>(`campaigns/${campaignId}`, { signal: controller.signal })
                 .then((response) => {
+                    console.log(response)
                     setCampaign({
                         body: response.data.body,
                         subject: response.data.subject,
@@ -109,6 +156,7 @@ export function Edit() {
                         totalRead: response.data.totalRead,
                         baseofSubscribers: response.data.baseofSubscribers,
                         status: response.data.status,
+                        attachmentURL: response.data.attachmentURL,
                     })
                 }).catch(err => console.log(err))
                 .finally(() => setIsLoading(false));
@@ -119,6 +167,46 @@ export function Edit() {
         return () => { controller.abort() };
 
     }, [updateState]);
+
+
+    const handleAttachment = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const input = event.target;
+        if (!input.files?.length) {
+            return;
+        }
+        const file = input.files[0];
+
+        switch (file.type) {
+            case 'application/pdf':
+                break;
+
+            case 'application/msword':
+                break;
+
+            default:
+                toast({
+                    title: "Formato de arquivo inválido!",
+                    description: "Aceito somente arquivos, pdf ou .doc, docx",
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: true
+                })
+                return
+        }
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('kind', 'campaign');
+        formData.append('keyId', String(campaignId));
+
+        api.post('/files', formData).then((response) => {
+            console.log(response)
+        }).catch(err => console.log(err))
+            .finally()
+
+
+
+    }
+
 
     if (isLoading) {
         return (
@@ -236,31 +324,101 @@ export function Edit() {
                     <Stack
                         as="form"
                         spacing={3}>
+                        <Grid templateColumns={["1fr", "1fr 1fr"]} gap="4">
+                            <GridItem>
+                                <Input
+                                    {...register('name')}
+                                    isDisabled={campaign?.status === 'Draft' ? false : true}
+                                    error={errors.name}
+                                    type="text"
+                                    label="Nome"
+                                    defaultValue={campaign?.name}
+                                />
+                            </GridItem>
+                            <GridItem>
+                                <Input
+                                    {...register('subject')}
+                                    isDisabled={campaign?.status === 'Draft' ? false : true}
+                                    error={errors.subject}
+                                    type="text"
+                                    label="Assunto"
+                                    defaultValue={campaign?.subject}
+                                />
+                            </GridItem>
 
-                        <Input
-                            {...register('name')}
-                            isDisabled={campaign?.status === 'Draft' ? false : true}
-                            error={errors.name}
-                            type="text"
-                            label="Nome"
-                            defaultValue={campaign?.name}
-                        />
-                        <Input
-                            {...register('from')}
-                            isDisabled={campaign?.status === 'Draft' ? false : true}
-                            error={errors.from}
-                            type="email"
-                            label="De"
-                            defaultValue={campaign?.from}
-                        />
-                        <Input
-                            {...register('subject')}
-                            isDisabled={campaign?.status === 'Draft' ? false : true}
-                            error={errors.subject}
-                            type="text"
-                            label="Assunto"
-                            defaultValue={campaign?.subject}
-                        />
+                        </Grid>
+                        <Grid templateColumns={["1fr", "1fr 1fr"]} gap="4">
+                            <GridItem>
+                                <Input
+                                    {...register('from')}
+                                    isDisabled={campaign?.status === 'Draft' ? false : true}
+                                    error={errors.from}
+                                    type="email"
+                                    label="De"
+                                    defaultValue={campaign?.from}
+                                />
+                            </GridItem>
+                            {campaign?.attachmentURL ? (
+                                <GridItem>
+                                    <FormControl>
+                                        <FormLabel mb="5">Arquivo</FormLabel>
+                                        <Link bg="transparent"
+                                            borderWidth={1}
+                                            borderColor="blue.900"
+                                            px="4"
+                                            py="2"
+                                            _hover={{ filter: "brightness(0.9)", textDecoration: 'none', bg: "blue.900" }}
+                                            fontWeight="bold"
+                                            href={campaign.attachmentURL}
+                                            target="_blank"
+                                        >Baixar</Link>
+                                    </FormControl>
+
+                                </GridItem>
+                            ) : (
+                                <GridItem>
+                                    <Flex as="section" flexDirection="column" >
+                                        <Text fontWeight="600">Arquivo*:</Text>
+                                        <Flex
+                                            border="dashed"
+                                            py="8"
+                                            px="8"
+                                            borderWidth={1}
+                                            {...getRootProps({ className: 'dropzone' })}
+                                            align="center"
+                                            justify="center"
+                                        >
+                                            <input type="file" {...register('arquivo')} name="arquivo" {...getInputProps()} />
+                                            <Text fontSize="12">Clique aqui para selecionar ou arraste o arquivo</Text>
+                                        </Flex>
+                                        {campaign?.attachmentURL && (
+                                            < Link fontWeight="bold" href={campaign.attachmentURL} target="_blank" fontSize="small">Baixar</Link>
+                                        )}
+
+                                    </Flex>
+
+                                    {/* <FormControl>
+                                     <FormLabel>Anexo da campanha</FormLabel>
+                                     <InputGroup
+                                         alignItems="center" >
+                                         <InputRightElement
+                                             pointerEvents="none"
+                                             children={<Icon as={AiOutlinePaperClip} fontSize="20" />}
+                                         />
+                                         <Input
+                                             isDisabled={campaign?.status === 'Draft' ? false : true}
+                                             type="file"
+                                             name="file"
+                                             accept="application/pdf,application/msword,.docx"
+                                             onChange={handleAttachment}
+                                         />
+                                     </InputGroup>
+                                 </FormControl> */}
+                                </GridItem>
+                            )}
+
+                        </Grid>
+
                         <FormControl>
                             <FormLabel>Texto</FormLabel>
                             <Textarea
@@ -311,6 +469,6 @@ export function Edit() {
             </Flex>
 
 
-        </Layout>
+        </Layout >
     )
 }
