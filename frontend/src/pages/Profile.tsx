@@ -14,8 +14,8 @@ interface FormProps {
 }
 const validation = Yup.object().shape({
     currentPassword: Yup.string().required('Digite a senha antiga'),
-    newPassword: Yup.string().required('Digite uma nova senha'),
-    confirmedNewPassword: Yup.string().oneOf([Yup.ref('newPassword'), null], 'Senha não confere com a digitada')
+    newPassword: Yup.string().min(8, 'A senha precisa ter ao menos 8 caracteres').required('Digite uma nova senha'),
+    confirmedNewPassword: Yup.string().min(8, 'A senha precisa ter ao menos 8 caracteres').oneOf([Yup.ref('newPassword'), null], 'Senha não confere com a digitada')
 })
 export function Profile() {
     const { register, handleSubmit, reset, formState } = useForm({
@@ -26,7 +26,7 @@ export function Profile() {
     const toast = useToast();
     const onHandleSubmit: SubmitHandler<FormProps | FieldValues> = async (values) => {
         console.log(values);
-        api.post(`users/${user.userId}/changepassword`, {
+        api.post(`users/${user.id}/changepassword`, {
             currentPassword: values.currentPassword,
             newPassword: values.newPassword
         }).then((response) => {
