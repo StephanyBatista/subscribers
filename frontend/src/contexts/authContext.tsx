@@ -11,6 +11,7 @@ interface AuthProviderProps {
 interface User {
     name: string;
     email: string;
+    userId: string;
 }
 
 interface AuthContextProps {
@@ -76,6 +77,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         api.get('/users/info').then(response => {
             setUser(response.data);
+            console.log(response.data)
         }).catch((errors) => {
             console.log(errors)
             // onSigOut();

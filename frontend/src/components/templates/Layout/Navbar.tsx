@@ -44,7 +44,22 @@ export function Navbar() {
                         </Box>
                     </PopoverTrigger>
                     <PopoverContent color="gray.800" w="200px">
-                        <Button type="button" onClick={onSigOut} variant="unstyled">Sair</Button>
+                        <Button
+                            _hover={{ bg: "blue.900", color: 'white' }}
+                            transition="background 0.2s"
+                            type="button" variant="unstyled">
+                            <Link
+                                as={ReactLink}
+                                to='/profile'
+                                _hover={{ textDecoration: 'none' }}
+                            >
+                                Profile
+                            </Link>
+                        </Button>
+                        <Button
+                            _hover={{ bg: "blue.900", color: 'white' }}
+                            transition="background 0.2s"
+                            type="button" onClick={onSigOut} variant="unstyled">Sair</Button>
                     </PopoverContent>
                 </Popover>
             </Flex>
