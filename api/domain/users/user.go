@@ -24,6 +24,18 @@ func (u User) CheckPassword(password string) bool {
 	return err == nil
 }
 
+func (u *User) ChangePassword(oldPassword, newPassword string) error {
+	if !u.CheckPassword(oldPassword) {
+		return errors.New("old password invalid")
+	}
+
+	salt, _ := strconv.Atoi(os.Getenv("sub_salt_hash"))
+	newBytes, _ := bcrypt.GenerateFromPassword([]byte(newPassword), salt)
+	newPasswordGeneraged := string(newBytes)
+	u.PasswordHash = newPasswordGeneraged
+	return nil
+}
+
 func NewUser(name, email, password string) (*User, error) {
 	salt, _ := strconv.Atoi(os.Getenv("sub_salt_hash"))
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), salt)

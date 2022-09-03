@@ -57,3 +57,19 @@ func (h *UserHandler) GetInfo(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"name": claim.UserName, "email": claim.Email})
 }
+
+func (h *UserHandler) ChangePassword(c *gin.Context) {
+	var body UserChangePasswordRequest
+	c.BindJSON(&body)
+	token := c.GetHeader("Authorization")
+	claim, _ := auth.GetClaimFromToken(token)
+	userSaved := h.UserRepository.GetBy(users.User{Email: claim.Email})
+
+	err := userSaved.ChangePassword(body.OldPassword, body.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, web.NewErrorReponse(err.Error()))
+		return
+	}
+	h.UserRepository.Save(userSaved)
+	c.JSON(http.StatusOK, http.StatusOK)
+}

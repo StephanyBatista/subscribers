@@ -24,6 +24,7 @@ func CreateRouter(di *helpers.DI) *gin.Engine {
 	secured := r.Group("").Use(middlewares.Auth())
 	{
 		secured.GET("/users/info", di.UserHandler.GetInfo)
+		secured.PATCH("/users/changepassword", di.UserHandler.ChangePassword)
 		secured.POST("/campaigns", di.CampaignHandler.Post)
 		secured.GET("/campaigns/:id", di.CampaignHandler.GetById)
 		secured.GET("/campaigns", di.CampaignHandler.GetAll)
