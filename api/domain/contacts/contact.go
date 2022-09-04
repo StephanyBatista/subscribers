@@ -10,6 +10,10 @@ type Contact struct {
 	UserId string `json:"userId" gorm:"not null"`
 }
 
+func (c *Contact) Cancel() {
+	c.Active = false
+}
+
 func NewContact(name string, email string, userId string) *Contact {
 
 	return &Contact{

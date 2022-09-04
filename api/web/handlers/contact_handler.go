@@ -56,3 +56,15 @@ func (h *ContactHandler) GetById(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, entity)
 }
+
+func (h *ContactHandler) Cancel(c *gin.Context) {
+	id := c.Param("id")
+
+	entity := h.ContactRepository.GetBy(contacts.Contact{Entity: domain.Entity{ID: id}})
+	if entity == nil {
+		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
+	}
+	entity.Cancel()
+	h.ContactRepository.Save(entity)
+	c.JSON(http.StatusOK, http.StatusOK)
+}
