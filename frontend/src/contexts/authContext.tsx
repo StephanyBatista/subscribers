@@ -3,6 +3,7 @@ import { createContext, ReactNode, useCallback, useEffect, useRef, useState } fr
 import { useNavigate } from "react-router-dom";
 import { Loading } from "../components/templates/Layout/Loading";
 import { api } from "../services/apiClient";
+import jwt_decode from "jwt-decode";
 
 interface AuthProviderProps {
     children: ReactNode;
@@ -11,6 +12,7 @@ interface AuthProviderProps {
 interface User {
     name: string;
     email: string;
+    id: string;
 }
 
 interface AuthContextProps {
@@ -75,7 +77,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const onGetUserInfos = useCallback(async () => {
 
         api.get('/users/info').then(response => {
-            setUser(response.data);
+
+
+            let cookies = parseCookies(undefined);
+            const token = cookies['@Subscriber.token'];
+            const decoded = jwt_decode<User>(token);
+
+            const userId = decoded['id'];
+            setUser({
+                name: response.data.name,
+                email: response.data.email,
+                id: userId
+            });
+
         }).catch((errors) => {
             console.log(errors)
             // onSigOut();

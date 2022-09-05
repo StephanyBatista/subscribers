@@ -1,4 +1,4 @@
-import { Link, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Flex, Box, Avatar, Text, Button, HStack } from "@chakra-ui/react";
+import { Link, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Flex, Box, Avatar, Text, Button, HStack, Divider } from "@chakra-ui/react";
 import { Link as ReactLink } from 'react-router-dom';
 
 import { FiPlus } from "react-icons/fi";
@@ -47,7 +47,22 @@ export function Navbar() {
                                 </Box>
                             </PopoverTrigger>
                             <PopoverContent color="gray.800" w="200px">
-                                <Button type="button" onClick={onSigOut} variant="unstyled">Sair</Button>
+                                <Button
+                                    _hover={{ bg: "blue.900", color: 'white' }}
+                                    transition="Background 0.2s"
+                                    type="button" variant="unstyled">
+                                    <Link
+                                        _hover={{ textDecoration: 'none' }}
+                                        to="/profile"
+                                        as={ReactLink}>
+                                        Profile
+                                    </Link>
+                                </Button>
+                                <Divider />
+                                <Button
+                                    _hover={{ bg: "blue.900", color: 'white' }}
+                                    transition="Background 0.2s"
+                                    type="button" onClick={onSigOut} variant="unstyled">Sair</Button>
                             </PopoverContent>
                         </Popover>
                     </Flex>

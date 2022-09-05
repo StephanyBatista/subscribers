@@ -7,6 +7,7 @@ import { Contacts } from "../../pages/Contacts";
 import { CreateContact } from "../../pages/Contacts/Create";
 import { EditContact } from "../../pages/Contacts/Edit";
 import { Dashboard } from "../../pages/Dashboard";
+import { Profile } from "../../pages/Profile";
 import { Register } from "../../pages/Register";
 import { SingIn } from "../../pages/SingIn";
 import { NotFound } from "./NotFound";
@@ -21,6 +22,7 @@ export function AppRoute() {
             <Route path="register" element={<Register />} />
             <Route path="singin" element={<SingIn />} />
             <Route path="dashboard" element={<Private><Dashboard /></Private>} />
+            <Route path="profile" element={<Private><Profile /></Private>} />
             <Route path="campaigns" >
                 <Route path="create" element={<Create />} />
                 <Route path="edit/:campaignId" element={<Edit />} />
