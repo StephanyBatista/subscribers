@@ -17,7 +17,6 @@ export function CancelSubscription() {
     const handleCancelSubscription = async () => {
         api.patch(`contacts/${contactId}/cancel`)
             .then((response) => {
-                console.log(response)
                 toast({
                     description: 'Inscrição cancelada.',
                     status: 'success'
