@@ -78,7 +78,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         api.get('/users/info').then(response => {
 
-            console.log(response.data)
+
             let cookies = parseCookies(undefined);
             const token = cookies['@Subscriber.token'];
             const decoded = jwt_decode<User>(token);
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 email: response.data.email,
                 id: userId
             });
-            console.log(decoded);
+
         }).catch((errors) => {
             console.log(errors)
             // onSigOut();

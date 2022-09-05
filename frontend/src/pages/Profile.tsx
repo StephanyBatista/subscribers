@@ -25,18 +25,27 @@ export function Profile() {
     const { errors, isSubmitting } = formState;
     const toast = useToast();
     const onHandleSubmit: SubmitHandler<FormProps | FieldValues> = async (values) => {
-        console.log(values);
-        api.post(`users/${user.id}/changepassword`, {
-            currentPassword: values.currentPassword,
-            newPassword: values.newPassword
+
+        api.patch(`users/changepassword`, {
+            oldpassword: values.currentPassword,
+            newpassword: values.newPassword
         }).then((response) => {
+
             toast({
                 description: 'Senha alterada com sucesso!',
                 status: 'success',
                 duration: 3000,
                 isClosable: true
             })
-        }).catch(error => console.log(error));
+        }).catch(error => {
+            console.log(error.response.data.errors[0]);
+            toast({
+                description: 'Senha antiga não confere!',
+                status: 'error',
+                duration: 3000,
+                isClosable: true
+            })
+        });
 
     }
     return (
