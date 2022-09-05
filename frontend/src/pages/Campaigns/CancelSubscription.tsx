@@ -15,11 +15,11 @@ export function CancelSubscription() {
     const toast = useToast();
     const navigate = useNavigate();
     const handleCancelSubscription = async () => {
-        api.post(`contacts/${contactId}/canceled`)
+        api.patch(`contacts/${contactId}/cancel`)
             .then((response) => {
                 console.log(response)
                 toast({
-                    description: response.data.message,
+                    description: 'Inscrição cancelada.',
                     status: 'success'
                 });
                 navigate('/singin');
@@ -56,13 +56,17 @@ export function CancelSubscription() {
                     </Stack>
                     <HStack spacing={8}>
                         <Button
+                            _hover={{ color: 'white', bg: 'red.900' }}
                             onClick={handleCancelSubscription}
                             variant="unstyled"
+                            width="100%"
+                            display="block"
                             fontSize="lg"
                             fontWeight="bold"
                             isLoading={isLoading}
                         >Desejo cancelar</Button>
                         <Link
+                            width="100%"
                             as={ReactLink}
                             to="/singin"
                         >Entrar na minha conta</Link>
