@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { Campaigns } from "../../pages/Campaigns";
+import { CancelSubscription } from "../../pages/Campaigns/CancelSubscription";
 import { Create } from "../../pages/Campaigns/Create";
 import { Edit } from "../../pages/Campaigns/Edit";
 import { Contacts } from "../../pages/Contacts";
@@ -30,6 +31,7 @@ export function AppRoute() {
                 <Route path="edit/:contactId" element={<EditContact />} />
                 <Route index element={<Contacts />} />
             </Route>
+            <Route path="/subscription/:contactId" element={<CancelSubscription />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
     );

@@ -20,6 +20,7 @@ func CreateRouter(di *helpers.DI) *gin.Engine {
 	r.POST("/token", di.TokenHandler.Post)
 	r.POST("/users", di.UserHandler.Post)
 	r.GET("/subscribers/:id/read", di.SubscriberHander.GetRead)
+	r.PATCH("/contacts/:id/cancel", di.ContactHandler.Cancel)
 
 	secured := r.Group("").Use(middlewares.Auth())
 	{
@@ -32,7 +33,6 @@ func CreateRouter(di *helpers.DI) *gin.Engine {
 		secured.POST("/contacts", di.ContactHandler.Post)
 		secured.GET("/contacts", di.ContactHandler.GetAll)
 		secured.GET("/contacts/:id", di.ContactHandler.GetById)
-		secured.PATCH("/contacts/:id/cancel", di.ContactHandler.Cancel)
 		secured.POST("/files", di.FileHandler.Post)
 	}
 
