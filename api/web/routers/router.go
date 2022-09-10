@@ -19,7 +19,6 @@ func CreateRouter(di *helpers.DI) *gin.Engine {
 	r.GET("/healthcheck", di.HealthCheckHandler.Get)
 	r.POST("/token", di.TokenHandler.Post)
 	r.POST("/users", di.UserHandler.Post)
-	r.GET("/subscribers/:id/read", di.SubscriberHander.GetRead)
 
 	secured := r.Group("").Use(middlewares.Auth())
 	{
@@ -28,7 +27,7 @@ func CreateRouter(di *helpers.DI) *gin.Engine {
 		secured.POST("/campaigns", di.CampaignHandler.Post)
 		secured.GET("/campaigns/:id", di.CampaignHandler.GetById)
 		secured.GET("/campaigns", di.CampaignHandler.GetAll)
-		secured.POST("/campaigns/:campaignID/send", di.SubscriberHander.Post)
+		secured.POST("/campaigns/:campaignID/send", di.CampaignHandler.Send)
 		secured.POST("/contacts", di.ContactHandler.Post)
 		secured.GET("/contacts", di.ContactHandler.GetAll)
 		secured.GET("/contacts/:id", di.ContactHandler.GetById)

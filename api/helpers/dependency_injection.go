@@ -5,6 +5,7 @@ import (
 	"subscribers/domain/contacts"
 	"subscribers/domain/users"
 	"subscribers/infra/database"
+	"subscribers/infra/queue"
 	"subscribers/web/handlers"
 
 	"gorm.io/gorm"
@@ -16,7 +17,6 @@ type DI struct {
 	UserHandler        *handlers.UserHandler
 	HealthCheckHandler *handlers.HealthCheckHandler
 	CampaignHandler    *handlers.CampaignHandler
-	SubscriberHander   *handlers.SubscriberHandler
 	ContactHandler     *handlers.ContactHandler
 	FileHandler        *handlers.FileHandler
 }
@@ -35,11 +35,7 @@ func NewDI() *DI {
 		CampaignRepository:   &database.Repository[campaigns.Campaign]{DB: db},
 		SubscriberRepository: &database.Repository[campaigns.Subscriber]{DB: db},
 		ContactRepository:    &database.Repository[contacts.Contact]{DB: db},
-	}
-	di.SubscriberHander = &handlers.SubscriberHandler{
-		CampaignRepository:   &database.Repository[campaigns.Campaign]{DB: db},
-		SubscriberRepository: &database.Repository[campaigns.Subscriber]{DB: db},
-		ContactRepository:    &database.Repository[contacts.Contact]{DB: db},
+		Session:              queue.NewSession(),
 	}
 	di.ContactHandler = &handlers.ContactHandler{
 		UserRepository:    &database.Repository[users.User]{DB: db},
