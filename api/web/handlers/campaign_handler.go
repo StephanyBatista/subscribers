@@ -7,8 +7,8 @@ import (
 	"os"
 	"subscribers/domain"
 	"subscribers/domain/campaigns"
-	"subscribers/domain/contacts"
 	"subscribers/infra/database"
+	"subscribers/modules/contacts"
 	"subscribers/web"
 
 	"subscribers/web/auth"

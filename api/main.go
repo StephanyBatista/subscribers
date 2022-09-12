@@ -1,16 +1,23 @@
 package main
 
 import (
-	"subscribers/helpers"
-	"subscribers/web/routers"
-
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
+	"subscribers/infra/database"
+	"subscribers/modules/contacts"
+	"subscribers/modules/users"
+	"subscribers/modules/web"
 )
 
 func main() {
+
 	loadEnvs()
-	di := helpers.NewDI()
-	r := routers.CreateRouter(di)
+	db := database.GetConnection()
+	database.ApplyMigration(db)
+	r := web.CreateRouter()
+	users.ApplyRouter(r, db)
+	contacts.ApplyRouter(r, db)
 
 	r.Run(":6004")
 }

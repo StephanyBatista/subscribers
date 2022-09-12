@@ -4,16 +4,18 @@ import (
 	"errors"
 	"os"
 	"strconv"
-	"subscribers/domain"
+	"time"
 
+	"github.com/rs/xid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-	domain.Entity
-	Name         string `gorm:"size:100; not null"`
-	Email        string `gorm:"index;unique;size:100; not null"`
-	PasswordHash string `gorm:"not null;size:125"`
+	Id           string
+	Name         string
+	Email        string
+	PasswordHash string
+	CreatedAt    time.Time
 }
 
 func (u User) CheckPassword(password string) bool {
@@ -36,17 +38,18 @@ func (u *User) ChangePassword(oldPassword, newPassword string) error {
 	return nil
 }
 
-func NewUser(name, email, password string) (*User, error) {
+func NewUser(name, email, password string) (User, error) {
 	salt, _ := strconv.Atoi(os.Getenv("sub_salt_hash"))
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), salt)
 	if err != nil {
-		return nil, errors.New("error to generate password")
+		return User{}, errors.New("error to generate password")
 	}
 	passwordGeneraged := string(bytes)
-	return &User{
+	return User{
+		Id:           xid.New().String(),
+		CreatedAt:    time.Now().UTC(),
 		Name:         name,
 		Email:        email,
 		PasswordHash: passwordGeneraged,
-		Entity:       domain.NewEntity(),
 	}, nil
 }

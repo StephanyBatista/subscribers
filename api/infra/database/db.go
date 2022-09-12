@@ -1,45 +1,31 @@
 package database
 
 import (
+	"database/sql"
+	"fmt"
+	migrate "github.com/rubenv/sql-migrate"
+	"log"
 	"os"
-	"subscribers/domain/campaigns"
-	"subscribers/domain/contacts"
-	"subscribers/domain/users"
-
-	"github.com/glebarez/sqlite"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
-func CreateConnection() *gorm.DB {
-	db := getDb()
-	db.AutoMigrate(&users.User{})
-	db.AutoMigrate(&contacts.Contact{})
-	db.AutoMigrate(&campaigns.Campaign{})
-	db.AutoMigrate(&campaigns.Subscriber{})
+func ApplyMigration(db *sql.DB) {
+	//db := getDb()
+	//db.AutoMigrate(&users.User{})
 
-	return db
+	migrations := &migrate.FileMigrationSource{
+		Dir: "infra/database/migrations",
+	}
+	n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
+	if err != nil {
+		log.Fatal("ApplyMigration(): migrate.Exec ", err)
+	}
+	fmt.Printf("Applied %d migrations!\n", n)
 }
 
-func getDb() *gorm.DB {
-	connectionString := os.Getenv("sub_database")
-
-	var db *gorm.DB
-	var err error
-	if connectionString == "sqlite:memory" {
-		db, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	} else if connectionString == "sqlite" || connectionString == "" {
-		db, err = gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
-	} else {
-		db, err = gorm.Open(postgres.New(postgres.Config{
-			DSN:                  connectionString,
-			PreferSimpleProtocol: true,
-		}), &gorm.Config{})
-	}
-
+func GetConnection() *sql.DB {
+	db, err := sql.Open("postgres", os.Getenv("sub_database"))
 	if err != nil {
-		panic("failed to connect database")
+		log.Fatal("ApplyMigration(): sql.Open ", err)
 	}
-
 	return db
 }

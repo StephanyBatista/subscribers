@@ -1,4 +1,4 @@
-package handlers
+package users
 
 type UserRequest struct {
 	Name     string `json:"name" validate:"required"`

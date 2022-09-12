@@ -1,4 +1,4 @@
-package handlers
+package users
 
 type UserChangePasswordRequest struct {
 	OldPassword string `json:"oldpassword" validate:"required"`
