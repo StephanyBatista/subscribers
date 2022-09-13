@@ -1,9 +1,9 @@
 package users
 
 import (
+	"errors"
 	"log"
 	"net/http"
-	"subscribers/domain"
 	"subscribers/web"
 	"subscribers/web/auth"
 
@@ -15,19 +15,12 @@ type Handler struct {
 }
 
 func (h *Handler) Post(c *gin.Context) {
-	var body UserRequest
+	var body CreateNewUser
 	c.BindJSON(&body)
-	errs := domain.Validate(body)
-	if errs != nil {
-		log.Println(errs)
-		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
-		return
-	}
 
-	user, err := NewUser(body.Name, body.Email, body.Password)
-	if err != nil {
-		log.Println(err)
-		c.JSON(http.StatusBadRequest, web.NewErrorReponse(err.Error()))
+	user, errs := NewUser(body.Name, body.Email, body.Password)
+	if errs != nil {
+		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
 		return
 	}
 
@@ -38,7 +31,7 @@ func (h *Handler) Post(c *gin.Context) {
 		return
 	}
 
-	err = h.UserRepository.Create(user)
+	err := h.UserRepository.Create(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
 		return
@@ -57,22 +50,16 @@ func (h *Handler) GetInfo(c *gin.Context) {
 }
 
 func (h *Handler) ChangePassword(c *gin.Context) {
-	var body UserChangePasswordRequest
+	var body ChangePassword
 	c.BindJSON(&body)
-	errs := domain.Validate(body)
-	if errs != nil {
-		log.Println(errs)
-		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
-		return
-	}
 
 	token := c.GetHeader("Authorization")
 	claim, _ := auth.GetClaimFromToken(token)
 	userSaved, _ := h.UserRepository.GetByEmail(claim.Email)
 
-	err := userSaved.ChangePassword(body.OldPassword, body.NewPassword)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, web.NewErrorReponse(err.Error()))
+	errs := userSaved.ChangePassword(body.OldPassword, body.NewPassword)
+	if errs != nil {
+		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
 		return
 	}
 	h.UserRepository.Save(userSaved)
@@ -80,11 +67,17 @@ func (h *Handler) ChangePassword(c *gin.Context) {
 }
 
 func (h *Handler) Token(c *gin.Context) {
-	var body LoginRequest
+	var body Login
 	c.BindJSON(&body)
-	errs := domain.Validate(body)
-	if errs != nil {
-		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
+	var errs []error
+	if body.Email == "" {
+		errs = append(errs, errors.New("'Email' is required"))
+	}
+	if body.Password == "" {
+		errs = append(errs, errors.New("'Password' is required"))
+	}
+	if len(errs) > 0 {
+		c.JSON(http.StatusForbidden, web.NewErrorsReponse(errs))
 		return
 	}
 

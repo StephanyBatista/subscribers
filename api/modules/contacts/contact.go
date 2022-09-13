@@ -1,8 +1,11 @@
 package contacts
 
 import (
-	"github.com/rs/xid"
+	"errors"
+	"net/mail"
 	"time"
+
+	"github.com/rs/xid"
 )
 
 type Contact struct {
@@ -18,7 +21,12 @@ func (c *Contact) Cancel() {
 	c.Active = false
 }
 
-func NewContact(name string, email string, userId string) Contact {
+func NewContact(name string, email string, userId string) (Contact, []error) {
+
+	errs := validate(name, email, userId)
+	if len(errs) > 0 {
+		return Contact{}, errs
+	}
 
 	return Contact{
 		Id:        xid.New().String(),
@@ -27,5 +35,21 @@ func NewContact(name string, email string, userId string) Contact {
 		Email:     email,
 		Active:    true,
 		UserId:    userId,
+	}, nil
+}
+
+func validate(name, email, userId string) []error {
+	var errs []error
+	if name == "" {
+		errs = append(errs, errors.New("'Name' is required"))
 	}
+	if email == "" {
+		errs = append(errs, errors.New("'Email' is required"))
+	} else if _, err := mail.ParseAddress(email); err != nil {
+		errs = append(errs, errors.New("'Email' invalid"))
+	}
+	if userId == "" {
+		errs = append(errs, errors.New("'UserId' is required"))
+	}
+	return errs
 }

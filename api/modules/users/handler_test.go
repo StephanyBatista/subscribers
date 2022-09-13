@@ -2,12 +2,13 @@ package users
 
 import (
 	"database/sql"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"subscribers/modules/web"
 	"testing"
 	"time"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/gin-gonic/gin"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -30,20 +31,6 @@ func Test_user_post_validate_fields_required(t *testing.T) {
 	assert.Contains(t, response, "'Password' is required")
 }
 
-func Test_user_post_validate_invalid_email(t *testing.T) {
-	router, _, _ := setupHandler()
-	newUser := UserRequest{
-		Name:     "Demo",
-		Email:    "invalid",
-		Password: "35 million",
-	}
-
-	w := web.MakeTestHTTP(router, "POST", "/users", newUser, "")
-
-	response := web.BufferToString(w.Body)
-	assert.Contains(t, response, "'Email' is invalid")
-}
-
 func Test_user_post_validate_when_email_is_being_used(t *testing.T) {
 	router, _, mock := setupHandler()
 	emailExpected := "teste@teste.com"
@@ -53,7 +40,7 @@ func Test_user_post_validate_when_email_is_being_used(t *testing.T) {
 		WithArgs(emailExpected).
 		WillReturnRows(rows)
 
-	newUser := UserRequest{
+	newUser := CreateNewUser{
 		Name:     "Demo",
 		Email:    emailExpected,
 		Password: "35 million",
@@ -72,7 +59,7 @@ func Test_user_post_save_new_user(t *testing.T) {
 		ExpectExec().
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	newUser := UserRequest{
+	newUser := CreateNewUser{
 		Name:     "Demo",
 		Email:    emailExpected,
 		Password: "35 million",
@@ -85,7 +72,7 @@ func Test_user_post_save_new_user(t *testing.T) {
 
 func Test_user_post_show_error_when_not_create(t *testing.T) {
 	router, _, _ := setupHandler()
-	newUser := UserRequest{
+	newUser := CreateNewUser{
 		Name:     "Demo",
 		Email:    "teste1@teste.com",
 		Password: "35 million",
@@ -136,7 +123,7 @@ func Test_user_change_password_check_old_password(t *testing.T) {
 	mock.ExpectQuery(`select "id", "name", "email", "password_hash", "created_at" from users`).
 		WithArgs(userToken.Email).
 		WillReturnRows(rows)
-	changePassword := UserChangePasswordRequest{NewPassword: "test", OldPassword: "password"}
+	changePassword := ChangePassword{NewPassword: "test", OldPassword: "password"}
 
 	w := web.MakeTestHTTP(router, "PATCH", "/users/changepassword", changePassword, web.GenerateTokenWithUser(userToken))
 
@@ -155,7 +142,7 @@ func Test_user_must_change_password(t *testing.T) {
 	mock.ExpectQuery(`select "id", "name", "email", "password_hash", "created_at" from users`).
 		WithArgs(userToken.Email).
 		WillReturnRows(rows)
-	changePassword := UserChangePasswordRequest{NewPassword: "test", OldPassword: oldPassword}
+	changePassword := ChangePassword{NewPassword: "test", OldPassword: oldPassword}
 
 	w := web.MakeTestHTTP(router, "PATCH", "/users/changepassword", changePassword, web.GenerateTokenWithUser(userToken))
 
@@ -174,7 +161,7 @@ func Test_token_post_validate_fields_required(t *testing.T) {
 
 func Test_token_post_user_not_found(t *testing.T) {
 	router, _, _ := setupHandler()
-	body := LoginRequest{
+	body := Login{
 		Email:    "test1@teste.com.br",
 		Password: "35 million",
 	}
@@ -190,7 +177,7 @@ func Test_token_post_generate_jwt(t *testing.T) {
 	router, _, mock := setupHandler()
 	passwordExpected := "35 million"
 	user, _ := NewUser("Teste", "test1@teste.com.br", passwordExpected)
-	body := LoginRequest{
+	body := Login{
 		Email:    user.Email,
 		Password: passwordExpected,
 	}

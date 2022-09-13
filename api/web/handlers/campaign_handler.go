@@ -29,11 +29,6 @@ type CampaignHandler struct {
 func (h *CampaignHandler) Post(c *gin.Context) {
 	var body CampaignRequest
 	c.BindJSON(&body)
-	errs := domain.Validate(body)
-	if errs != nil {
-		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
-		return
-	}
 
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
 

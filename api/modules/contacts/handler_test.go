@@ -2,13 +2,14 @@ package contacts
 
 import (
 	"database/sql"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"subscribers/modules/web"
 	"testing"
 	"time"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 )
 
 func setupHandler() (*gin.Engine, *sql.DB, sqlmock.Sqlmock) {
@@ -38,7 +39,7 @@ func Test_contact_post_validate_fields(t *testing.T) {
 
 func Test_contact_post_save_new_client(t *testing.T) {
 	router, _, mock := setupHandler()
-	body := ContactRequest{
+	body := CreateNewContact{
 		Name:  "Teste",
 		Email: "teste@teste.com.br",
 	}
@@ -53,7 +54,7 @@ func Test_contact_post_save_new_client(t *testing.T) {
 
 func Test_contact_post_show_error_when_not_create(t *testing.T) {
 	router, _, _ := setupHandler()
-	body := ContactRequest{
+	body := CreateNewContact{
 		Name:  "Teste",
 		Email: "teste@teste.com.br",
 	}

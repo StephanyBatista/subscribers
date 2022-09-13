@@ -1,12 +1,12 @@
 package contacts
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
-	"subscribers/domain"
 	"subscribers/modules/users"
 	"subscribers/web"
 	"subscribers/web/auth"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -15,17 +15,16 @@ type Handler struct {
 }
 
 func (h *Handler) Post(c *gin.Context) {
-	var body ContactRequest
+	var body CreateNewContact
 	c.BindJSON(&body)
-	errs := domain.Validate(body)
+
+	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
+
+	entity, errs := NewContact(body.Name, body.Email, claim.UserId)
 	if errs != nil {
 		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
 		return
 	}
-
-	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
-
-	entity := NewContact(body.Name, body.Email, claim.UserId)
 	err := h.ContactRepository.Create(entity)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
