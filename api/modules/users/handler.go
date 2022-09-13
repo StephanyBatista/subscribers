@@ -59,6 +59,13 @@ func (h *Handler) GetInfo(c *gin.Context) {
 func (h *Handler) ChangePassword(c *gin.Context) {
 	var body UserChangePasswordRequest
 	c.BindJSON(&body)
+	errs := domain.Validate(body)
+	if errs != nil {
+		log.Println(errs)
+		c.JSON(http.StatusBadRequest, web.NewErrorsReponse(errs))
+		return
+	}
+
 	token := c.GetHeader("Authorization")
 	claim, _ := auth.GetClaimFromToken(token)
 	userSaved, _ := h.UserRepository.GetByEmail(claim.Email)

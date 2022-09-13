@@ -96,6 +96,72 @@ func Test_user_post_show_error_when_not_create(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
 }
 
+func Test_user_get_info(t *testing.T) {
+	router, _, _ := setupHandler()
+	userToken := web.UserToken{Name: "test1", Email: "test1@test.com"}
+
+	w := web.MakeTestHTTP(router, "GET", "/users/info", nil, web.GenerateTokenWithUser(userToken))
+
+	result := web.BufferToString(w.Body)
+	assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+	assert.Contains(t, result, userToken.Email)
+	assert.Contains(t, result, userToken.Name)
+}
+
+func Test_user_get_info_validate_jwt(t *testing.T) {
+	router, _, _ := setupHandler()
+
+	w := web.MakeTestHTTP(router, "GET", "/users/info", nil, "")
+
+	assert.Equal(t, http.StatusUnauthorized, w.Result().StatusCode)
+}
+
+func Test_user_change_password_validate_parameters(t *testing.T) {
+	router, _, _ := setupHandler()
+	userToken := web.UserToken{Name: "test1", Email: "test1@test.com"}
+
+	w := web.MakeTestHTTP(router, "PATCH", "/users/changepassword", nil, web.GenerateTokenWithUser(userToken))
+
+	response := web.BufferToString(w.Body)
+	assert.Contains(t, response, "'OldPassword' is required")
+	assert.Contains(t, response, "'NewPassword' is required")
+	assert.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
+}
+
+func Test_user_change_password_check_old_password(t *testing.T) {
+	router, _, mock := setupHandler()
+	userToken := web.UserToken{Name: "test1", Email: "test1@test.com"}
+	rows := sqlmock.NewRows([]string{"id", "name", "email", "password_hash", "createdAt"}).
+		AddRow("xpt1", "test", userToken.Email, "password_different", time.Now())
+	mock.ExpectQuery(`select "id", "name", "email", "password_hash", "created_at" from users`).
+		WithArgs(userToken.Email).
+		WillReturnRows(rows)
+	changePassword := UserChangePasswordRequest{NewPassword: "test", OldPassword: "password"}
+
+	w := web.MakeTestHTTP(router, "PATCH", "/users/changepassword", changePassword, web.GenerateTokenWithUser(userToken))
+
+	response := web.BufferToString(w.Body)
+	assert.Contains(t, response, "old password invalid")
+	assert.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
+}
+
+func Test_user_must_change_password(t *testing.T) {
+	router, _, mock := setupHandler()
+	oldPassword := "password 2"
+	userToken := web.UserToken{Name: "test1", Email: "test1@test.com"}
+	user, _ := NewUser(userToken.Name, userToken.Email, oldPassword)
+	rows := sqlmock.NewRows([]string{"id", "name", "email", "password_hash", "createdAt"}).
+		AddRow("xpt1", "test", userToken.Email, user.PasswordHash, time.Now())
+	mock.ExpectQuery(`select "id", "name", "email", "password_hash", "created_at" from users`).
+		WithArgs(userToken.Email).
+		WillReturnRows(rows)
+	changePassword := UserChangePasswordRequest{NewPassword: "test", OldPassword: oldPassword}
+
+	w := web.MakeTestHTTP(router, "PATCH", "/users/changepassword", changePassword, web.GenerateTokenWithUser(userToken))
+
+	assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+}
+
 func Test_token_post_validate_fields_required(t *testing.T) {
 	router, _, _ := setupHandler()
 
