@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"subscribers/modules/users"
-	"subscribers/web/middlewares"
+	"subscribers/utils/web/middlewares"
 )
 
 func ApplyRouter(router *gin.Engine, db *sql.DB) {

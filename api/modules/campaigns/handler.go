@@ -2,17 +2,15 @@ package campaigns
 
 import (
 	"fmt"
-	"log"
-	"net/http"
-	"os"
-	"subscribers/web"
-
-	"subscribers/web/auth"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
+	"os"
+	"subscribers/utils/web"
+	"subscribers/utils/web/auth"
 )
 
 type Handler struct {

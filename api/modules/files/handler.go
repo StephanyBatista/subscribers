@@ -1,20 +1,16 @@
-package handlers
+package files
 
 import (
-	"net/http"
-	"subscribers/infra/database"
-	"subscribers/infra/storage"
-	"subscribers/modules/campaigns"
-	"subscribers/web"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"subscribers/utils/storage"
+	"subscribers/utils/web"
 )
 
-type FileHandler struct {
-	CampaignRepository database.IRepository[campaigns.Campaign]
+type Handler struct {
 }
 
-func (h *FileHandler) Post(c *gin.Context) {
+func (h *Handler) Post(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, web.NewErrorReponse("'file' is required"))

@@ -1,4 +1,4 @@
-package web
+package webtest
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"subscribers/web/auth"
+	"subscribers/utils/web/auth"
 )
 
 func FakeEnvs() {

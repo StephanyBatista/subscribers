@@ -13,7 +13,7 @@ func ApplyMigration(db *sql.DB) {
 	//db.AutoMigrate(&users.User{})
 
 	migrations := &migrate.FileMigrationSource{
-		Dir: "infra/database/migrations",
+		Dir: "utils/database/migrations",
 	}
 	n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
 	if err != nil {

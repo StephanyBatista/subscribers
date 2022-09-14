@@ -1,4 +1,4 @@
-package web
+package webtest
 
 import (
 	"github.com/gin-contrib/cors"

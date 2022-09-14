@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"net/http"
-	"subscribers/modules/web"
+	"subscribers/utils/webtest"
 	"testing"
 	"time"
 )
@@ -30,7 +30,7 @@ func (a AnyTime) Match(v driver.Value) bool {
 
 func setupHandler() (*gin.Engine, *sql.DB, sqlmock.Sqlmock) {
 	db, mock, _ := sqlmock.New()
-	router := web.CreateRouter()
+	router := webtest.CreateRouter()
 	ApplyRouter(router, db)
 	return router, db, mock
 }
@@ -38,7 +38,7 @@ func setupHandler() (*gin.Engine, *sql.DB, sqlmock.Sqlmock) {
 func Test_campaign_post_validate_token(t *testing.T) {
 	router, _, _ := setupHandler()
 
-	w := web.MakeTestHTTP(router, "POST", "/campaigns", nil, "")
+	w := webtest.MakeTestHTTP(router, "POST", "/campaigns", nil, "")
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
@@ -46,9 +46,9 @@ func Test_campaign_post_validate_token(t *testing.T) {
 func Test_campaign_post_validate_fields(t *testing.T) {
 	router, _, _ := setupHandler()
 
-	w := web.MakeTestHTTP(router, "POST", "/campaigns", nil, web.GenerateAnyToken())
+	w := webtest.MakeTestHTTP(router, "POST", "/campaigns", nil, webtest.GenerateAnyToken())
 
-	response := web.BufferToString(w.Body)
+	response := webtest.BufferToString(w.Body)
 	assert.Contains(t, response, "'Name' is required")
 	assert.Contains(t, response, "'From' is required")
 	assert.Contains(t, response, "'Subject' is required")
@@ -77,7 +77,7 @@ func Test_campaign_post_save_new_campaign(t *testing.T) {
 			AnyString{}).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	w := web.MakeTestHTTP(router, "POST", "/campaigns", body, web.GenerateAnyToken())
+	w := webtest.MakeTestHTTP(router, "POST", "/campaigns", body, webtest.GenerateAnyToken())
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 }
@@ -91,7 +91,7 @@ func Test_campaign_post_show_erro_when_not_create(t *testing.T) {
 		Body:    "Teste",
 	}
 
-	w := web.MakeTestHTTP(router, "POST", "/campaigns", body, web.GenerateAnyToken())
+	w := webtest.MakeTestHTTP(router, "POST", "/campaigns", body, webtest.GenerateAnyToken())
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
@@ -112,10 +112,10 @@ func Test_campaign_get_campaign_by_id(t *testing.T) {
 		WithArgs(campaign.Id).
 		WillReturnRows(rows)
 
-	userToken := web.UserToken{Id: campaign.UserId, Email: "teste@teste.com.br", Name: "Test"}
-	w := web.MakeTestHTTP(router, "GET", "/campaigns/"+campaign.Id, "", web.GenerateTokenWithUser(userToken))
+	userToken := webtest.UserToken{Id: campaign.UserId, Email: "teste@teste.com.br", Name: "Test"}
+	w := webtest.MakeTestHTTP(router, "GET", "/campaigns/"+campaign.Id, "", webtest.GenerateTokenWithUser(userToken))
 
-	response := web.BufferToObj[CampaignResponse](w.Body)
+	response := webtest.BufferToObj[CampaignResponse](w.Body)
 	assert.Equal(t, response.ID, campaign.Id)
 	assert.Equal(t, response.Name, campaign.Name)
 	assert.Equal(t, response.From, campaign.From)
@@ -128,9 +128,9 @@ func Test_campaign_get_campaign_by_id(t *testing.T) {
 func Test_campaign_get_by_id_not_found(t *testing.T) {
 	router, _, _ := setupHandler()
 
-	w := web.MakeTestHTTP(router, "GET", "/campaigns/id_invalid", nil, web.GenerateAnyToken())
+	w := webtest.MakeTestHTTP(router, "GET", "/campaigns/id_invalid", nil, webtest.GenerateAnyToken())
 
-	response := web.BufferToString(w.Body)
+	response := webtest.BufferToString(w.Body)
 	assert.Contains(t, response, "Not found")
 	assert.Equal(t, http.StatusNotFound, w.Result().StatusCode)
 }
@@ -151,10 +151,10 @@ func Test_campaign_get_all_campaign_of_user(t *testing.T) {
 		WithArgs(campaign.UserId).
 		WillReturnRows(rows)
 
-	userToken := web.UserToken{Id: campaign.UserId, Email: "teste@teste.com.br", Name: "test"}
-	w := web.MakeTestHTTP(router, "GET", "/campaigns", nil, web.GenerateTokenWithUser(userToken))
+	userToken := webtest.UserToken{Id: campaign.UserId, Email: "teste@teste.com.br", Name: "test"}
+	w := webtest.MakeTestHTTP(router, "GET", "/campaigns", nil, webtest.GenerateTokenWithUser(userToken))
 
-	campaignsOfUser := web.BufferToObj[[]Campaign](w.Body)
+	campaignsOfUser := webtest.BufferToObj[[]Campaign](w.Body)
 	assert.Equal(t, 1, len(campaignsOfUser))
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -162,9 +162,9 @@ func Test_campaign_get_all_campaign_of_user(t *testing.T) {
 func Test_campaign_get_all_not_found(t *testing.T) {
 	router, _, _ := setupHandler()
 
-	w := web.MakeTestHTTP(router, "GET", "/campaigns", nil, web.GenerateAnyToken())
+	w := webtest.MakeTestHTTP(router, "GET", "/campaigns", nil, webtest.GenerateAnyToken())
 
-	response := web.BufferToString(w.Body)
+	response := webtest.BufferToString(w.Body)
 	assert.Contains(t, response, "Not found")
 	assert.Equal(t, http.StatusNotFound, w.Result().StatusCode)
 }

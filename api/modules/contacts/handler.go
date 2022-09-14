@@ -1,12 +1,11 @@
 package contacts
 
 import (
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"subscribers/modules/users"
-	"subscribers/web"
-	"subscribers/web/auth"
-
-	"github.com/gin-gonic/gin"
+	"subscribers/utils/web"
+	"subscribers/utils/web/auth"
 )
 
 type Handler struct {

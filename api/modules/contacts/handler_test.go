@@ -3,7 +3,7 @@ package contacts
 import (
 	"database/sql"
 	"net/http"
-	"subscribers/modules/web"
+	"subscribers/utils/webtest"
 	"testing"
 	"time"
 
@@ -14,7 +14,7 @@ import (
 
 func setupHandler() (*gin.Engine, *sql.DB, sqlmock.Sqlmock) {
 	db, mock, _ := sqlmock.New()
-	router := web.CreateRouter()
+	router := webtest.CreateRouter()
 	ApplyRouter(router, db)
 	return router, db, mock
 }
@@ -22,7 +22,7 @@ func setupHandler() (*gin.Engine, *sql.DB, sqlmock.Sqlmock) {
 func Test_contact_post_validate_token(t *testing.T) {
 	router, _, _ := setupHandler()
 
-	w := web.MakeTestHTTP(router, "POST", "/contacts", nil, "")
+	w := webtest.MakeTestHTTP(router, "POST", "/contacts", nil, "")
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
@@ -30,9 +30,9 @@ func Test_contact_post_validate_token(t *testing.T) {
 func Test_contact_post_validate_fields(t *testing.T) {
 	router, _, _ := setupHandler()
 
-	w := web.MakeTestHTTP(router, "POST", "/contacts", nil, web.GenerateAnyToken())
+	w := webtest.MakeTestHTTP(router, "POST", "/contacts", nil, webtest.GenerateAnyToken())
 
-	response := web.BufferToString(w.Body)
+	response := webtest.BufferToString(w.Body)
 	assert.Contains(t, response, "'Name' is required")
 	assert.Contains(t, response, "'Email' is required")
 }
@@ -47,7 +47,7 @@ func Test_contact_post_save_new_client(t *testing.T) {
 		ExpectExec().
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	w := web.MakeTestHTTP(router, "POST", "/contacts", body, web.GenerateAnyToken())
+	w := webtest.MakeTestHTTP(router, "POST", "/contacts", body, webtest.GenerateAnyToken())
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 }
@@ -59,7 +59,7 @@ func Test_contact_post_show_error_when_not_create(t *testing.T) {
 		Email: "teste@teste.com.br",
 	}
 
-	w := web.MakeTestHTTP(router, "POST", "/contacts", body, web.GenerateAnyToken())
+	w := webtest.MakeTestHTTP(router, "POST", "/contacts", body, webtest.GenerateAnyToken())
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
@@ -67,7 +67,7 @@ func Test_contact_post_show_error_when_not_create(t *testing.T) {
 func Test_contact_get_all_validate_token(t *testing.T) {
 	router, _, _ := setupHandler()
 
-	w := web.MakeTestHTTP(router, "GET", "/contacts", nil, "")
+	w := webtest.MakeTestHTTP(router, "GET", "/contacts", nil, "")
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
@@ -75,23 +75,23 @@ func Test_contact_get_all_validate_token(t *testing.T) {
 func Test_contact_get_all_clients(t *testing.T) {
 	router, _, mock := setupHandler()
 	amountOfClients := 1
-	userToken := web.UserToken{Id: "xpt233", Email: "test@teste.com", Name: "test"}
+	userToken := webtest.UserToken{Id: "xpt233", Email: "test@teste.com", Name: "test"}
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "active", "created_at", "user_id"}).
 		AddRow("23s23", "test", "test@test.com.br", true, time.Now(), "2sd2")
 	mock.ExpectQuery(`select "id", "name", "email", "active", "created_at", "user_id" from users`).
 		WithArgs(userToken.Id).
 		WillReturnRows(rows)
 
-	w := web.MakeTestHTTP(router, "GET", "/contacts", nil, web.GenerateTokenWithUser(userToken))
+	w := webtest.MakeTestHTTP(router, "GET", "/contacts", nil, webtest.GenerateTokenWithUser(userToken))
 
-	clientsOfUser := web.BufferToObj[[]Contact](w.Body)
+	clientsOfUser := webtest.BufferToObj[[]Contact](w.Body)
 	assert.Equal(t, amountOfClients, len(clientsOfUser))
 }
 
 func Test_contact_get_by_id_validate_token(t *testing.T) {
 	router, _, _ := setupHandler()
 
-	w := web.MakeTestHTTP(router, "GET", "/contacts/xpter", nil, "")
+	w := webtest.MakeTestHTTP(router, "GET", "/contacts/xpter", nil, "")
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
@@ -105,9 +105,9 @@ func Test_contact_get_by_id_return_client(t *testing.T) {
 		WithArgs(idExpected).
 		WillReturnRows(rows)
 
-	w := web.MakeTestHTTP(router, "GET", "/contacts/"+idExpected, nil, web.GenerateAnyToken())
+	w := webtest.MakeTestHTTP(router, "GET", "/contacts/"+idExpected, nil, webtest.GenerateAnyToken())
 
-	response := web.BufferToObj[Contact](w.Body)
+	response := webtest.BufferToObj[Contact](w.Body)
 	assert.Contains(t, response.Id, idExpected)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -115,7 +115,7 @@ func Test_contact_get_by_id_return_client(t *testing.T) {
 func Test_contact_get_by_id_not_return_contact_from_others_users(t *testing.T) {
 	router, _, _ := setupHandler()
 
-	w := web.MakeTestHTTP(router, "GET", "/contacts/any_id", nil, web.GenerateAnyToken())
+	w := webtest.MakeTestHTTP(router, "GET", "/contacts/any_id", nil, webtest.GenerateAnyToken())
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
@@ -123,7 +123,7 @@ func Test_contact_get_by_id_not_return_contact_from_others_users(t *testing.T) {
 func Test_contact_cancel_not_found(t *testing.T) {
 	router, _, _ := setupHandler()
 
-	w := web.MakeTestHTTP(router, "PATCH", "/contacts/any_id", nil, web.GenerateAnyToken())
+	w := webtest.MakeTestHTTP(router, "PATCH", "/contacts/any_id", nil, webtest.GenerateAnyToken())
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
@@ -142,7 +142,7 @@ func Test_contact_cancel(t *testing.T) {
 		WithArgs("test", false, idExpected).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	w := web.MakeTestHTTP(router, "PATCH", "/contacts/"+idExpected+"/cancel", nil, web.GenerateAnyToken())
+	w := webtest.MakeTestHTTP(router, "PATCH", "/contacts/"+idExpected+"/cancel", nil, webtest.GenerateAnyToken())
 
 	assert.Equal(t, http.StatusOK, w.Code)
 }

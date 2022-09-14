@@ -2,12 +2,11 @@ package users
 
 import (
 	"errors"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"subscribers/web"
-	"subscribers/web/auth"
-
-	"github.com/gin-gonic/gin"
+	"subscribers/utils/web"
+	"subscribers/utils/web/auth"
 )
 
 type Handler struct {
