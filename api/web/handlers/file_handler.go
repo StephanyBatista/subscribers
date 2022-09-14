@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"net/http"
-	"subscribers/domain/campaigns"
 	"subscribers/infra/database"
 	"subscribers/infra/storage"
+	"subscribers/modules/campaigns"
 	"subscribers/web"
 
 	"github.com/gin-gonic/gin"

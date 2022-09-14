@@ -65,7 +65,7 @@ func (r *Repository) Create(contact Contact) error {
 
 func (r *Repository) Save(contact Contact) error {
 
-	stmt, err := r.DB.Prepare("UPDATE contacts name = $1, active $2 WHERE id = $3")
+	stmt, err := r.DB.Prepare("UPDATE contacts name = $1, active = $2 WHERE id = $3")
 	if err != nil {
 		return err
 	}

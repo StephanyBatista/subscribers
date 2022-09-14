@@ -8,6 +8,7 @@ import (
 	"subscribers/domain"
 	"subscribers/domain/campaigns"
 	"subscribers/infra/database"
+	campaigns2 "subscribers/modules/campaigns"
 	"subscribers/modules/contacts"
 	"subscribers/web"
 
@@ -20,7 +21,7 @@ import (
 )
 
 type CampaignHandler struct {
-	CampaignRepository   database.IRepository[campaigns.Campaign]
+	CampaignRepository   database.IRepository[campaigns2.Campaign]
 	SubscriberRepository database.IRepository[campaigns.Subscriber]
 	ContactRepository    database.IRepository[contacts.Contact]
 	Session              *session.Session
@@ -32,7 +33,7 @@ func (h *CampaignHandler) Post(c *gin.Context) {
 
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
 
-	entity := campaigns.NewCampaign(body.Name, body.From, body.Subject, body.Body, claim.UserId, claim.UserName)
+	entity := campaigns2.NewCampaign(body.Name, body.From, body.Subject, body.Body, claim.UserId, claim.UserName)
 	ok := h.CampaignRepository.Create(entity)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
@@ -47,7 +48,7 @@ func (h *CampaignHandler) GetById(c *gin.Context) {
 
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
 
-	entity := h.CampaignRepository.GetBy(campaigns.Campaign{Entity: domain.Entity{ID: id}})
+	entity := h.CampaignRepository.GetBy(campaigns2.Campaign{Entity: domain.Entity{ID: id}})
 	if entity == nil || claim.UserId != entity.CreatedBy.Id {
 		log.Println("Campaign not found")
 		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
@@ -67,9 +68,9 @@ func (h *CampaignHandler) GetById(c *gin.Context) {
 	if subscribers != nil {
 		for _, subscriber := range *subscribers {
 			response.BaseOfSubscribers++
-			if subscriber.Status == campaigns.Sent {
+			if subscriber.Status == campaigns2.Sent {
 				response.TotalSent++
-			} else if subscriber.Status == campaigns.Read {
+			} else if subscriber.Status == campaigns2.Read {
 				response.TotalRead++
 			}
 		}
@@ -81,7 +82,7 @@ func (h *CampaignHandler) GetById(c *gin.Context) {
 func (h *CampaignHandler) GetAll(c *gin.Context) {
 	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
 
-	entities := h.CampaignRepository.List(campaigns.Campaign{CreatedBy: domain.UserValue{Id: claim.UserId}})
+	entities := h.CampaignRepository.List(campaigns2.Campaign{CreatedBy: domain.UserValue{Id: claim.UserId}})
 	if entities == nil {
 		log.Println("Campaign not found")
 		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
@@ -93,11 +94,11 @@ func (h *CampaignHandler) GetAll(c *gin.Context) {
 func (h *CampaignHandler) Send(c *gin.Context) {
 
 	campaignId := c.Param("campaignID")
-	campaign := h.CampaignRepository.GetBy(campaigns.Campaign{Entity: domain.Entity{ID: campaignId}})
+	campaign := h.CampaignRepository.GetBy(campaigns2.Campaign{Entity: domain.Entity{ID: campaignId}})
 	if campaign == nil {
 		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
 		return
-	} else if campaign.Status != campaigns.Draft {
+	} else if campaign.Status != campaigns2.Draft {
 		c.JSON(http.StatusBadRequest, web.NewErrorReponse("Campaigns is with different status"))
 		return
 	}
@@ -115,7 +116,7 @@ func (h *CampaignHandler) Send(c *gin.Context) {
 		return
 	}
 
-	campaign.Sending()
+	campaign.Ready()
 	h.CampaignRepository.Save(campaign)
 
 	c.JSON(http.StatusOK, "OK")

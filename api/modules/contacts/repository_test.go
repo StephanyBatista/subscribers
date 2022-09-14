@@ -8,88 +8,77 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var contactExpected Contact = Contact{
+	Id:        "xpt1",
+	Name:      "Test",
+	Email:     "test@test.com",
+	Active:    true,
+	CreatedAt: time.Now(),
+	UserId:    "ee112",
+}
+
 func Test_repository_get_by_id(t *testing.T) {
-	idExpected := "xer4"
-	createdAtExpected := time.Now()
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "active", "created_at", "user_id"}).
-		AddRow(idExpected, "test", "test@test.com.br", true, createdAtExpected, "2sd2")
+		AddRow(contactExpected.Id, contactExpected.Name, contactExpected.Email, contactExpected.Active, contactExpected.CreatedAt, contactExpected.UserId)
 	db, mock, _ := sqlmock.New()
 	mock.ExpectQuery(`select "id", "name", "email", "active", "created_at", "user_id" from users`).
-		WithArgs(idExpected).
+		WithArgs(contactExpected.Id).
 		WillReturnRows(rows)
 	repository := Repository{DB: db}
 
-	contact, _ := repository.GetBy(idExpected)
+	contact, _ := repository.GetBy(contactExpected.Id)
 
-	assert.Equal(t, idExpected, contact.Id)
-	assert.Equal(t, "test", contact.Name)
-	assert.Equal(t, "test@test.com.br", contact.Email)
-	assert.Equal(t, true, contact.Active)
-	assert.Equal(t, createdAtExpected, contact.CreatedAt)
-	assert.Equal(t, "2sd2", contact.UserId)
+	assert.Equal(t, contactExpected.Id, contact.Id)
+	assert.Equal(t, contactExpected.Name, contact.Name)
+	assert.Equal(t, contactExpected.Email, contact.Email)
+	assert.Equal(t, contactExpected.Active, contact.Active)
+	assert.Equal(t, contactExpected.CreatedAt, contact.CreatedAt)
+	assert.Equal(t, contactExpected.UserId, contact.UserId)
 }
 
 func Test_repository_list_by_id(t *testing.T) {
-	userIdExpected := "xer4"
-	createdAtExpected := time.Now()
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "active", "created_at", "user_id"}).
-		AddRow(userIdExpected, "test", "test@test.com.br", true, createdAtExpected, "2sd2")
+		AddRow(contactExpected.Id, contactExpected.Name, contactExpected.Email, contactExpected.Active, contactExpected.CreatedAt, contactExpected.UserId)
 	db, mock, _ := sqlmock.New()
 	mock.ExpectQuery(`select "id", "name", "email", "active", "created_at", "user_id" from users`).
-		WithArgs(userIdExpected).
+		WithArgs(contactExpected.UserId).
 		WillReturnRows(rows)
 	repository := Repository{DB: db}
 
-	contacts, _ := repository.ListBy(userIdExpected)
+	contacts, _ := repository.ListBy(contactExpected.UserId)
 
-	assert.Equal(t, userIdExpected, contacts[0].Id)
-	assert.Equal(t, "test", contacts[0].Name)
-	assert.Equal(t, "test@test.com.br", contacts[0].Email)
-	assert.Equal(t, true, contacts[0].Active)
-	assert.Equal(t, createdAtExpected, contacts[0].CreatedAt)
-	assert.Equal(t, "2sd2", contacts[0].UserId)
+	assert.Equal(t, contactExpected.Id, contacts[0].Id)
+	assert.Equal(t, contactExpected.Name, contacts[0].Name)
+	assert.Equal(t, contactExpected.Email, contacts[0].Email)
+	assert.Equal(t, contactExpected.Active, contacts[0].Active)
+	assert.Equal(t, contactExpected.CreatedAt, contacts[0].CreatedAt)
+	assert.Equal(t, contactExpected.UserId, contacts[0].UserId)
 }
 
 func Test_repository_create(t *testing.T) {
-	contact := Contact{
-		Id:        "xpt1",
-		Name:      "Test",
-		Email:     "test@test.com",
-		Active:    true,
-		CreatedAt: time.Now(),
-		UserId:    "ee112",
-	}
 	db, mock, _ := sqlmock.New()
 	mock.
 		ExpectPrepare("INSERT INTO contacts").
 		ExpectExec().
-		WithArgs(contact.Id, contact.Name, contact.Email, contact.Active, contact.CreatedAt, contact.UserId).
+		WithArgs(contactExpected.Id, contactExpected.Name, contactExpected.Email, contactExpected.Active, contactExpected.CreatedAt, contactExpected.UserId).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	repository := Repository{DB: db}
 
-	err := repository.Create(contact)
+	err := repository.Create(contactExpected)
 
 	assert.Nil(t, err)
 }
 
 func Test_repository_save(t *testing.T) {
-	contact := Contact{
-		Id:        "xpt1",
-		Name:      "Test",
-		Email:     "test@test.com",
-		Active:    false,
-		CreatedAt: time.Now(),
-		UserId:    "324d",
-	}
 	db, mock, _ := sqlmock.New()
 	mock.
 		ExpectPrepare("UPDATE contacts").
 		ExpectExec().
-		WithArgs(contact.Name, contact.Active, contact.Id).
+		WithArgs(contactExpected.Name, contactExpected.Active, contactExpected.Id).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	repository := Repository{DB: db}
 
-	err := repository.Save(contact)
+	err := repository.Save(contactExpected)
 
 	assert.Nil(t, err)
 }
