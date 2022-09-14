@@ -4,30 +4,31 @@ import (
 	"database/sql"
 )
 
+var queryBase string = "select \"id\", \"name\", \"email\", \"password_hash\", \"created_at\" from users"
+
 type Repository struct {
 	DB *sql.DB
 }
 
+func (r *Repository) scan(rows *sql.Rows) (User, error) {
+	user := User{}
+	err := rows.Scan(&user.Id, &user.Name, &user.Email, &user.PasswordHash, &user.CreatedAt)
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
+}
+
 func (r *Repository) GetByEmail(email string) (User, error) {
 
-	rows, err := r.DB.Query(`
-		select "id", "name", "email", "password_hash", "created_at" from users where email = $1`,
-		email)
+	rows, err := r.DB.Query(queryBase+` where email = $1`, email)
 	if err != nil {
 		return User{}, err
 	}
 	defer rows.Close()
 
-	user := User{}
-	for rows.Next() {
-
-		err := rows.Scan(&user.Id, &user.Name, &user.Email, &user.PasswordHash, &user.CreatedAt)
-		if err != nil {
-			return User{}, err
-		}
-
-	}
-	return user, nil
+	rows.Next()
+	return r.scan(rows)
 }
 
 func (r *Repository) Create(user User) error {

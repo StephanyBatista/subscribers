@@ -4,44 +4,43 @@ import (
 	"database/sql"
 )
 
+var queryBase string = "select \"id\", \"name\", \"email\", \"active\", \"created_at\", \"user_id\" from users"
+
 type Repository struct {
 	DB *sql.DB
 }
 
+func (r *Repository) scan(rows *sql.Rows) (Contact, error) {
+	contact := Contact{}
+	err := rows.Scan(&contact.Id, &contact.Name, &contact.Email, &contact.Active, &contact.CreatedAt, &contact.UserId)
+	if err != nil {
+		return Contact{}, err
+	}
+	return contact, nil
+}
+
 func (r *Repository) GetBy(id string) (Contact, error) {
-	rows, err := r.DB.Query(`
-		select "id", "name", "email", "active", "created_at", "user_id" from users where id = $1`,
-		id)
+	rows, err := r.DB.Query(queryBase+` where id = $1`, id)
 	if err != nil {
 		return Contact{}, err
 	}
 	defer rows.Close()
 
-	contact := Contact{}
-	for rows.Next() {
-		err := rows.Scan(&contact.Id, &contact.Name, &contact.Email, &contact.Active, &contact.CreatedAt, &contact.UserId)
-		if err != nil {
-			return Contact{}, err
-		}
-	}
-	return contact, nil
+	rows.Next()
+	return r.scan(rows)
 }
 
 func (r *Repository) ListBy(userId string) ([]Contact, error) {
 
 	contacts := make([]Contact, 0)
-	rows, err := r.DB.Query(`
-		select "id", "name", "email", "active", "created_at", "user_id" from users where user_id = $1`,
-		userId)
+	rows, err := r.DB.Query(queryBase+` where user_id = $1`, userId)
 	if err != nil {
 		return contacts, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-
-		contact := Contact{}
-		err := rows.Scan(&contact.Id, &contact.Name, &contact.Email, &contact.Active, &contact.CreatedAt, &contact.UserId)
+		contact, err := r.scan(rows)
 		if err != nil {
 			return contacts, err
 		}

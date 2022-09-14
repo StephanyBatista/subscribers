@@ -4,34 +4,34 @@ import (
 	"database/sql"
 )
 
+var queryBase string = "select \"id\", \"name\", \"from\", \"subject\", \"body\", \"status\", \"created_at\", \"user_id\" from campaigns"
+
 type Repository struct {
 	DB *sql.DB
 }
 
-func (r *Repository) GetBy(id string) (Campaign, error) {
-	rows, err := r.DB.Query(`
-		select "id", "name", "from", "subject", "body", "status", "created_at", "user_id" from campaigns where id = $1`,
-		id)
+func (r *Repository) scan(rows *sql.Rows) (Campaign, error) {
+	campaign := Campaign{}
+	err := rows.Scan(&campaign.Id, &campaign.Name, &campaign.From, &campaign.Subject, &campaign.Body, &campaign.Status, &campaign.CreatedAt, &campaign.UserId)
 	if err != nil {
 		return Campaign{}, err
-	}
-	defer rows.Close()
-
-	campaign := Campaign{}
-	for rows.Next() {
-		err := rows.Scan(&campaign.Id, &campaign.Name, &campaign.From, &campaign.Subject, &campaign.Body, &campaign.Status, &campaign.CreatedAt, &campaign.UserId)
-		if err != nil {
-			return Campaign{}, err
-		}
 	}
 	return campaign, nil
 }
 
+func (r *Repository) GetBy(id string) (Campaign, error) {
+	rows, err := r.DB.Query(queryBase+` where id = $1`, id)
+	if err != nil {
+		return Campaign{}, err
+	}
+	defer rows.Close()
+	rows.Next()
+	return r.scan(rows)
+}
+
 func (r *Repository) ListBy(userId string) ([]Campaign, error) {
 
-	rows, err := r.DB.Query(`
-		select "id", "name", "from", "subject", "body", "status", "created_at", "user_id" from campaigns where user_id = $1`,
-		userId)
+	rows, err := r.DB.Query(queryBase+` where user_id = $1`, userId)
 	if err != nil {
 		return []Campaign{}, err
 	}
@@ -39,9 +39,7 @@ func (r *Repository) ListBy(userId string) ([]Campaign, error) {
 
 	var campaigns []Campaign
 	for rows.Next() {
-
-		campaign := Campaign{}
-		err := rows.Scan(&campaign.Id, &campaign.Name, &campaign.From, &campaign.Subject, &campaign.Body, &campaign.Status, &campaign.CreatedAt, &campaign.UserId)
+		campaign, err := r.scan(rows)
 		if err != nil {
 			return campaigns, err
 		}
