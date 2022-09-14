@@ -2,15 +2,16 @@ package campaigns
 
 import (
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sqs"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
 	"subscribers/utils/web"
 	"subscribers/utils/web/auth"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sqs"
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -31,6 +32,7 @@ func (h *Handler) Post(c *gin.Context) {
 	}
 	err := h.CampaignRepository.Create(entity)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
 		return
 	}

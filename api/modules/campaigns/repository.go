@@ -51,7 +51,7 @@ func (r *Repository) ListBy(userId string) ([]Campaign, error) {
 func (r *Repository) Create(campaign Campaign) error {
 
 	stmt, err := r.DB.Prepare(`
-		INSERT INTO campaigns (id, name, from, subject, body, status, created_at, user_id) 
+		INSERT INTO campaigns (id, name, "from", subject, body, status, created_at, user_id) 
 		VALUES($1, $2, $3, $4, $5, $6, $7, $8)`)
 	if err != nil {
 		return err
@@ -65,7 +65,7 @@ func (r *Repository) Create(campaign Campaign) error {
 
 func (r *Repository) Save(campaign Campaign) error {
 
-	stmt, err := r.DB.Prepare("UPDATE campaigns name = $1, from = $2, subject = $3, body = $4, status = $5  WHERE id = $6")
+	stmt, err := r.DB.Prepare(`UPDATE campaigns SET name = $1, "from" = $2, subject = $3, body = $4, status = $5  WHERE id = $6`)
 	if err != nil {
 		return err
 	}

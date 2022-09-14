@@ -4,7 +4,7 @@ import (
 	"database/sql"
 )
 
-var queryBase string = "select \"id\", \"name\", \"email\", \"active\", \"created_at\", \"user_id\" from users"
+var queryBase string = "select id, name, email, active, created_at, user_id from contacts"
 
 type Repository struct {
 	DB *sql.DB
@@ -64,7 +64,7 @@ func (r *Repository) Create(contact Contact) error {
 
 func (r *Repository) Save(contact Contact) error {
 
-	stmt, err := r.DB.Prepare("UPDATE contacts name = $1, active = $2 WHERE id = $3")
+	stmt, err := r.DB.Prepare("UPDATE contacts SET name = $1, active = $2 WHERE id = $3")
 	if err != nil {
 		return err
 	}

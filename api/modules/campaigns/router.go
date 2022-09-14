@@ -2,13 +2,16 @@ package campaigns
 
 import (
 	"database/sql"
-	"github.com/gin-gonic/gin"
 	"subscribers/utils/web/middlewares"
+
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/gin-gonic/gin"
 )
 
-func ApplyRouter(router *gin.Engine, db *sql.DB) {
+func ApplyRouter(router *gin.Engine, db *sql.DB, session *session.Session) {
 	handler := Handler{
 		CampaignRepository: Repository{DB: db},
+		Session:            session,
 	}
 	secured := router.Group("").Use(middlewares.Auth())
 	{

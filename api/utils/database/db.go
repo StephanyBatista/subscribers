@@ -3,15 +3,13 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	migrate "github.com/rubenv/sql-migrate"
 	"log"
 	"os"
+
+	migrate "github.com/rubenv/sql-migrate"
 )
 
 func ApplyMigration(db *sql.DB) {
-	//db := getDb()
-	//db.AutoMigrate(&users.User{})
-
 	migrations := &migrate.FileMigrationSource{
 		Dir: "utils/database/migrations",
 	}

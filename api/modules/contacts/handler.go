@@ -1,11 +1,13 @@
 package contacts
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
 	"net/http"
 	"subscribers/modules/users"
 	"subscribers/utils/web"
 	"subscribers/utils/web/auth"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -26,6 +28,7 @@ func (h *Handler) Post(c *gin.Context) {
 	}
 	err := h.ContactRepository.Create(entity)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, web.NewInternalError())
 		return
 	}
@@ -46,6 +49,7 @@ func (h *Handler) GetById(c *gin.Context) {
 	entity, _ := h.ContactRepository.GetBy(id)
 	if entity.Id == "" {
 		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
+		return
 	}
 	c.JSON(http.StatusOK, entity)
 }
@@ -58,6 +62,7 @@ func (h *Handler) Cancel(c *gin.Context) {
 		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
 	}
 	entity.Cancel()
+	//TODO: validate err and create test
 	h.ContactRepository.Save(entity)
 	c.JSON(http.StatusOK, http.StatusOK)
 }
