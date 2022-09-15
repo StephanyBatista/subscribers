@@ -51,16 +51,8 @@ func (h *Handler) GetById(c *gin.Context) {
 		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
 		return
 	}
-	response := CampaignResponse{
-		ID:      entity.Id,
-		Name:    entity.Name,
-		Status:  entity.Status,
-		From:    entity.From,
-		Subject: entity.Subject,
-		Body:    entity.Body,
-	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, entity)
 }
 
 func (h *Handler) GetEmailsReport(c *gin.Context) {
