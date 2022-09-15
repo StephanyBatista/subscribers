@@ -1,11 +1,13 @@
 import { Routes, Route } from "react-router-dom";
 import { Campaigns } from "../../pages/Campaigns";
+import { CancelSubscription } from "../../pages/Campaigns/CancelSubscription";
 import { Create } from "../../pages/Campaigns/Create";
 import { Edit } from "../../pages/Campaigns/Edit";
 import { Contacts } from "../../pages/Contacts";
 import { CreateContact } from "../../pages/Contacts/Create";
 import { EditContact } from "../../pages/Contacts/Edit";
 import { Dashboard } from "../../pages/Dashboard";
+import { Profile } from "../../pages/Profile";
 import { Register } from "../../pages/Register";
 import { SingIn } from "../../pages/SingIn";
 import { NotFound } from "./NotFound";
@@ -20,6 +22,7 @@ export function AppRoute() {
             <Route path="register" element={<Register />} />
             <Route path="singin" element={<SingIn />} />
             <Route path="dashboard" element={<Private><Dashboard /></Private>} />
+            <Route path="profile" element={<Private><Profile /></Private>} />
             <Route path="campaigns" >
                 <Route path="create" element={<Create />} />
                 <Route path="edit/:campaignId" element={<Edit />} />
@@ -30,6 +33,7 @@ export function AppRoute() {
                 <Route path="edit/:contactId" element={<EditContact />} />
                 <Route index element={<Contacts />} />
             </Route>
+            <Route path="/subscription/:contactId" element={<CancelSubscription />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
     );
