@@ -7,13 +7,14 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"wemailprocess/data"
 	"wemailprocess/queue/types"
 
 	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
-func ListenChangedEmailStatus(queue IQueuebase, db *sql.DB) {
+func ListenChangedEmailStatus(queue IQueuebase, db *sql.DB, wg sync.WaitGroup) {
 	queueURL := os.Getenv("AWS_URL_QUEUE_CHANGED_EMAIL_STATUS")
 
 	for {
@@ -31,6 +32,7 @@ func ListenChangedEmailStatus(queue IQueuebase, db *sql.DB) {
 			}
 		}
 	}
+	wg.Done()
 }
 
 func processChangedEmailStatusMessage(message *sqs.Message, db *sql.DB) (bool, error) {

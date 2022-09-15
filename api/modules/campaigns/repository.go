@@ -29,6 +29,31 @@ func (r *Repository) GetBy(id string) (Campaign, error) {
 	return r.scan(rows)
 }
 
+func (r *Repository) GetEmailsReport(id string) (EmailsReport, error) {
+	rows, err := r.DB.Query(`select status from subscribers where campaign_id = $1`, id)
+	if err != nil {
+		return EmailsReport{}, err
+	}
+	defer rows.Close()
+	emailsReport := EmailsReport{}
+	for rows.Next() {
+		var status string
+		err := rows.Scan(&status)
+		if err != nil {
+			return EmailsReport{}, err
+		}
+		emailsReport.BaseOfSubscribers++
+		if status == "Delivery" {
+			emailsReport.Sent++
+		} else if status == "Open" {
+			emailsReport.Opened++
+		} else if status == "Bounce" {
+			emailsReport.NotSent++
+		}
+	}
+	return emailsReport, nil
+}
+
 func (r *Repository) ListBy(userId string) ([]Campaign, error) {
 
 	rows, err := r.DB.Query(queryBase+` where user_id = $1`, userId)

@@ -7,7 +7,7 @@ import (
 )
 
 func GetCampaignBy(db *sql.DB, id string) Campaign {
-	rows, err := db.Query(`select "id", "from", "subject", "body", "createdby_id" from campaigns where id = $1`, id)
+	rows, err := db.Query(`select "id", "from", "subject", "body", "user_id" from campaigns where id = $1`, id)
 	if err != nil {
 		log.Fatal("GetCampaignBy: ", err.Error())
 	}

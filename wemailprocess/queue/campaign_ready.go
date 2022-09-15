@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 	"wemailprocess/data"
 	"wemailprocess/mail"
 	"wemailprocess/queue/types"
@@ -15,7 +16,7 @@ import (
 	"github.com/rs/xid"
 )
 
-func ListenCampaignReady(queue IQueuebase, db *sql.DB) {
+func ListenCampaignReady(queue IQueuebase, db *sql.DB, wg sync.WaitGroup) {
 	queueURL := os.Getenv("AWS_URL_QUEUE_CAMPAIGN_READY")
 
 	for {
@@ -36,6 +37,7 @@ func ListenCampaignReady(queue IQueuebase, db *sql.DB) {
 			}
 		}
 	}
+	wg.Done()
 }
 
 func processCampaignReady(message *sqs.Message, session *session.Session, db *sql.DB) error {
@@ -53,7 +55,6 @@ func processCampaignReady(message *sqs.Message, session *session.Session, db *sq
 	contacts := data.GetContactsBy(db, campaign.CreatedById)
 
 	for _, contact := range contacts {
-		fmt.Println("processCampaignReady(): Get Contact: " + contact.Name)
 		subscriber := data.Subscriber{
 			Id:         xid.New().String(),
 			Email:      contact.Email,
@@ -63,7 +64,6 @@ func processCampaignReady(message *sqs.Message, session *session.Session, db *sq
 		}
 		providerKey := mail.Send(session, subscriber.Email, campaign.Subject, campaign.Body)
 		subscriber.ProviderEmailKey = providerKey
-		fmt.Println("ProviderEmailKey: ", providerKey)
 		data.SaveSubscriber(db, subscriber)
 		fmt.Println("processCampaignReady(): Save contact as subscriber: " + contact.Name)
 	}

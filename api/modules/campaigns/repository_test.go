@@ -47,6 +47,33 @@ func Test_repository_get_by_id(t *testing.T) {
 	assert.Equal(t, campaignExpected.UserId, campaign.UserId)
 }
 
+func Test_repository_get_emails_report(t *testing.T) {
+	baseOfSubscribers := 6
+	emailsSent := 2
+	emailsNotSent := 1
+	emailsOpened := 3
+	campaignId := "xt34"
+	rows := sqlmock.NewRows([]string{"status"}).
+		AddRow("Delivery").
+		AddRow("Delivery").
+		AddRow("Bounce").
+		AddRow("Open").
+		AddRow("Open").
+		AddRow("Open")
+	db, mock, _ := sqlmock.New()
+	mock.ExpectQuery(`select status from subscribers`).
+		WithArgs(campaignId).
+		WillReturnRows(rows)
+	repository := Repository{DB: db}
+
+	emailsReport, _ := repository.GetEmailsReport(campaignId)
+
+	assert.Equal(t, baseOfSubscribers, emailsReport.BaseOfSubscribers)
+	assert.Equal(t, emailsSent, emailsReport.Sent)
+	assert.Equal(t, emailsNotSent, emailsReport.NotSent)
+	assert.Equal(t, emailsOpened, emailsReport.Opened)
+}
+
 func Test_repository_list_by_id(t *testing.T) {
 
 	rows := sqlmock.NewRows([]string{"id", "name", "from", "subject", "body", "status", "created_at", "user_id"}).

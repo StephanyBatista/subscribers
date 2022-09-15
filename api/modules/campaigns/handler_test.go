@@ -31,7 +31,8 @@ func (a AnyTime) Match(v driver.Value) bool {
 func setupHandler() (*gin.Engine, *sql.DB, sqlmock.Sqlmock) {
 	db, mock, _ := sqlmock.New()
 	router := webtest.CreateRouter()
-	ApplyRouter(router, db)
+	//TODO: create fake session to test
+	ApplyRouter(router, db, nil)
 	return router, db, mock
 }
 

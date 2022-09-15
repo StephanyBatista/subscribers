@@ -7,7 +7,7 @@ import (
 )
 
 func SaveSubscriber(db *sql.DB, subscriber Subscriber) {
-	stmt, err := db.Prepare("INSERT INTO subscribers VALUES($1, Now(), Now(), $2, $3, $4, $5, $6)")
+	stmt, err := db.Prepare("INSERT INTO subscribers VALUES($1, Now(), $2, $3, $4, $5, $6)")
 	if err != nil {
 		log.Fatal(err)
 	}

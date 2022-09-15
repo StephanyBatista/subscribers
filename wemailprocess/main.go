@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sync"
 	"wemailprocess/data"
 	"wemailprocess/queue"
 
@@ -14,9 +15,11 @@ func main() {
 	session := queue.NewSession()
 	queueBase := queue.QueueBase{Session: session}
 
-	go queue.ListenCampaignReady(&queueBase, db)
-	go queue.ListenChangedEmailStatus(&queueBase, db)
+	var wg sync.WaitGroup
+	wg.Add(2)
 
-	for {
-	}
+	go queue.ListenCampaignReady(&queueBase, db, wg)
+	go queue.ListenChangedEmailStatus(&queueBase, db, wg)
+
+	wg.Wait()
 }
