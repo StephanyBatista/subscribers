@@ -27,8 +27,10 @@ func (r *Repository) GetByEmail(email string) (User, error) {
 	}
 	defer rows.Close()
 
-	rows.Next()
-	return r.scan(rows)
+	for rows.Next() {
+		return r.scan(rows)
+	}
+	return User{}, nil
 }
 
 func (r *Repository) Create(user User) error {

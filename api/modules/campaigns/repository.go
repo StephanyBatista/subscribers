@@ -4,7 +4,7 @@ import (
 	"database/sql"
 )
 
-var queryBase string = "select \"id\", \"name\", \"from\", \"subject\", \"body\", \"status\", \"created_at\", \"user_id\" from campaigns"
+var queryBase string = `select id, name, "from", subject, body, status, created_at, user_id from campaigns`
 
 type Repository struct {
 	DB *sql.DB
@@ -25,8 +25,10 @@ func (r *Repository) GetBy(id string) (Campaign, error) {
 		return Campaign{}, err
 	}
 	defer rows.Close()
-	rows.Next()
-	return r.scan(rows)
+	for rows.Next() {
+		return r.scan(rows)
+	}
+	return Campaign{}, nil
 }
 
 func (r *Repository) GetEmailsReport(id string) (EmailsReport, error) {

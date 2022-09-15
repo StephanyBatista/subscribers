@@ -13,11 +13,12 @@ func ApplyRouter(router *gin.Engine, db *sql.DB, session *session.Session) {
 		CampaignRepository: Repository{DB: db},
 		Session:            session,
 	}
-	secured := router.Group("").Use(middlewares.Auth())
+	secured := router.Group("campaigns").Use(middlewares.Auth())
 	{
-		secured.POST("/campaigns", handler.Post)
-		secured.GET("/campaigns/:id", handler.GetById)
-		secured.GET("/campaigns", handler.GetAll)
-		secured.POST("/campaigns/:campaignID/ready", handler.Ready)
+		secured.POST("", handler.Post)
+		secured.POST("/:id/ready", handler.Ready)
+		secured.GET("", handler.GetAll)
+		secured.GET("/:id", handler.GetById)
+		secured.GET("/:id/emailsreport", handler.GetEmailsReport)
 	}
 }

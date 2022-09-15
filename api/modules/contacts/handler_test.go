@@ -78,7 +78,7 @@ func Test_contact_get_all_clients(t *testing.T) {
 	userToken := webtest.UserToken{Id: "xpt233", Email: "test@teste.com", Name: "test"}
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "active", "created_at", "user_id"}).
 		AddRow("23s23", "test", "test@test.com.br", true, time.Now(), "2sd2")
-	mock.ExpectQuery(`select "id", "name", "email", "active", "created_at", "user_id" from users`).
+	mock.ExpectQuery(queryBase).
 		WithArgs(userToken.Id).
 		WillReturnRows(rows)
 
@@ -101,7 +101,7 @@ func Test_contact_get_by_id_return_client(t *testing.T) {
 	idExpected := "343"
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "active", "created_at", "user_id"}).
 		AddRow(idExpected, "test", "test@test.com.br", true, time.Now(), "2sd2")
-	mock.ExpectQuery(`select "id", "name", "email", "active", "created_at", "user_id" from users`).
+	mock.ExpectQuery(queryBase).
 		WithArgs(idExpected).
 		WillReturnRows(rows)
 
@@ -133,7 +133,7 @@ func Test_contact_cancel(t *testing.T) {
 	idExpected := "343"
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "active", "created_at", "user_id"}).
 		AddRow(idExpected, "test", "test@test.com.br", true, time.Now(), "2sd2")
-	mock.ExpectQuery(`select "id", "name", "email", "active", "created_at", "user_id" from users`).
+	mock.ExpectQuery(queryBase).
 		WithArgs(idExpected).
 		WillReturnRows(rows)
 	mock.

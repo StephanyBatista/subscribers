@@ -60,20 +60,32 @@ func (h *Handler) GetById(c *gin.Context) {
 		Body:    entity.Body,
 	}
 
-	//TODO: Create new query to return the numbers of campaign
-	//subscribers := h.SubscriberRepository.List(campaigns.Subscriber{CampaignID: entity.ID})
-	//if subscribers != nil {
-	//	for _, subscriber := range *subscribers {
-	//		response.BaseOfSubscribers++
-	//		if subscriber.Status == campaigns2.Sent {
-	//			response.TotalSent++
-	//		} else if subscriber.Status == campaigns2.Read {
-	//			response.TotalRead++
-	//		}
-	//	}
-	//}
-
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *Handler) GetEmailsReport(c *gin.Context) {
+	id := c.Param("id")
+
+	claim, _ := auth.GetClaimFromToken(c.GetHeader("Authorization"))
+
+	entity, err := h.CampaignRepository.GetBy(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, web.NewInternalError())
+		return
+	}
+	if entity.Id == "" || claim.UserId != entity.UserId {
+		log.Println("Campaign not found")
+		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
+		return
+	}
+
+	report, err := h.CampaignRepository.GetEmailsReport(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, web.NewInternalError())
+		return
+	}
+
+	c.JSON(http.StatusOK, report)
 }
 
 func (h *Handler) GetAll(c *gin.Context) {

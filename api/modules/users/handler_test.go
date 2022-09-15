@@ -36,7 +36,7 @@ func Test_user_post_validate_when_email_is_being_used(t *testing.T) {
 	emailExpected := "teste@teste.com"
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "password_hash", "createdAt"}).
 		AddRow("xpt1", "test", emailExpected, "xptiwe", time.Now())
-	mock.ExpectQuery(`select "id", "name", "email", "password_hash", "created_at" from users`).
+	mock.ExpectQuery(queryBase).
 		WithArgs(emailExpected).
 		WillReturnRows(rows)
 
@@ -120,7 +120,7 @@ func Test_user_change_password_check_old_password(t *testing.T) {
 	userToken := webtest.UserToken{Name: "test1", Email: "test1@test.com"}
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "password_hash", "createdAt"}).
 		AddRow("xpt1", "test", userToken.Email, "password_different", time.Now())
-	mock.ExpectQuery(`select "id", "name", "email", "password_hash", "created_at" from users`).
+	mock.ExpectQuery(queryBase).
 		WithArgs(userToken.Email).
 		WillReturnRows(rows)
 	changePassword := ChangePassword{NewPassword: "test", OldPassword: "password"}
@@ -139,7 +139,7 @@ func Test_user_must_change_password(t *testing.T) {
 	user, _ := NewUser(userToken.Name, userToken.Email, oldPassword)
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "password_hash", "createdAt"}).
 		AddRow("xpt1", "test", userToken.Email, user.PasswordHash, time.Now())
-	mock.ExpectQuery(`select "id", "name", "email", "password_hash", "created_at" from users`).
+	mock.ExpectQuery(queryBase).
 		WithArgs(userToken.Email).
 		WillReturnRows(rows)
 	changePassword := ChangePassword{NewPassword: "test", OldPassword: oldPassword}
@@ -183,7 +183,7 @@ func Test_token_post_generate_jwt(t *testing.T) {
 	}
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "password_hash", "createdAt"}).
 		AddRow("xpt1", "test", body.Email, user.PasswordHash, time.Now())
-	mock.ExpectQuery(`select "id", "name", "email", "password_hash", "created_at" from users`).
+	mock.ExpectQuery(queryBase).
 		WithArgs(body.Email).
 		WillReturnRows(rows)
 

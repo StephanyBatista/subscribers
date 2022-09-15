@@ -26,8 +26,10 @@ func (r *Repository) GetBy(id string) (Contact, error) {
 	}
 	defer rows.Close()
 
-	rows.Next()
-	return r.scan(rows)
+	for rows.Next() {
+		return r.scan(rows)
+	}
+	return Contact{}, nil
 }
 
 func (r *Repository) ListBy(userId string) ([]Contact, error) {
