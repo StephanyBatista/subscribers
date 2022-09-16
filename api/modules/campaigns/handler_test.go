@@ -3,19 +3,38 @@ package campaigns
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"net/http"
-	"subscribers/utils/webtest"
+	"os"
+	"subscribers/commun/webtest"
 	"testing"
 )
+
+type queueMock struct {
+	queueURLReceived string
+	bodyReceived     string
+	errorMock        error
+}
+
+func (q *queueMock) Send(queueURL, body string) error {
+	q.queueURLReceived = queueURL
+	q.bodyReceived = body
+	if q.errorMock != nil {
+		return q.errorMock
+	}
+	return nil
+}
+
+var queueTest *queueMock = &queueMock{}
 
 func setupHandler() (*gin.Engine, *sql.DB, sqlmock.Sqlmock) {
 	db, mock, _ := sqlmock.New()
 	router := webtest.CreateRouter()
 	//TODO: create fake session to test
-	ApplyRouter(router, db, nil)
+	ApplyRouter(router, db, queueTest)
 	return router, db, mock
 }
 
@@ -216,4 +235,60 @@ func Test_campaign_get_all_not_found(t *testing.T) {
 	response := webtest.BufferToString(w.Body)
 	assert.Contains(t, response, "Not found")
 	assert.Equal(t, http.StatusNotFound, w.Result().StatusCode)
+}
+
+func Test_http_campaign_set_to_ready_must_validate_status(t *testing.T) {
+	router, _, mock := setupHandler()
+	campaign, _ := NewCampaign("Name", "teste@teste.com.br", "Subject!", "Body of message!", "443rt1")
+	campaign.Ready()
+	mock.ExpectQuery(queryBase).
+		WithArgs(campaign.Id).
+		WillReturnRows(createCampaignsRows(campaign))
+
+	userToken := webtest.UserToken{Id: campaign.UserId, Email: "teste@teste.com.br", Name: "test"}
+	w := webtest.MakeTestHTTP(router, "POST", "/campaigns/"+campaign.Id+"/ready", nil, webtest.GenerateTokenWithUser(userToken))
+	response := webtest.BufferToString(w.Body)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, response, "Campaign with invalid status")
+}
+
+func Test_http_campaign_set_to_ready(t *testing.T) {
+	router, _, mock := setupHandler()
+	campaign, _ := NewCampaign("Name", "teste@teste.com.br", "Subject!", "Body of message!", "443rt1")
+	mock.ExpectQuery(queryBase).
+		WithArgs(campaign.Id).
+		WillReturnRows(createCampaignsRows(campaign))
+	mock.ExpectPrepare("UPDATE campaigns").
+		ExpectExec().
+		WithArgs(sqlmock.AnyArg(),
+			campaign.Name,
+			campaign.From,
+			campaign.Subject,
+			campaign.Body,
+			Ready,
+			campaign.Id).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	userToken := webtest.UserToken{Id: campaign.UserId, Email: "teste@teste.com.br", Name: "test"}
+	w := webtest.MakeTestHTTP(router, "POST", "/campaigns/"+campaign.Id+"/ready", nil, webtest.GenerateTokenWithUser(userToken))
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func Test_http_campaign_set_to_ready_must_create_message_on_queue(t *testing.T) {
+	queueURLExpected := "url_test"
+	os.Setenv("AWS_URL_QUEUE_CAMPAIGN_READY", queueURLExpected)
+	router, _, mock := setupHandler()
+	campaign, _ := NewCampaign("Name", "teste@teste.com.br", "Subject!", "Body of message!", "443rt1")
+	mock.ExpectQuery(queryBase).
+		WithArgs(campaign.Id).
+		WillReturnRows(createCampaignsRows(campaign))
+
+	userToken := webtest.UserToken{Id: campaign.UserId, Email: "teste@teste.com.br", Name: "test"}
+	w := webtest.MakeTestHTTP(router, "POST", "/campaigns/"+campaign.Id+"/ready", nil, webtest.GenerateTokenWithUser(userToken))
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, queueURLExpected, queueTest.queueURLReceived)
+	assert.Equal(t, fmt.Sprintf(`{"Id": "%s"}`, campaign.Id), queueTest.bodyReceived)
 }

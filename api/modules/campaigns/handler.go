@@ -5,18 +5,16 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"subscribers/utils/web"
-	"subscribers/utils/web/auth"
+	"subscribers/commun/queue"
+	"subscribers/commun/web"
+	"subscribers/commun/web/auth"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
 	CampaignRepository Repository
-	Session            *session.Session
+	Queue              queue.IQueue
 }
 
 func (h *Handler) Post(c *gin.Context) {
@@ -94,24 +92,18 @@ func (h *Handler) GetAll(c *gin.Context) {
 
 func (h *Handler) Ready(c *gin.Context) {
 
-	campaignId := c.Param("campaignID")
+	campaignId := c.Param("id")
 	campaign, _ := h.CampaignRepository.GetBy(campaignId)
 	if campaign.Id == "" {
 		c.JSON(http.StatusNotFound, web.NewErrorReponse("Not found"))
 		return
 	} else if campaign.Status != Draft {
-		c.JSON(http.StatusBadRequest, web.NewErrorReponse("Campaigns is with different status"))
+		c.JSON(http.StatusBadRequest, web.NewErrorReponse("Campaign with invalid status"))
 		return
 	}
 
-	sqsClient := sqs.New(h.Session)
-
 	messageBody := fmt.Sprintf(`{"Id": "%s"}`, campaignId)
-	_, err := sqsClient.SendMessage(&sqs.SendMessageInput{
-		QueueUrl:    aws.String(os.Getenv("AWS_URL_QUEUE_CAMPAIGN_READY")),
-		MessageBody: aws.String(messageBody),
-	})
-
+	err := h.Queue.Send(os.Getenv("AWS_URL_QUEUE_CAMPAIGN_READY"), messageBody)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, web.NewErrorReponse("Error to save on queue"))
 		return

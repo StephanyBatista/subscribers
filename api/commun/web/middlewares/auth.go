@@ -2,8 +2,8 @@ package middlewares
 
 import (
 	"github.com/gin-gonic/gin"
-	"subscribers/utils/web"
-	"subscribers/utils/web/auth"
+	"subscribers/commun/web"
+	"subscribers/commun/web/auth"
 )
 
 func Auth() gin.HandlerFunc {

@@ -3,9 +3,9 @@ package contacts
 import (
 	"fmt"
 	"net/http"
+	"subscribers/commun/web"
+	"subscribers/commun/web/auth"
 	"subscribers/modules/users"
-	"subscribers/utils/web"
-	"subscribers/utils/web/auth"
 
 	"github.com/gin-gonic/gin"
 )

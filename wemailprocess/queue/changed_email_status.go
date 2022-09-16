@@ -49,7 +49,7 @@ func processChangedEmailStatusMessage(message *sqs.Message, db *sql.DB) (bool, e
 	if err != nil {
 		return false, errors.New("processMessage() error json type MessageEventResponse: " + err.Error())
 	}
-	fmt.Println("EventType", messageResponse.EventType)
+	fmt.Println("EventType ", messageResponse.EventType)
 	fmt.Println("MessageId", messageResponse.Mail.MessageId)
 	updated, _ := data.UpdateStatusSubscriber(db, messageResponse.EventType, messageResponse.Mail.MessageId)
 	return updated, nil

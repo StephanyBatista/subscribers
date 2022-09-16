@@ -3,7 +3,7 @@ package contacts
 import (
 	"database/sql"
 	"net/http"
-	"subscribers/utils/webtest"
+	"subscribers/commun/webtest"
 	"testing"
 	"time"
 

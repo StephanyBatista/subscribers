@@ -3,7 +3,7 @@ package files
 import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	"subscribers/utils/web/middlewares"
+	"subscribers/commun/web/middlewares"
 )
 
 func ApplyRouter(router *gin.Engine, db *sql.DB) {

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"subscribers/utils/web/auth"
+	"subscribers/commun/web/auth"
 )
 
 func FakeEnvs() {

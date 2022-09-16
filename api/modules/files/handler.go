@@ -3,8 +3,8 @@ package files
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"subscribers/utils/storage"
-	"subscribers/utils/web"
+	"subscribers/commun/storage"
+	"subscribers/commun/web"
 )
 
 type Handler struct {

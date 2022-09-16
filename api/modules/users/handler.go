@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"subscribers/utils/web"
-	"subscribers/utils/web/auth"
+	"subscribers/commun/web"
+	"subscribers/commun/web/auth"
 )
 
 type Handler struct {

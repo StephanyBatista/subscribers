@@ -11,7 +11,7 @@ import (
 
 func ApplyMigration(db *sql.DB) {
 	migrations := &migrate.FileMigrationSource{
-		Dir: "utils/database/migrations",
+		Dir: "commun/database/migrations",
 	}
 	n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
 	if err != nil {

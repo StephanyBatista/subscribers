@@ -3,8 +3,8 @@ package contacts
 import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
+	"subscribers/commun/web/middlewares"
 	"subscribers/modules/users"
-	"subscribers/utils/web/middlewares"
 )
 
 func ApplyRouter(router *gin.Engine, db *sql.DB) {
