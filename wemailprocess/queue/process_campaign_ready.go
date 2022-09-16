@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-	"sync"
 	"wemailprocess/data"
 	"wemailprocess/mail"
 	"wemailprocess/queue/types"
@@ -15,30 +13,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/rs/xid"
 )
-
-func ListenCampaignReady(queue IQueuebase, db *sql.DB, wg sync.WaitGroup) {
-	queueURL := os.Getenv("AWS_URL_QUEUE_CAMPAIGN_READY")
-
-	for {
-		msgResult, err := queue.GetMessages(queueURL)
-		if err != nil {
-			fmt.Println("Error svc.ReceiveMessage: ", err.Error())
-		}
-
-		if msgResult != nil {
-			for _, item := range msgResult.Messages {
-				fmt.Println("ListenCampaignReady(): A new message arrived")
-				err := processCampaignReady(item, queue.GetSession(), db)
-				if err != nil {
-					fmt.Println(err.Error())
-				} else {
-					queue.DeleteMessage(queueURL, *item.ReceiptHandle)
-				}
-			}
-		}
-	}
-	wg.Done()
-}
 
 func processCampaignReady(message *sqs.Message, session *session.Session, db *sql.DB) error {
 	var response types.CampaignReadyResponse

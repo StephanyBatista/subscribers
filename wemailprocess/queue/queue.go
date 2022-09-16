@@ -6,22 +6,22 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
-type IQueuebase interface {
+type IQueue interface {
 	GetSession() *session.Session
 	GetMessages(queueURL string) (*sqs.ReceiveMessageOutput, error)
 	DeleteMessage(queueUrl string, receiptHandle string)
 }
 
-type QueueBase struct {
+type Queue struct {
 	Session *session.Session
 	SQS     *sqs.SQS
 }
 
-func (q *QueueBase) GetSession() *session.Session {
+func (q *Queue) GetSession() *session.Session {
 	return q.Session
 }
 
-func (q *QueueBase) GetMessages(queueURL string) (*sqs.ReceiveMessageOutput, error) {
+func (q *Queue) GetMessages(queueURL string) (*sqs.ReceiveMessageOutput, error) {
 	if q.SQS == nil {
 		q.SQS = sqs.New(q.Session)
 	}
@@ -34,7 +34,7 @@ func (q *QueueBase) GetMessages(queueURL string) (*sqs.ReceiveMessageOutput, err
 	return msgResult, err
 }
 
-func (q *QueueBase) DeleteMessage(queueURL string, receiptHandle string) {
+func (q *Queue) DeleteMessage(queueURL string, receiptHandle string) {
 
 	q.SQS.DeleteMessage(
 		&sqs.DeleteMessageInput{QueueUrl: aws.String(queueURL), ReceiptHandle: aws.String(receiptHandle)})

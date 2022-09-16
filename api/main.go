@@ -2,6 +2,7 @@ package main
 
 import (
 	"subscribers/commun/database"
+	"subscribers/commun/queue"
 	"subscribers/commun/webtest"
 	"subscribers/modules/campaigns"
 	"subscribers/modules/contacts"
@@ -21,7 +22,7 @@ func main() {
 	r := webtest.CreateRouter()
 	users.ApplyRouter(r, db)
 	contacts.ApplyRouter(r, db)
-	campaigns.ApplyRouter(r, db)
+	campaigns.ApplyRouter(r, db, &queue.Queue{})
 	healtchcheck.ApplyRouter(r, db)
 	files.ApplyRouter(r, db)
 

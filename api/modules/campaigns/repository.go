@@ -48,6 +48,7 @@ func (r *Repository) GetEmailsReport(id string) (EmailsReport, error) {
 		if status == "Delivery" {
 			emailsReport.Sent++
 		} else if status == "Open" {
+			emailsReport.Sent++
 			emailsReport.Opened++
 		} else if status == "Bounce" {
 			emailsReport.NotSent++
