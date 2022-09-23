@@ -31,11 +31,14 @@ interface CampaignData {
     id: string;
     name: string;
     status: string | boolean;
-    baseofSubscribers: number;
-    totalRead: number;
-    totalSent: number;
     attachmentURL?: string;
 
+}
+interface staticEmailCompaing {
+    BaseOfSubscribers: number;
+    NotSent: number;
+    Opened: number;
+    Sent: number;
 }
 
 const validation = Yup.object().shape({
@@ -48,6 +51,7 @@ const validation = Yup.object().shape({
 
 export function Edit() {
     const [campaign, setCampaign] = useState({} as CampaignData);
+    const [statics, setStatics] = useState({} as staticEmailCompaing);
     const [isLoading, setIsLoading] = useState(true);
     const [isSendEmail, setIsSendEmail] = useState(false);
     const [updateState, setUpdateState] = useState(false);
@@ -72,7 +76,7 @@ export function Edit() {
 
     const handleSendEmails = useCallback(async () => {
         setIsSendEmail(true);
-        api.post(`campaigns/${campaignId}/send`)
+        api.post(`campaigns/${campaignId}/ready`)
             .then((response) => {
 
                 if (response.data) {
@@ -143,7 +147,7 @@ export function Edit() {
         try {
             api.get<CampaignData>(`campaigns/${campaignId}`, { signal: controller.signal })
                 .then((response) => {
-                    console.log(response)
+
                     setCampaign({
                         body: response.data.body,
                         subject: response.data.subject,
@@ -152,12 +156,32 @@ export function Edit() {
                         from: response.data.from,
                         id: response.data.id,
                         name: response.data.name,
-                        totalSent: response.data.totalSent,
-                        totalRead: response.data.totalRead,
-                        baseofSubscribers: response.data.baseofSubscribers,
                         status: response.data.status,
                         attachmentURL: response.data.attachmentURL,
                     })
+                }).catch(err => console.log(err))
+                .finally(() => setIsLoading(false));
+        } catch (error) {
+
+        }
+
+        return () => { controller.abort() };
+
+    }, [updateState]);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        try {
+            api.get<staticEmailCompaing>(`campaigns/${campaignId}/emailsreport`, { signal: controller.signal })
+                .then((response) => {
+
+                    setStatics({
+                        BaseOfSubscribers: response.data.BaseOfSubscribers,
+                        NotSent: response.data.NotSent,
+                        Opened: response.data.Opened,
+                        Sent: response.data.Sent,
+                    })
+
                 }).catch(err => console.log(err))
                 .finally(() => setIsLoading(false));
         } catch (error) {
@@ -237,7 +261,7 @@ export function Edit() {
 
                 <Flex
                     w="100%"
-                    maxW={[350, 800]}
+                    maxW={[350, 1200]}
                     ml={["-10", ""]}
                     mb="5"
                     justify="space-between"
@@ -252,12 +276,12 @@ export function Edit() {
                 </Flex>
                 <Flex
                     w="100%"
-                    maxW={[350, 800]}
+                    maxW={[350, 1200]}
                     ml={["-10", ""]}
                     mb="5"
                     justify="space-between"
                     align="center">
-                    <Grid templateColumns={["1fr", "1fr 1fr 1fr"]} w="100%" gap="4" >
+                    <Grid templateColumns={["1fr", "1fr 1fr 1fr 1fr"]} w="100%" gap="4" >
                         <GridItem >
                             <Flex
                                 bg="gray.800"
@@ -271,7 +295,7 @@ export function Edit() {
                                 justify="space-between">
                                 <Text fontSize="small" fontWeight="semibold">Total de Clientes</Text>
                                 <Divider />
-                                <Text fontSize="3xl" fontWeight="semibold" color="green">{campaign?.baseofSubscribers}</Text>
+                                <Text fontSize="3xl" fontWeight="semibold" color="green">{statics.BaseOfSubscribers}</Text>
                             </Flex>
                         </GridItem>
                         <GridItem >
@@ -287,7 +311,7 @@ export function Edit() {
                                 justify="space-between">
                                 <Text fontSize="small" fontWeight="semibold">Total enviados</Text>
                                 <Divider />
-                                <Text fontSize="3xl" fontWeight="semibold" color="blue">{campaign?.totalSent}</Text>
+                                <Text fontSize="3xl" fontWeight="semibold" color="blue">{statics.Sent}</Text>
                             </Flex>
                         </GridItem>
                         <GridItem >
@@ -303,7 +327,23 @@ export function Edit() {
                                 justify="space-between">
                                 <Text fontSize="small" fontWeight="semibold">Totais abertos</Text>
                                 <Divider />
-                                <Text fontSize="3xl" fontWeight="semibold" color="yellow">{campaign?.totalRead}</Text>
+                                <Text fontSize="3xl" fontWeight="semibold" color="yellow">{statics.Opened}</Text>
+                            </Flex>
+                        </GridItem>
+                        <GridItem >
+                            <Flex
+                                bg="gray.800"
+                                px="2"
+                                py="2"
+                                w="100%"
+                                h="100px"
+                                maxHeight={150}
+                                align="center"
+                                flexDirection="column"
+                                justify="space-between">
+                                <Text fontSize="small" fontWeight="semibold">Não enviados</Text>
+                                <Divider />
+                                <Text fontSize="3xl" fontWeight="semibold" color="red">{statics.NotSent}</Text>
                             </Flex>
                         </GridItem>
                     </Grid>
@@ -314,7 +354,7 @@ export function Edit() {
                     py={["4", "8"]}
                     h="100%"
                     w="100%"
-                    maxW={[350, 800]}
+                    maxW={[350, 1200]}
                     justify="space-between"
                     // mx="auto"
                     bg="gray.800"
@@ -328,7 +368,7 @@ export function Edit() {
                             <GridItem>
                                 <Input
                                     {...register('name')}
-                                    isDisabled={campaign?.status === 'Draft' ? false : true}
+                                    isDisabled={campaign?.status === 'ready' ? false : true}
                                     error={errors.name}
                                     type="text"
                                     label="Nome"
@@ -338,7 +378,7 @@ export function Edit() {
                             <GridItem>
                                 <Input
                                     {...register('subject')}
-                                    isDisabled={campaign?.status === 'Draft' ? false : true}
+                                    isDisabled={campaign?.status === 'ready' ? false : true}
                                     error={errors.subject}
                                     type="text"
                                     label="Assunto"
@@ -351,7 +391,7 @@ export function Edit() {
                             <GridItem>
                                 <Input
                                     {...register('from')}
-                                    isDisabled={campaign?.status === 'Draft' ? false : true}
+                                    isDisabled={campaign?.status === 'ready' ? false : true}
                                     error={errors.from}
                                     type="email"
                                     label="De"
@@ -406,7 +446,7 @@ export function Edit() {
                                              children={<Icon as={AiOutlinePaperClip} fontSize="20" />}
                                          />
                                          <Input
-                                             isDisabled={campaign?.status === 'Draft' ? false : true}
+                                             isDisabled={campaign?.status === 'ready' ? false : true}
                                              type="file"
                                              name="file"
                                              accept="application/pdf,application/msword,.docx"
@@ -423,7 +463,7 @@ export function Edit() {
                             <FormLabel>Texto</FormLabel>
                             <Textarea
                                 {...register('body')}
-                                isDisabled={campaign?.status === 'Draft' ? false : true}
+                                isDisabled={campaign?.status === 'ready' ? false : true}
                                 resize="none"
                                 bg="gray.950"
                                 border="none"
@@ -445,7 +485,7 @@ export function Edit() {
                     <Flex mt="10" justify="space-between" >
                         <HStack >
                             <Button
-                                disabled={campaign?.status === 'Draft' ? false : true}
+                                disabled={campaign?.status === 'ready' ? false : true}
                                 type="submit"
                                 transition="filter 0.2s"
                                 _hover={{ filter: "brightness(0.9)" }}
@@ -453,7 +493,7 @@ export function Edit() {
                             >Atualizar
                             </Button>
                             <Button
-                                disabled={campaign?.status === 'Draft' ? false : true}
+                                disabled={campaign?.status === 'ready' ? false : true}
                                 type="submit"
                                 transition="filter 0.2s"
                                 _hover={{ filter: "brightness(0.9)" }}
@@ -462,7 +502,7 @@ export function Edit() {
                             >Disparar E-mails
                             </Button>
                         </HStack>
-                        <Text fontSize="small" fontWeight="semibold" color="gray.300">Status: {campaign.status === "Processing" && "Processando" || campaign.status === "Draft" && "Rascunho"}</Text>
+                        <Text fontSize="small" fontWeight="semibold" color="gray.300">Status: {campaign.status === "Processing" && "Processando" || campaign.status === "Ready" && "Pronto"}</Text>
                     </Flex>
 
                 </Flex>
